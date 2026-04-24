@@ -1,0 +1,2731 @@
+{
+  "version": 1,
+  "settings": {
+    "theme": "light",
+    "accentColor": "#4a86e8"
+  },
+  "projects": [
+    {
+      "id": "project-finance-2027",
+      "title": "Финансовая стабилизация до 2027",
+      "statType": "finance",
+      "showOnDashboard": true,
+      "phase": "active",
+      "groups": [
+        {
+          "id": "group-finance-credit",
+          "projectId": "project-finance-2027",
+          "title": "Кредит",
+          "tasks": [
+            {
+              "id": "group-finance-credit-task-1",
+              "groupId": "group-finance-credit",
+              "projectId": "project-finance-2027",
+              "title": "Зафиксировать дату окончания кредита: начало 2027",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-finance-credit-task-2",
+              "groupId": "group-finance-credit",
+              "projectId": "project-finance-2027",
+              "title": "Вести платежи по кредиту",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-finance-credit-task-3",
+              "groupId": "group-finance-credit",
+              "projectId": "project-finance-2027",
+              "title": "Отслеживать остаток по кредиту",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-finance-credit-task-4",
+              "groupId": "group-finance-credit",
+              "projectId": "project-finance-2027",
+              "title": "Подготовить план действий после закрытия кредита",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 0,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-finance-budget",
+          "projectId": "project-finance-2027",
+          "title": "Бюджет",
+          "tasks": [
+            {
+              "id": "group-finance-budget-task-1",
+              "groupId": "group-finance-budget",
+              "projectId": "project-finance-2027",
+              "title": "Рассчитать текущие обязательные расходы",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-finance-budget-task-2",
+              "groupId": "group-finance-budget",
+              "projectId": "project-finance-2027",
+              "title": "Рассчитать свободный бюджет после кредита",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-finance-budget-task-3",
+              "groupId": "group-finance-budget",
+              "projectId": "project-finance-2027",
+              "title": "Определить ежемесячную сумму на обучение после 2027",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 1,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-finance-reserve",
+          "projectId": "project-finance-2027",
+          "title": "Резерв",
+          "tasks": [
+            {
+              "id": "group-finance-reserve-task-1",
+              "groupId": "group-finance-reserve",
+              "projectId": "project-finance-2027",
+              "title": "Создать резерв на первый платный этап",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-finance-reserve-task-2",
+              "groupId": "group-finance-reserve",
+              "projectId": "project-finance-2027",
+              "title": "Создать резерв на непредвиденные расходы",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-finance-reserve-task-3",
+              "groupId": "group-finance-reserve",
+              "projectId": "project-finance-2027",
+              "title": "Определить минимальную финансовую подушку",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 2,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-finance-education-cost",
+          "projectId": "project-finance-2027",
+          "title": "Стоимость образовательного пути",
+          "tasks": [
+            {
+              "id": "group-finance-education-cost-task-1",
+              "groupId": "group-finance-education-cost",
+              "projectId": "project-finance-2027",
+              "title": "Рассчитать стартовые расходы на UoPeople",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-finance-education-cost-task-2",
+              "groupId": "group-finance-education-cost",
+              "projectId": "project-finance-2027",
+              "title": "Учесть registration fee UoPeople $60",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-finance-education-cost-task-3",
+              "groupId": "group-finance-education-cost",
+              "projectId": "project-finance-2027",
+              "title": "Учесть 40 курсов UoPeople по $160",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-finance-education-cost-task-4",
+              "groupId": "group-finance-education-cost",
+              "projectId": "project-finance-2027",
+              "title": "Зафиксировать общую стоимость UoPeople $6,460",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 3,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-finance-immigration-cost",
+          "projectId": "project-finance-2027",
+          "title": "Стоимость иммиграционного пути",
+          "tasks": [
+            {
+              "id": "group-finance-immigration-cost-task-1",
+              "groupId": "group-finance-immigration-cost",
+              "projectId": "project-finance-2027",
+              "title": "Рассчитать расходы на IELTS",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-finance-immigration-cost-task-2",
+              "groupId": "group-finance-immigration-cost",
+              "projectId": "project-finance-2027",
+              "title": "Рассчитать расходы на ECA / WES",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-finance-immigration-cost-task-3",
+              "groupId": "group-finance-immigration-cost",
+              "projectId": "project-finance-2027",
+              "title": "Рассчитать расходы на документы и переводы",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-finance-immigration-cost-task-4",
+              "groupId": "group-finance-immigration-cost",
+              "projectId": "project-finance-2027",
+              "title": "Рассчитать будущие иммиграционные сборы",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 4,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "project-duolingo-8-modules",
+      "title": "Duolingo — 8 модулей",
+      "statType": "language",
+      "showOnDashboard": true,
+      "phase": "active",
+      "groups": [
+        {
+          "id": "group-duolingo-module-1",
+          "projectId": "project-duolingo-8-modules",
+          "title": "Модуль 1 — Hello!",
+          "tasks": [
+            {
+              "id": "group-duolingo-module-1-task-1",
+              "groupId": "group-duolingo-module-1",
+              "projectId": "project-duolingo-8-modules",
+              "title": "Продолжить модуль 1 с текущего прогресса 56%",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-duolingo-module-1-task-2",
+              "groupId": "group-duolingo-module-1",
+              "projectId": "project-duolingo-8-modules",
+              "title": "Довести модуль 1 до 100%",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-duolingo-module-1-task-3",
+              "groupId": "group-duolingo-module-1",
+              "projectId": "project-duolingo-8-modules",
+              "title": "Зафиксировать фактическое количество разделов модуля 1",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 0,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-duolingo-module-2",
+          "projectId": "project-duolingo-8-modules",
+          "title": "Модуль 2 — I’m starting to learn English",
+          "tasks": [
+            {
+              "id": "group-duolingo-module-2-task-1",
+              "groupId": "group-duolingo-module-2",
+              "projectId": "project-duolingo-8-modules",
+              "title": "Пройти 26 разделов модуля 2",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-duolingo-module-2-task-2",
+              "groupId": "group-duolingo-module-2",
+              "projectId": "project-duolingo-8-modules",
+              "title": "Зафиксировать завершение модуля 2",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 1,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-duolingo-module-3",
+          "projectId": "project-duolingo-8-modules",
+          "title": "Модуль 3 — I know some words in English",
+          "tasks": [
+            {
+              "id": "group-duolingo-module-3-task-1",
+              "groupId": "group-duolingo-module-3",
+              "projectId": "project-duolingo-8-modules",
+              "title": "Пройти 25 разделов модуля 3",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-duolingo-module-3-task-2",
+              "groupId": "group-duolingo-module-3",
+              "projectId": "project-duolingo-8-modules",
+              "title": "Зафиксировать завершение модуля 3",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 2,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-duolingo-module-4",
+          "projectId": "project-duolingo-8-modules",
+          "title": "Модуль 4 — структура требует уточнения",
+          "tasks": [
+            {
+              "id": "group-duolingo-module-4-task-1",
+              "groupId": "group-duolingo-module-4",
+              "projectId": "project-duolingo-8-modules",
+              "title": "Уточнить количество разделов модуля 4",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-duolingo-module-4-task-2",
+              "groupId": "group-duolingo-module-4",
+              "projectId": "project-duolingo-8-modules",
+              "title": "Пройти все разделы модуля 4",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-duolingo-module-4-task-3",
+              "groupId": "group-duolingo-module-4",
+              "projectId": "project-duolingo-8-modules",
+              "title": "Зафиксировать завершение модуля 4",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 3,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-duolingo-module-5",
+          "projectId": "project-duolingo-8-modules",
+          "title": "Модуль 5 — Daily life in English",
+          "tasks": [
+            {
+              "id": "group-duolingo-module-5-task-1",
+              "groupId": "group-duolingo-module-5",
+              "projectId": "project-duolingo-8-modules",
+              "title": "Пройти 255 разделов модуля 5",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-duolingo-module-5-task-2",
+              "groupId": "group-duolingo-module-5",
+              "projectId": "project-duolingo-8-modules",
+              "title": "Зафиксировать завершение модуля 5",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 4,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-duolingo-module-6",
+          "projectId": "project-duolingo-8-modules",
+          "title": "Модуль 6 — Context-appropriate expression",
+          "tasks": [
+            {
+              "id": "group-duolingo-module-6-task-1",
+              "groupId": "group-duolingo-module-6",
+              "projectId": "project-duolingo-8-modules",
+              "title": "Пройти 260 разделов модуля 6",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-duolingo-module-6-task-2",
+              "groupId": "group-duolingo-module-6",
+              "projectId": "project-duolingo-8-modules",
+              "title": "Зафиксировать завершение модуля 6",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 5,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-duolingo-module-7",
+          "projectId": "project-duolingo-8-modules",
+          "title": "Модуль 7 — Abstract topics",
+          "tasks": [
+            {
+              "id": "group-duolingo-module-7-task-1",
+              "groupId": "group-duolingo-module-7",
+              "projectId": "project-duolingo-8-modules",
+              "title": "Пройти 180 разделов модуля 7",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-duolingo-module-7-task-2",
+              "groupId": "group-duolingo-module-7",
+              "projectId": "project-duolingo-8-modules",
+              "title": "Зафиксировать завершение модуля 7",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 6,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-duolingo-module-8",
+          "projectId": "project-duolingo-8-modules",
+          "title": "Модуль 8 — Spontaneous expression",
+          "tasks": [
+            {
+              "id": "group-duolingo-module-8-task-1",
+              "groupId": "group-duolingo-module-8",
+              "projectId": "project-duolingo-8-modules",
+              "title": "Пройти 180 разделов модуля 8",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-duolingo-module-8-task-2",
+              "groupId": "group-duolingo-module-8",
+              "projectId": "project-duolingo-8-modules",
+              "title": "Зафиксировать завершение модуля 8",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 7,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-duolingo-daily-review",
+          "projectId": "project-duolingo-8-modules",
+          "title": "Ежедневное повторение",
+          "tasks": [
+            {
+              "id": "group-duolingo-daily-review-task-1",
+              "groupId": "group-duolingo-daily-review",
+              "projectId": "project-duolingo-8-modules",
+              "title": "Открыть ежедневное повторение после завершения курса",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-duolingo-daily-review-task-2",
+              "groupId": "group-duolingo-daily-review",
+              "projectId": "project-duolingo-8-modules",
+              "title": "Поддерживать ежедневное повторение после прохождения 8 модулей",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 8,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "project-skillbox-android",
+      "title": "Skillbox — Профессия Android-разработчик",
+      "statType": "skills",
+      "showOnDashboard": true,
+      "phase": "active",
+      "groups": [
+        {
+          "id": "group-skillbox-kotlin",
+          "projectId": "project-skillbox-android",
+          "title": "Kotlin",
+          "tasks": [
+            {
+              "id": "group-skillbox-kotlin-task-1",
+              "groupId": "group-skillbox-kotlin",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Интро",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-kotlin-task-2",
+              "groupId": "group-skillbox-kotlin",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Введение",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-kotlin-task-3",
+              "groupId": "group-skillbox-kotlin",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Переменные",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-kotlin-task-4",
+              "groupId": "group-skillbox-kotlin",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Функции",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-kotlin-task-5",
+              "groupId": "group-skillbox-kotlin",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Условия и циклы",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-kotlin-task-6",
+              "groupId": "group-skillbox-kotlin",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Коллекции",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-kotlin-task-7",
+              "groupId": "group-skillbox-kotlin",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Объекты",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-kotlin-task-8",
+              "groupId": "group-skillbox-kotlin",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: ООП. Инкапсуляция и наследование",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-kotlin-task-9",
+              "groupId": "group-skillbox-kotlin",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: ООП. Абстракции",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-kotlin-task-10",
+              "groupId": "group-skillbox-kotlin",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: ООП. Интерфейсы и полиморфизм",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-kotlin-task-11",
+              "groupId": "group-skillbox-kotlin",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Сравнение типов",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-kotlin-task-12",
+              "groupId": "group-skillbox-kotlin",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Исключения",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-kotlin-task-13",
+              "groupId": "group-skillbox-kotlin",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Корутины",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-kotlin-task-14",
+              "groupId": "group-skillbox-kotlin",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Потоки данных",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-kotlin-task-15",
+              "groupId": "group-skillbox-kotlin",
+              "projectId": "project-skillbox-android",
+              "title": "Завершить практикум курса «Kotlin»",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 0,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-skillbox-android-l1",
+          "projectId": "project-skillbox-android",
+          "title": "Android-разработчик. Уровень 1",
+          "tasks": [
+            {
+              "id": "group-skillbox-android-l1-task-1",
+              "groupId": "group-skillbox-android-l1",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Начало работы",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l1-task-2",
+              "groupId": "group-skillbox-android-l1",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Вёрстка экранов",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l1-task-3",
+              "groupId": "group-skillbox-android-l1",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: ConstraintLayout",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l1-task-4",
+              "groupId": "group-skillbox-android-l1",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Основные компоненты пользовательского интерфейса",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l1-task-5",
+              "groupId": "group-skillbox-android-l1",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Ресурсы проекта",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l1-task-6",
+              "groupId": "group-skillbox-android-l1",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Экраны приложения",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l1-task-7",
+              "groupId": "group-skillbox-android-l1",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Фрагменты",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l1-task-8",
+              "groupId": "group-skillbox-android-l1",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Анимация",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l1-task-9",
+              "groupId": "group-skillbox-android-l1",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Локализация приложений",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l1-task-10",
+              "groupId": "group-skillbox-android-l1",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Основы хранения данных",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l1-task-11",
+              "groupId": "group-skillbox-android-l1",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Архитектура презентационного слоя",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l1-task-12",
+              "groupId": "group-skillbox-android-l1",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Работа с сетью + Retrofit",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l1-task-13",
+              "groupId": "group-skillbox-android-l1",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Работа со списками",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l1-task-14",
+              "groupId": "group-skillbox-android-l1",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Работа с БД Room",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l1-task-15",
+              "groupId": "group-skillbox-android-l1",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Работа с защищёнными разделами ОС",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l1-task-16",
+              "groupId": "group-skillbox-android-l1",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Работа с геопозиционированием",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l1-task-17",
+              "groupId": "group-skillbox-android-l1",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Firebase",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l1-task-18",
+              "groupId": "group-skillbox-android-l1",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Jetpack Compose",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l1-task-19",
+              "groupId": "group-skillbox-android-l1",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Тестирование",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l1-task-20",
+              "groupId": "group-skillbox-android-l1",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Подготовка к релизу",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l1-task-21",
+              "groupId": "group-skillbox-android-l1",
+              "projectId": "project-skillbox-android",
+              "title": "Завершить финальную работу уровня 1",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 1,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-skillbox-android-l2",
+          "projectId": "project-skillbox-android",
+          "title": "Android-разработчик. Уровень 2",
+          "tasks": [
+            {
+              "id": "group-skillbox-android-l2-task-1",
+              "groupId": "group-skillbox-android-l2",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Интро к курсу",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l2-task-2",
+              "groupId": "group-skillbox-android-l2",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Создаём собственные View и анимации",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l2-task-3",
+              "groupId": "group-skillbox-android-l2",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: RecyclerView. Работа со списками",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l2-task-4",
+              "groupId": "group-skillbox-android-l2",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Jetpack Compose",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l2-task-5",
+              "groupId": "group-skillbox-android-l2",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Продвинутое внедрение зависимостей / Dependency Injection / Dagger 2",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l2-task-6",
+              "groupId": "group-skillbox-android-l2",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Выполнение задач в фоне",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l2-task-7",
+              "groupId": "group-skillbox-android-l2",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Принципы программирования",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l2-task-8",
+              "groupId": "group-skillbox-android-l2",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Шаблоны проектирования",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l2-task-9",
+              "groupId": "group-skillbox-android-l2",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Паттерны презентационного слоя",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l2-task-10",
+              "groupId": "group-skillbox-android-l2",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Тестирование",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l2-task-11",
+              "groupId": "group-skillbox-android-l2",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Выход приложения",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l2-task-12",
+              "groupId": "group-skillbox-android-l2",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Code review на продвинутом уровне",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-l2-task-13",
+              "groupId": "group-skillbox-android-l2",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Утечки памяти и статические анализаторы",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 2,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-skillbox-git",
+          "projectId": "project-skillbox-android",
+          "title": "Система контроля версий Git",
+          "tasks": [
+            {
+              "id": "group-skillbox-git-task-1",
+              "groupId": "group-skillbox-git",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти курс «Система контроля версий Git»",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-git-task-2",
+              "groupId": "group-skillbox-git",
+              "projectId": "project-skillbox-android",
+              "title": "Уточнить модули курса Git",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 3,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-skillbox-sql",
+          "projectId": "project-skillbox-android",
+          "title": "Основы SQL",
+          "tasks": [
+            {
+              "id": "group-skillbox-sql-task-1",
+              "groupId": "group-skillbox-sql",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти курс «Основы SQL»",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-sql-task-2",
+              "groupId": "group-skillbox-sql",
+              "projectId": "project-skillbox-android",
+              "title": "Уточнить модули курса SQL",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 4,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-skillbox-android-extra",
+          "projectId": "project-skillbox-android",
+          "title": "Android-разработчик. Дополнительные материалы",
+          "tasks": [
+            {
+              "id": "group-skillbox-android-extra-task-1",
+              "groupId": "group-skillbox-android-extra",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Принципы программирования",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-extra-task-2",
+              "groupId": "group-skillbox-android-extra",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Code review на продвинутом уровне",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-extra-task-3",
+              "groupId": "group-skillbox-android-extra",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Выполнение задач в фоне",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-extra-task-4",
+              "groupId": "group-skillbox-android-extra",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Архитектура проекта",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-android-extra-task-5",
+              "groupId": "group-skillbox-android-extra",
+              "projectId": "project-skillbox-android",
+              "title": "Пройти: Продвинутое внедрение зависимостей / Dependency Injection / Dagger 2",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 5,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-skillbox-portfolio-after",
+          "projectId": "project-skillbox-android",
+          "title": "Практика и портфолио после Skillbox",
+          "tasks": [
+            {
+              "id": "group-skillbox-portfolio-after-task-1",
+              "groupId": "group-skillbox-portfolio-after",
+              "projectId": "project-skillbox-android",
+              "title": "Выбрать лучшие учебные работы для портфолио",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-portfolio-after-task-2",
+              "groupId": "group-skillbox-portfolio-after",
+              "projectId": "project-skillbox-android",
+              "title": "Перенести учебные проекты в GitHub",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-portfolio-after-task-3",
+              "groupId": "group-skillbox-portfolio-after",
+              "projectId": "project-skillbox-android",
+              "title": "Оформить README для каждого проекта",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-portfolio-after-task-4",
+              "groupId": "group-skillbox-portfolio-after",
+              "projectId": "project-skillbox-android",
+              "title": "Добавить screenshots/demo",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-portfolio-after-task-5",
+              "groupId": "group-skillbox-portfolio-after",
+              "projectId": "project-skillbox-android",
+              "title": "Выделить итоговый Android-проект",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-skillbox-portfolio-after-task-6",
+              "groupId": "group-skillbox-portfolio-after",
+              "projectId": "project-skillbox-android",
+              "title": "Связать результаты Skillbox с проектом Android Portfolio & GitHub",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 6,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "project-android-portfolio-github",
+      "title": "Android Portfolio & GitHub",
+      "statType": "skills",
+      "showOnDashboard": true,
+      "phase": "active",
+      "groups": [
+        {
+          "id": "group-portfolio-github-setup",
+          "projectId": "project-android-portfolio-github",
+          "title": "GitHub setup",
+          "tasks": [
+            {
+              "id": "group-portfolio-github-setup-task-1",
+              "groupId": "group-portfolio-github-setup",
+              "projectId": "project-android-portfolio-github",
+              "title": "Оформить GitHub profile",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-portfolio-github-setup-task-2",
+              "groupId": "group-portfolio-github-setup",
+              "projectId": "project-android-portfolio-github",
+              "title": "Настроить pinned repositories",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-portfolio-github-setup-task-3",
+              "groupId": "group-portfolio-github-setup",
+              "projectId": "project-android-portfolio-github",
+              "title": "Добавить краткое описание профиля",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 0,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-portfolio-pet",
+          "projectId": "project-android-portfolio-github",
+          "title": "Pet-проекты",
+          "tasks": [
+            {
+              "id": "group-portfolio-pet-task-1",
+              "groupId": "group-portfolio-pet",
+              "projectId": "project-android-portfolio-github",
+              "title": "Создать первый Android pet-проект",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-portfolio-pet-task-2",
+              "groupId": "group-portfolio-pet",
+              "projectId": "project-android-portfolio-github",
+              "title": "Создать второй Android pet-проект",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-portfolio-pet-task-3",
+              "groupId": "group-portfolio-pet",
+              "projectId": "project-android-portfolio-github",
+              "title": "Выбрать идею проекта для демонстрации Android skills",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 1,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-portfolio-readme",
+          "projectId": "project-android-portfolio-github",
+          "title": "README / документация",
+          "tasks": [
+            {
+              "id": "group-portfolio-readme-task-1",
+              "groupId": "group-portfolio-readme",
+              "projectId": "project-android-portfolio-github",
+              "title": "Написать README для первого проекта",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-portfolio-readme-task-2",
+              "groupId": "group-portfolio-readme",
+              "projectId": "project-android-portfolio-github",
+              "title": "Добавить screenshots/demo",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-portfolio-readme-task-3",
+              "groupId": "group-portfolio-readme",
+              "projectId": "project-android-portfolio-github",
+              "title": "Описать стек и архитектуру проектов",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 2,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-portfolio-opensource",
+          "projectId": "project-android-portfolio-github",
+          "title": "Open-source",
+          "tasks": [
+            {
+              "id": "group-portfolio-opensource-task-1",
+              "groupId": "group-portfolio-opensource",
+              "projectId": "project-android-portfolio-github",
+              "title": "Найти Android open-source проекты для изучения",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-portfolio-opensource-task-2",
+              "groupId": "group-portfolio-opensource",
+              "projectId": "project-android-portfolio-github",
+              "title": "Сделать первый небольшой contribution",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 3,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-portfolio-code-quality",
+          "projectId": "project-android-portfolio-github",
+          "title": "Code quality",
+          "tasks": [
+            {
+              "id": "group-portfolio-code-quality-task-1",
+              "groupId": "group-portfolio-code-quality",
+              "projectId": "project-android-portfolio-github",
+              "title": "Настроить базовый lint / formatting",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-portfolio-code-quality-task-2",
+              "groupId": "group-portfolio-code-quality",
+              "projectId": "project-android-portfolio-github",
+              "title": "Проверить структуру проектов перед публикацией",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 4,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-portfolio-presentation",
+          "projectId": "project-android-portfolio-github",
+          "title": "Portfolio presentation",
+          "tasks": [
+            {
+              "id": "group-portfolio-presentation-task-1",
+              "groupId": "group-portfolio-presentation",
+              "projectId": "project-android-portfolio-github",
+              "title": "Подготовить портфолио для работодателей",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-portfolio-presentation-task-2",
+              "groupId": "group-portfolio-presentation",
+              "projectId": "project-android-portfolio-github",
+              "title": "Связать портфолио с будущим резюме и LinkedIn",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 5,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "project-uopeople-bachelor-cs",
+      "title": "UoPeople Bachelor CS",
+      "statType": "intelligence",
+      "showOnDashboard": true,
+      "phase": "later",
+      "groups": [
+        {
+          "id": "group-uopeople-online-app",
+          "projectId": "project-uopeople-bachelor-cs",
+          "title": "Онлайн-заявка",
+          "tasks": [
+            {
+              "id": "group-uopeople-online-app-task-1",
+              "groupId": "group-uopeople-online-app",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Перейти на сайт UoPeople",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-uopeople-online-app-task-2",
+              "groupId": "group-uopeople-online-app",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Заполнить Apply Now",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-uopeople-online-app-task-3",
+              "groupId": "group-uopeople-online-app",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Выбрать Bachelor’s Degree in Computer Science",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-uopeople-online-app-task-4",
+              "groupId": "group-uopeople-online-app",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Указать, что английский не родной",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-uopeople-online-app-task-5",
+              "groupId": "group-uopeople-online-app",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Не загружать IELTS/TOEFL",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-uopeople-online-app-task-6",
+              "groupId": "group-uopeople-online-app",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Получить доступ к Student Portal",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 0,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-uopeople-registration-fee",
+          "projectId": "project-uopeople-bachelor-cs",
+          "title": "Registration fee $60",
+          "tasks": [
+            {
+              "id": "group-uopeople-registration-fee-task-1",
+              "groupId": "group-uopeople-registration-fee",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Подготовить оплату registration fee",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-uopeople-registration-fee-task-2",
+              "groupId": "group-uopeople-registration-fee",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Оплатить registration fee $60",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-uopeople-registration-fee-task-3",
+              "groupId": "group-uopeople-registration-fee",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Проверить, что заявка поступила в обработку",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 1,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-uopeople-admissions-pathway",
+          "projectId": "project-uopeople-bachelor-cs",
+          "title": "Admissions Pathway",
+          "tasks": [
+            {
+              "id": "group-uopeople-admissions-pathway-task-1",
+              "groupId": "group-uopeople-admissions-pathway",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Проверить назначенный Admissions Pathway",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-uopeople-admissions-pathway-task-2",
+              "groupId": "group-uopeople-admissions-pathway",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Подтвердить старт через English Foundations",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 2,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-uopeople-english-foundations",
+          "projectId": "project-uopeople-bachelor-cs",
+          "title": "English Foundations",
+          "tasks": [
+            {
+              "id": "group-uopeople-english-foundations-task-1",
+              "groupId": "group-uopeople-english-foundations",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Начать English Foundations",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-uopeople-english-foundations-task-2",
+              "groupId": "group-uopeople-english-foundations",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Пройти English Foundations",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 3,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-uopeople-foundations",
+          "projectId": "project-uopeople-bachelor-cs",
+          "title": "UoPeople Foundations",
+          "tasks": [
+            {
+              "id": "group-uopeople-foundations-task-1",
+              "groupId": "group-uopeople-foundations",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Пройти UNIV 1001",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-uopeople-foundations-task-2",
+              "groupId": "group-uopeople-foundations",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Пройти CS 1101",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-uopeople-foundations-task-3",
+              "groupId": "group-uopeople-foundations",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Получить средний балл не ниже 2.0",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 4,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-uopeople-diploma-translate",
+          "projectId": "project-uopeople-bachelor-cs",
+          "title": "Аттестат и перевод",
+          "tasks": [
+            {
+              "id": "group-uopeople-diploma-translate-task-1",
+              "groupId": "group-uopeople-diploma-translate",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Подготовить аттестат",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-uopeople-diploma-translate-task-2",
+              "groupId": "group-uopeople-diploma-translate",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Подготовить нотариальный перевод",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-uopeople-diploma-translate-task-3",
+              "groupId": "group-uopeople-diploma-translate",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Загрузить документы в Student Portal",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-uopeople-diploma-translate-task-4",
+              "groupId": "group-uopeople-diploma-translate",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Дождаться верификации аттестата",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 5,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-uopeople-bachelor",
+          "projectId": "project-uopeople-bachelor-cs",
+          "title": "Bachelor CS",
+          "tasks": [
+            {
+              "id": "group-uopeople-bachelor-task-1",
+              "groupId": "group-uopeople-bachelor",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Получить Degree Seeking Student status",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-uopeople-bachelor-task-2",
+              "groupId": "group-uopeople-bachelor",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Спланировать 40 курсов",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-uopeople-bachelor-task-3",
+              "groupId": "group-uopeople-bachelor",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Определить реалистичную нагрузку по курсам",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 6,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-uopeople-40-courses-cost",
+          "projectId": "project-uopeople-bachelor-cs",
+          "title": "Стоимость 40 курсов",
+          "tasks": [
+            {
+              "id": "group-uopeople-40-courses-cost-task-1",
+              "groupId": "group-uopeople-40-courses-cost",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Учесть 40 курсов × $160",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-uopeople-40-courses-cost-task-2",
+              "groupId": "group-uopeople-40-courses-cost",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Учесть общую стоимость $6,460",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-uopeople-40-courses-cost-task-3",
+              "groupId": "group-uopeople-40-courses-cost",
+              "projectId": "project-uopeople-bachelor-cs",
+              "title": "Связать расходы с финансовым планом",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 7,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "project-ielts-clb9",
+      "title": "IELTS General / CLB 9",
+      "statType": "language",
+      "showOnDashboard": false,
+      "phase": "later",
+      "groups": [
+        {
+          "id": "group-ielts-clb9-target",
+          "projectId": "project-ielts-clb9",
+          "title": "CLB 9 target",
+          "tasks": [
+            {
+              "id": "group-ielts-clb9-target-task-1",
+              "groupId": "group-ielts-clb9-target",
+              "projectId": "project-ielts-clb9",
+              "title": "Зафиксировать цель CLB 9",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-ielts-clb9-target-task-2",
+              "groupId": "group-ielts-clb9-target",
+              "projectId": "project-ielts-clb9",
+              "title": "Изучить шкалу IELTS → CLB",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 0,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-ielts-listening",
+          "projectId": "project-ielts-clb9",
+          "title": "Listening",
+          "tasks": [
+            {
+              "id": "group-ielts-listening-task-1",
+              "groupId": "group-ielts-listening",
+              "projectId": "project-ielts-clb9",
+              "title": "Listening target: 8.0",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-ielts-listening-task-2",
+              "groupId": "group-ielts-listening",
+              "projectId": "project-ielts-clb9",
+              "title": "Начать регулярную практику listening",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 1,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-ielts-reading",
+          "projectId": "project-ielts-clb9",
+          "title": "Reading",
+          "tasks": [
+            {
+              "id": "group-ielts-reading-task-1",
+              "groupId": "group-ielts-reading",
+              "projectId": "project-ielts-clb9",
+              "title": "Reading target: 7.0",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-ielts-reading-task-2",
+              "groupId": "group-ielts-reading",
+              "projectId": "project-ielts-clb9",
+              "title": "Начать регулярную практику reading",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 2,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-ielts-writing",
+          "projectId": "project-ielts-clb9",
+          "title": "Writing",
+          "tasks": [
+            {
+              "id": "group-ielts-writing-task-1",
+              "groupId": "group-ielts-writing",
+              "projectId": "project-ielts-clb9",
+              "title": "Writing target: 7.0",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-ielts-writing-task-2",
+              "groupId": "group-ielts-writing",
+              "projectId": "project-ielts-clb9",
+              "title": "Изучить формат IELTS General Writing",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 3,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-ielts-speaking",
+          "projectId": "project-ielts-clb9",
+          "title": "Speaking",
+          "tasks": [
+            {
+              "id": "group-ielts-speaking-task-1",
+              "groupId": "group-ielts-speaking",
+              "projectId": "project-ielts-clb9",
+              "title": "Speaking target: 7.0",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-ielts-speaking-task-2",
+              "groupId": "group-ielts-speaking",
+              "projectId": "project-ielts-clb9",
+              "title": "Начать регулярную speaking practice",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 4,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-ielts-mock",
+          "projectId": "project-ielts-clb9",
+          "title": "Mock tests",
+          "tasks": [
+            {
+              "id": "group-ielts-mock-task-1",
+              "groupId": "group-ielts-mock",
+              "projectId": "project-ielts-clb9",
+              "title": "Начать подготовку минимум за год до подачи",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-ielts-mock-task-2",
+              "groupId": "group-ielts-mock",
+              "projectId": "project-ielts-clb9",
+              "title": "Проходить mock tests",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-ielts-mock-task-3",
+              "groupId": "group-ielts-mock",
+              "projectId": "project-ielts-clb9",
+              "title": "Использовать UoPeople как ежедневную практику английского",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 5,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-ielts-booking",
+          "projectId": "project-ielts-clb9",
+          "title": "Exam booking",
+          "tasks": [
+            {
+              "id": "group-ielts-booking-task-1",
+              "groupId": "group-ielts-booking",
+              "projectId": "project-ielts-clb9",
+              "title": "Выбрать дату IELTS General",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-ielts-booking-task-2",
+              "groupId": "group-ielts-booking",
+              "projectId": "project-ielts-clb9",
+              "title": "Забронировать IELTS General",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-ielts-booking-task-3",
+              "groupId": "group-ielts-booking",
+              "projectId": "project-ielts-clb9",
+              "title": "Сдать IELTS General",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 6,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "project-android-work-experience",
+      "title": "Android Work Experience / NOC 21232",
+      "statType": "career",
+      "showOnDashboard": true,
+      "phase": "strategic",
+      "groups": [
+        {
+          "id": "group-work-junior",
+          "projectId": "project-android-work-experience",
+          "title": "Junior jobs",
+          "tasks": [
+            {
+              "id": "group-work-junior-task-1",
+              "groupId": "group-work-junior",
+              "projectId": "project-android-work-experience",
+              "title": "Изучить требования NOC 21232",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-work-junior-task-2",
+              "groupId": "group-work-junior",
+              "projectId": "project-android-work-experience",
+              "title": "Подготовить резюме Android-разработчика",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-work-junior-task-3",
+              "groupId": "group-work-junior",
+              "projectId": "project-android-work-experience",
+              "title": "Подготовить LinkedIn",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-work-junior-task-4",
+              "groupId": "group-work-junior",
+              "projectId": "project-android-work-experience",
+              "title": "Искать Junior Android позиции",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 0,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-work-internships",
+          "projectId": "project-android-work-experience",
+          "title": "Internships",
+          "tasks": [
+            {
+              "id": "group-work-internships-task-1",
+              "groupId": "group-work-internships",
+              "projectId": "project-android-work-experience",
+              "title": "Искать стажировки",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-work-internships-task-2",
+              "groupId": "group-work-internships",
+              "projectId": "project-android-work-experience",
+              "title": "Подготовить список компаний для стажировок",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 1,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-work-freelance",
+          "projectId": "project-android-work-experience",
+          "title": "Freelance / contracts",
+          "tasks": [
+            {
+              "id": "group-work-freelance-task-1",
+              "groupId": "group-work-freelance",
+              "projectId": "project-android-work-experience",
+              "title": "Рассмотреть freelance / contract",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-work-freelance-task-2",
+              "groupId": "group-work-freelance",
+              "projectId": "project-android-work-experience",
+              "title": "Собрать примеры задач для freelance-портфолио",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 2,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-work-documentation",
+          "projectId": "project-android-work-experience",
+          "title": "Experience documentation",
+          "tasks": [
+            {
+              "id": "group-work-documentation-task-1",
+              "groupId": "group-work-documentation",
+              "projectId": "project-android-work-experience",
+              "title": "Собирать документы по опыту",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-work-documentation-task-2",
+              "groupId": "group-work-documentation",
+              "projectId": "project-android-work-experience",
+              "title": "Фиксировать оплачиваемые проекты",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-work-documentation-task-3",
+              "groupId": "group-work-documentation",
+              "projectId": "project-android-work-experience",
+              "title": "Накопить 1 год оплачиваемого опыта",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 3,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-work-references",
+          "projectId": "project-android-work-experience",
+          "title": "Reference letters",
+          "tasks": [
+            {
+              "id": "group-work-references-task-1",
+              "groupId": "group-work-references",
+              "projectId": "project-android-work-experience",
+              "title": "Изучить требования к reference letters",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-work-references-task-2",
+              "groupId": "group-work-references",
+              "projectId": "project-android-work-experience",
+              "title": "Подготовить шаблон reference letter",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 4,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-work-noc",
+          "projectId": "project-android-work-experience",
+          "title": "NOC 21232 alignment",
+          "tasks": [
+            {
+              "id": "group-work-noc-task-1",
+              "groupId": "group-work-noc",
+              "projectId": "project-android-work-experience",
+              "title": "Сопоставить обязанности с NOC 21232",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-work-noc-task-2",
+              "groupId": "group-work-noc",
+              "projectId": "project-android-work-experience",
+              "title": "Проверить, что опыт подходит под Software developers and programmers",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 5,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "project-express-entry-pnp",
+      "title": "Express Entry / PNP Canada",
+      "statType": "adventure",
+      "showOnDashboard": false,
+      "phase": "strategic",
+      "groups": [
+        {
+          "id": "group-ee-profile",
+          "projectId": "project-express-entry-pnp",
+          "title": "Express Entry profile",
+          "tasks": [
+            {
+              "id": "group-ee-profile-task-1",
+              "groupId": "group-ee-profile",
+              "projectId": "project-express-entry-pnp",
+              "title": "Изучить Express Entry",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-ee-profile-task-2",
+              "groupId": "group-ee-profile",
+              "projectId": "project-express-entry-pnp",
+              "title": "Создать Express Entry profile после готовности IELTS/ECA/опыта",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 0,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-ee-stem",
+          "projectId": "project-express-entry-pnp",
+          "title": "STEM draws",
+          "tasks": [
+            {
+              "id": "group-ee-stem-task-1",
+              "groupId": "group-ee-stem",
+              "projectId": "project-express-entry-pnp",
+              "title": "Отслеживать STEM draws",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-ee-stem-task-2",
+              "groupId": "group-ee-stem",
+              "projectId": "project-express-entry-pnp",
+              "title": "Проверить актуальность NOC 21232 для STEM",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 1,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-ee-crs",
+          "projectId": "project-express-entry-pnp",
+          "title": "CRS",
+          "tasks": [
+            {
+              "id": "group-ee-crs-task-1",
+              "groupId": "group-ee-crs",
+              "projectId": "project-express-entry-pnp",
+              "title": "Изучить CRS",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-ee-crs-task-2",
+              "groupId": "group-ee-crs",
+              "projectId": "project-express-entry-pnp",
+              "title": "Рассчитать примерный CRS score",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 2,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-ee-bc-pnp",
+          "projectId": "project-express-entry-pnp",
+          "title": "BC PNP Tech",
+          "tasks": [
+            {
+              "id": "group-ee-bc-pnp-task-1",
+              "groupId": "group-ee-bc-pnp",
+              "projectId": "project-express-entry-pnp",
+              "title": "Изучить BC PNP Tech",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-ee-bc-pnp-task-2",
+              "groupId": "group-ee-bc-pnp",
+              "projectId": "project-express-entry-pnp",
+              "title": "Проверить требования к Job Offer",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 3,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-ee-oinp",
+          "projectId": "project-express-entry-pnp",
+          "title": "OINP",
+          "tasks": [
+            {
+              "id": "group-ee-oinp-task-1",
+              "groupId": "group-ee-oinp",
+              "projectId": "project-express-entry-pnp",
+              "title": "Изучить OINP Human Capital Priorities",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-ee-oinp-task-2",
+              "groupId": "group-ee-oinp",
+              "projectId": "project-express-entry-pnp",
+              "title": "Отслеживать IT-направления OINP",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 4,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-ee-job-offer",
+          "projectId": "project-express-entry-pnp",
+          "title": "Job Offer strategy",
+          "tasks": [
+            {
+              "id": "group-ee-job-offer-task-1",
+              "groupId": "group-ee-job-offer",
+              "projectId": "project-express-entry-pnp",
+              "title": "Подготовить стратегию Job Offer",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-ee-job-offer-task-2",
+              "groupId": "group-ee-job-offer",
+              "projectId": "project-express-entry-pnp",
+              "title": "Изучить канадский рынок Android/Software Developer вакансий",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 5,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-ee-ita",
+          "projectId": "project-express-entry-pnp",
+          "title": "ITA / nomination",
+          "tasks": [
+            {
+              "id": "group-ee-ita-task-1",
+              "groupId": "group-ee-ita",
+              "projectId": "project-express-entry-pnp",
+              "title": "Отслеживать ITA",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-ee-ita-task-2",
+              "groupId": "group-ee-ita",
+              "projectId": "project-express-entry-pnp",
+              "title": "Отслеживать PNP nomination",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 6,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "project-documents-eca-wes",
+      "title": "Документы / ECA / WES",
+      "statType": "lifestyle",
+      "showOnDashboard": false,
+      "phase": "strategic",
+      "groups": [
+        {
+          "id": "group-docs-passport",
+          "projectId": "project-documents-eca-wes",
+          "title": "Паспорт",
+          "tasks": [
+            {
+              "id": "group-docs-passport-task-1",
+              "groupId": "group-docs-passport",
+              "projectId": "project-documents-eca-wes",
+              "title": "Проверить загранпаспорт",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-docs-passport-task-2",
+              "groupId": "group-docs-passport",
+              "projectId": "project-documents-eca-wes",
+              "title": "Проверить срок действия паспорта",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 0,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-docs-education",
+          "projectId": "project-documents-eca-wes",
+          "title": "Образовательные документы",
+          "tasks": [
+            {
+              "id": "group-docs-education-task-1",
+              "groupId": "group-docs-education",
+              "projectId": "project-documents-eca-wes",
+              "title": "Подготовить образовательные документы",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-docs-education-task-2",
+              "groupId": "group-docs-education",
+              "projectId": "project-documents-eca-wes",
+              "title": "Сохранить копии дипломов и аттестата",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 1,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-docs-translations",
+          "projectId": "project-documents-eca-wes",
+          "title": "Переводы",
+          "tasks": [
+            {
+              "id": "group-docs-translations-task-1",
+              "groupId": "group-docs-translations",
+              "projectId": "project-documents-eca-wes",
+              "title": "Подготовить переводы",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-docs-translations-task-2",
+              "groupId": "group-docs-translations",
+              "projectId": "project-documents-eca-wes",
+              "title": "Проверить требования к нотариальному заверению",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 2,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-docs-eca",
+          "projectId": "project-documents-eca-wes",
+          "title": "ECA / WES",
+          "tasks": [
+            {
+              "id": "group-docs-eca-task-1",
+              "groupId": "group-docs-eca",
+              "projectId": "project-documents-eca-wes",
+              "title": "После диплома заказать ECA",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-docs-eca-task-2",
+              "groupId": "group-docs-eca",
+              "projectId": "project-documents-eca-wes",
+              "title": "Отправить диплом и transcript в WES",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-docs-eca-task-3",
+              "groupId": "group-docs-eca",
+              "projectId": "project-documents-eca-wes",
+              "title": "Получить ECA report",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 3,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-docs-employment",
+          "projectId": "project-documents-eca-wes",
+          "title": "Employment proof",
+          "tasks": [
+            {
+              "id": "group-docs-employment-task-1",
+              "groupId": "group-docs-employment",
+              "projectId": "project-documents-eca-wes",
+              "title": "Подготовить employment proof",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-docs-employment-task-2",
+              "groupId": "group-docs-employment",
+              "projectId": "project-documents-eca-wes",
+              "title": "Сохранить контракты и подтверждения оплаты",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 4,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "group-docs-package",
+          "projectId": "project-documents-eca-wes",
+          "title": "Immigration package",
+          "tasks": [
+            {
+              "id": "group-docs-package-task-1",
+              "groupId": "group-docs-package",
+              "projectId": "project-documents-eca-wes",
+              "title": "Собрать immigration package",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            },
+            {
+              "id": "group-docs-package-task-2",
+              "groupId": "group-docs-package",
+              "projectId": "project-documents-eca-wes",
+              "title": "Проверить полноту документов перед подачей",
+              "completed": false,
+              "createdAt": "2026-04-25T00:00:00.000Z",
+              "updatedAt": "2026-04-25T00:00:00.000Z"
+            }
+          ],
+          "order": 5,
+          "createdAt": "2026-04-25T00:00:00.000Z",
+          "updatedAt": "2026-04-25T00:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    }
+  ],
+  "habits": [
+    {
+      "id": "habit-duolingo-daily",
+      "name": "Duolingo daily practice",
+      "description": "Ежедневно проходить уроки Duolingo, чтобы двигаться по 8 модулям и поддерживать стабильный языковой прогресс.",
+      "dailyStatus": {},
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "habit-skillbox-android",
+      "name": "Skillbox Android study",
+      "description": "Ежедневно проходить материалы курса Skillbox \"Профессия Android-разработчик\".",
+      "dailyStatus": {},
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "habit-android-coding",
+      "name": "Android coding practice",
+      "description": "Регулярно писать код и закреплять Android/Kotlin навыки практикой.",
+      "dailyStatus": {},
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "habit-english-listen-read",
+      "name": "English listening / reading",
+      "description": "Поддерживать ежедневный контакт с английским через listening и reading.",
+      "dailyStatus": {},
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "habit-financial-tracking",
+      "name": "Financial tracking",
+      "description": "Отслеживать кредит, расходы и подготовку бюджета к этапам после 2027.",
+      "dailyStatus": {},
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "habit-github-portfolio",
+      "name": "GitHub / portfolio touch",
+      "description": "Регулярно улучшать GitHub, README, pet-проекты и портфолио.",
+      "dailyStatus": {},
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "habit-canada-research",
+      "name": "Canada / immigration research",
+      "description": "Периодически изучать Express Entry, PNP, NOC 21232 и требования к документам.",
+      "dailyStatus": {},
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    }
+  ],
+  "milestones": [
+    {
+      "id": "milestone-credit-paid",
+      "projectId": "project-finance-2027",
+      "title": "Credit fully paid",
+      "date": "2027-01-01",
+      "completed": false,
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "milestone-duolingo-8",
+      "projectId": "project-duolingo-8-modules",
+      "title": "Duolingo 8 modules completed",
+      "date": "2027-06-30",
+      "completed": false,
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "milestone-skillbox-done",
+      "projectId": "project-skillbox-android",
+      "title": "Skillbox Android course completed",
+      "date": "2027-06-30",
+      "completed": false,
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "milestone-first-portfolio",
+      "projectId": "project-android-portfolio-github",
+      "title": "First Android portfolio project completed",
+      "date": "2027-09-30",
+      "completed": false,
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "milestone-github-ready",
+      "projectId": "project-android-portfolio-github",
+      "title": "GitHub portfolio ready",
+      "date": "2027-12-31",
+      "completed": false,
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "milestone-uopeople-app",
+      "projectId": "project-uopeople-bachelor-cs",
+      "title": "UoPeople application submitted",
+      "date": "2027-03-31",
+      "completed": false,
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "milestone-registration-fee",
+      "projectId": "project-uopeople-bachelor-cs",
+      "title": "Registration fee paid",
+      "date": "2027-03-31",
+      "completed": false,
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "milestone-english-foundations",
+      "projectId": "project-uopeople-bachelor-cs",
+      "title": "English Foundations completed",
+      "date": "2027-09-30",
+      "completed": false,
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "milestone-uopeople-foundations",
+      "projectId": "project-uopeople-bachelor-cs",
+      "title": "UoPeople Foundations completed",
+      "date": "2028-03-31",
+      "completed": false,
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "milestone-degree-seeking",
+      "projectId": "project-uopeople-bachelor-cs",
+      "title": "Degree Seeking Student status received",
+      "date": "2028-06-30",
+      "completed": false,
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "milestone-ielts-clb9",
+      "projectId": "project-ielts-clb9",
+      "title": "IELTS CLB 9 achieved",
+      "date": "2029-12-31",
+      "completed": false,
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "milestone-1y-android",
+      "projectId": "project-android-work-experience",
+      "title": "1 year Android experience completed",
+      "date": "2030-12-31",
+      "completed": false,
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "milestone-bachelor-done",
+      "projectId": "project-uopeople-bachelor-cs",
+      "title": "Bachelor degree completed",
+      "date": "2031-12-31",
+      "completed": false,
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "milestone-eca",
+      "projectId": "project-documents-eca-wes",
+      "title": "ECA report received",
+      "date": "2032-03-31",
+      "completed": false,
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "milestone-ee-profile",
+      "projectId": "project-express-entry-pnp",
+      "title": "Express Entry profile created",
+      "date": "2032-06-30",
+      "completed": false,
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "milestone-ita-pnp",
+      "projectId": "project-express-entry-pnp",
+      "title": "ITA / PNP nomination received",
+      "date": "2032-12-31",
+      "completed": false,
+      "createdAt": "2026-04-25T00:00:00.000Z",
+      "updatedAt": "2026-04-25T00:00:00.000Z"
+    }
+  ]
+}
