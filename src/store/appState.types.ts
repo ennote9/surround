@@ -56,6 +56,7 @@ export type Project = {
   description?: string
   /** undefined = как «Сейчас» для старых данных */
   phase?: ProjectPhase
+  targetDate?: string
   /** false = скрыть плитку на Главной; undefined = как раньше, показывать */
   showOnDashboard?: boolean
   /** Какой RPG-стат качает проект; undefined = не влияет на статы */

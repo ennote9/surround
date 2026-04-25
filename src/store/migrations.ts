@@ -3,6 +3,8 @@ import { isProjectPhase } from "@/shared/lib/projectPhases"
 import type { AppState, CharacterStatType, Project } from "./appState.types"
 import { initialAppState } from "./initialState"
 
+const DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null
 }
@@ -92,6 +94,39 @@ function sanitizeProjectPhase(project: Project): Project {
   return next
 }
 
+function sanitizeProjectTargetDate(value: unknown): string | undefined {
+  if (typeof value !== "string") {
+    return undefined
+  }
+
+  const trimmed = value.trim()
+
+  if (!DATE_ONLY_PATTERN.test(trimmed)) {
+    return undefined
+  }
+
+  const parsed = Date.parse(`${trimmed}T00:00:00.000Z`)
+  if (Number.isNaN(parsed)) {
+    return undefined
+  }
+
+  return trimmed
+}
+
+function sanitizeProjectDateField(project: Project): Project {
+  const nextDate = sanitizeProjectTargetDate(project.targetDate)
+  if (nextDate === project.targetDate) {
+    return project
+  }
+  const next: Project = { ...project }
+  if (nextDate === undefined) {
+    delete next.targetDate
+    return next
+  }
+  next.targetDate = nextDate
+  return next
+}
+
 /** Убирает устаревшие поля внешнего вида проекта из старых сохранений и импорта JSON. */
 function sanitizeProjectStripLegacyVisual(project: Project): Project {
   const extended = project as Project & { icon?: unknown; color?: unknown }
@@ -109,7 +144,9 @@ function sanitizeAppStateProjects(state: AppState): AppState {
     ...state,
     projects: state.projects.map((p) =>
       sanitizeProjectPhase(
-        sanitizeProjectStatType(sanitizeProjectStripLegacyVisual(p)),
+        sanitizeProjectStatType(
+          sanitizeProjectDateField(sanitizeProjectStripLegacyVisual(p)),
+        ),
       ),
     ),
   }

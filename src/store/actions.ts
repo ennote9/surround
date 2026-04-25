@@ -16,6 +16,7 @@ export type AddProjectPayload = {
   showOnDashboard?: boolean
   statType?: CharacterStatType
   phase?: ProjectPhase
+  targetDate?: string
 }
 
 export type UpdateProjectPayload = {
@@ -28,6 +29,7 @@ export type UpdateProjectPayload = {
       | "showOnDashboard"
       | "statType"
       | "phase"
+      | "targetDate"
     >
   >
 }

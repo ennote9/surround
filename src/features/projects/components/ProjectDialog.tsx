@@ -25,6 +25,7 @@ export type ProjectFormValues = {
   showOnDashboard: boolean
   statType?: CharacterStatType
   phase: ProjectPhase
+  targetDate?: string
 }
 
 type ProjectDialogProps = {
@@ -56,6 +57,7 @@ function ProjectDialogFields({
   const [phase, setPhase] = useState<ProjectPhase>(
     initialProject?.phase ?? "active",
   )
+  const [targetDate, setTargetDate] = useState(initialProject?.targetDate ?? "")
 
   const handleSubmit = () => {
     const t = title.trim()
@@ -69,6 +71,7 @@ function ProjectDialogFields({
           ? undefined
           : (statTypeSelect as CharacterStatType),
       phase,
+      targetDate: targetDate.trim() || undefined,
     })
     onOpenChange(false)
   }
@@ -138,6 +141,17 @@ function ProjectDialogFields({
                 ))}
               </select>
             </div>
+          </div>
+
+          <div className="max-w-xs space-y-2">
+            <Label htmlFor="project-target-date">Целевая дата</Label>
+            <Input
+              id="project-target-date"
+              type="date"
+              value={targetDate}
+              onChange={(e) => setTargetDate(e.target.value)}
+              className="border-slate-300"
+            />
           </div>
 
           <div className="flex gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">

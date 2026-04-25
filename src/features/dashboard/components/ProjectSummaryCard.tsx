@@ -2,6 +2,7 @@ import { Link } from "react-router-dom"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
+import { CharacterStatIcon } from "@/shared/components/CharacterStatIcon"
 import { getProjectPhaseTitle } from "@/shared/lib/projectPhases"
 import type { Project } from "@/store/appState.types"
 import { getProjectProgress, getProjectTaskStats } from "@/store/selectors"
@@ -34,9 +35,13 @@ export function ProjectSummaryCard({
                 to="/projects"
                 onClick={() => onOpenProject?.(project.id)}
                 title={project.title}
-                className="block truncate font-semibold text-slate-950 transition-colors hover:text-blue-600 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                className="flex min-w-0 items-center gap-1.5 font-semibold text-slate-950 transition-colors hover:text-blue-600 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
               >
-                {project.title}
+                <CharacterStatIcon
+                  statType={project.statType}
+                  className="h-4 w-4 shrink-0 text-slate-500"
+                />
+                <span className="truncate">{project.title}</span>
               </Link>
             </h3>
             <p className="truncate text-xs leading-tight text-slate-500">

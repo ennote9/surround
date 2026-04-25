@@ -27,6 +27,7 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
         id: createId("project"),
         title: p.title,
         description: p.description,
+        targetDate: p.targetDate?.trim() || undefined,
         showOnDashboard: p.showOnDashboard ?? true,
         phase: p.phase ?? "active",
         groups: [],

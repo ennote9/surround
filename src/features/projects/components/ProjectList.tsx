@@ -1,6 +1,8 @@
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { CharacterStatIcon } from "@/shared/components/CharacterStatIcon"
+import { formatDateOnly } from "@/shared/lib/dateFormat"
 import {
   getProjectPhaseBadgeClassName,
   getProjectPhaseTitle,
@@ -67,14 +69,21 @@ export function ProjectList({
                       : "border-transparent hover:bg-slate-50",
                   )}
                 >
-                  <p
+                  <div
                     className={cn(
-                      "font-medium",
+                      "flex min-w-0 items-center gap-2 font-medium",
                       isActive ? "text-blue-900" : "text-slate-950",
                     )}
                   >
-                    {project.title}
-                  </p>
+                    <CharacterStatIcon
+                      statType={project.statType}
+                      className={cn(
+                        "h-4 w-4 shrink-0",
+                        isActive ? "text-blue-700" : "text-slate-500",
+                      )}
+                    />
+                    <span className="truncate">{project.title}</span>
+                  </div>
                   <p
                     className={cn(
                       "mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs",
@@ -89,6 +98,16 @@ export function ProjectList({
                       {progress}% · Групп: {groupCount} · Задач: {stats.total}
                     </span>
                   </p>
+                  {project.targetDate ? (
+                    <p
+                      className={cn(
+                        "mt-1 truncate text-xs",
+                        isActive ? "text-blue-700" : "text-slate-500",
+                      )}
+                    >
+                      Цель: {formatDateOnly(project.targetDate)}
+                    </p>
+                  ) : null}
                 </button>
               </li>
             )

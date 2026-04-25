@@ -8,6 +8,8 @@ import {
 } from "@/components/ui/accordion"
 import { Progress } from "@/components/ui/progress"
 import { getCharacterStatTitle } from "@/features/dashboard/characterStats"
+import { CharacterStatIcon } from "@/shared/components/CharacterStatIcon"
+import { formatDateOnly } from "@/shared/lib/dateFormat"
 import {
   getProjectPhaseBadgeClassName,
   getProjectPhaseTitle,
@@ -50,7 +52,15 @@ export function ProjectView({
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex flex-col gap-4 border-b border-slate-200 pb-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 flex-1">
-          <h2 className="text-xl font-semibold text-slate-950">{project.title}</h2>
+          <div className="flex min-w-0 items-center gap-2">
+            <CharacterStatIcon
+              statType={project.statType}
+              className="h-5 w-5 shrink-0 text-slate-600"
+            />
+            <h2 className="truncate text-xl font-semibold text-slate-950">
+              {project.title}
+            </h2>
+          </div>
           <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
             <span
               className={
@@ -84,6 +94,14 @@ export function ProjectView({
                 {getProjectPhaseTitle(project.phase)}
               </span>
             </span>
+            {project.targetDate ? (
+              <>
+                <span className="text-slate-400">·</span>
+                <span className="text-slate-500">
+                  Цель: {formatDateOnly(project.targetDate)}
+                </span>
+              </>
+            ) : null}
           </div>
           {project.description ? (
             <p className="mt-2 text-sm text-slate-600">{project.description}</p>

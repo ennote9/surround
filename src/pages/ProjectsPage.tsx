@@ -98,6 +98,7 @@ export default function ProjectsPage() {
             showOnDashboard: values.showOnDashboard,
             statType: values.statType,
             phase: values.phase,
+            targetDate: values.targetDate,
           },
         },
       })
@@ -111,6 +112,7 @@ export default function ProjectsPage() {
           showOnDashboard: values.showOnDashboard ?? true,
           statType: values.statType,
           phase: values.phase ?? "active",
+          targetDate: values.targetDate,
         },
       })
       toast.success("Проект создан")
