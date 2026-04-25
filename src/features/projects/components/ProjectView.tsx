@@ -1,4 +1,5 @@
 import { Pencil, Plus, Trash2 } from "lucide-react"
+import { useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Accordion,
@@ -9,11 +10,20 @@ import {
 import { Progress } from "@/components/ui/progress"
 import { getCharacterStatTitle } from "@/features/dashboard/characterStats"
 import { CharacterStatIcon } from "@/shared/components/CharacterStatIcon"
+import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
 import { formatDateOnly } from "@/shared/lib/dateFormat"
+import {
+  DEFAULT_PROJECT_GROUPS_COLLAPSE_MODE,
+  normalizeProjectGroupsCollapseMode,
+} from "@/shared/lib/projectGroupsCollapse"
 import {
   getProjectPhaseBadgeClassName,
   getProjectPhaseTitle,
 } from "@/shared/lib/projectPhases"
+import {
+  COLLAPSED_PROJECT_GROUPS_STORAGE_KEY,
+  PROJECT_GROUPS_COLLAPSE_MODE_STORAGE_KEY,
+} from "@/shared/lib/storageKeys"
 import type { Project } from "@/store/appState.types"
 import { getGroupProgress, getProjectProgress, getProjectTaskStats } from "@/store/selectors"
 import { TaskItem } from "./TaskItem"
@@ -31,6 +41,46 @@ type ProjectViewProps = {
   onToggleTask: (groupId: string, taskId: string) => void
 }
 
+type CollapsedProjectGroupsByProjectId = Record<string, string[]>
+
+function getSavedCollapsedGroupIds(
+  value: unknown,
+  projectId: string,
+): string[] | undefined {
+  if (!value || typeof value !== "object") return undefined
+  const raw = (value as Record<string, unknown>)[projectId]
+  if (!Array.isArray(raw)) return undefined
+  return raw.filter((id): id is string => typeof id === "string")
+}
+
+function getInitialCollapsedGroupIds(params: {
+  projectId: string
+  groupIds: string[]
+  mode: ReturnType<typeof normalizeProjectGroupsCollapseMode>
+  savedCollapsedIds?: string[]
+}): string[] {
+  const { groupIds, mode, savedCollapsedIds } = params
+
+  if (mode === "expanded") {
+    return []
+  }
+
+  if (mode === "collapsed") {
+    return [...groupIds]
+  }
+
+  if (mode === "smart") {
+    return groupIds.length > 3 ? [...groupIds] : []
+  }
+
+  if (savedCollapsedIds) {
+    const groupIdsSet = new Set(groupIds)
+    return savedCollapsedIds.filter((id) => groupIdsSet.has(id))
+  }
+
+  return groupIds.length > 3 ? [...groupIds] : []
+}
+
 export function ProjectView({
   project,
   onEditProject,
@@ -45,8 +95,91 @@ export function ProjectView({
 }: ProjectViewProps) {
   const progress = getProjectProgress(project)
   const stats = getProjectTaskStats(project)
-  const sortedGroups = [...project.groups].sort((a, b) => a.order - b.order)
-  const defaultOpen = sortedGroups.map((g) => g.id)
+  const sortedGroups = useMemo(
+    () => [...project.groups].sort((a, b) => a.order - b.order),
+    [project.groups],
+  )
+  const groupIds = useMemo(
+    () => sortedGroups.map((group) => group.id),
+    [sortedGroups],
+  )
+  const groupIdsKey = useMemo(() => groupIds.join("|"), [groupIds])
+
+  const [rawGroupsCollapseMode] = useLocalStorage(
+    PROJECT_GROUPS_COLLAPSE_MODE_STORAGE_KEY,
+    DEFAULT_PROJECT_GROUPS_COLLAPSE_MODE,
+  )
+  const groupsCollapseMode = normalizeProjectGroupsCollapseMode(
+    rawGroupsCollapseMode,
+  )
+
+  const [collapsedProjectGroupsByProjectId, setCollapsedProjectGroupsByProjectId] =
+    useLocalStorage<CollapsedProjectGroupsByProjectId>(
+      COLLAPSED_PROJECT_GROUPS_STORAGE_KEY,
+      {},
+    )
+
+  const [collapsedOverridesByContext, setCollapsedOverridesByContext] = useState<
+    Record<string, string[]>
+  >({})
+  const collapseContextKey = `${project.id}::${groupsCollapseMode}::${groupIdsKey}`
+  const savedCollapsedIds = getSavedCollapsedGroupIds(
+    collapsedProjectGroupsByProjectId,
+    project.id,
+  )
+  const initialCollapsedIds = useMemo(
+    () =>
+      getInitialCollapsedGroupIds({
+        projectId: project.id,
+        groupIds,
+        mode: groupsCollapseMode,
+        savedCollapsedIds,
+      }),
+    [project.id, groupIds, groupsCollapseMode, savedCollapsedIds],
+  )
+  const effectiveCollapsedIds =
+    collapsedOverridesByContext[collapseContextKey] ?? initialCollapsedIds
+  const collapsedGroupIds = useMemo(
+    () => new Set(effectiveCollapsedIds),
+    [effectiveCollapsedIds],
+  )
+
+  const persistCollapsedGroupsForProject = (projectId: string, collapsedIds: string[]) => {
+    if (groupsCollapseMode !== "remember-per-project") {
+      return
+    }
+    setCollapsedProjectGroupsByProjectId((current) => ({
+      ...current,
+      [projectId]: collapsedIds,
+    }))
+  }
+
+  const updateCollapsedGroups = (nextCollapsedIds: string[]) => {
+    setCollapsedOverridesByContext((current) => ({
+      ...current,
+      [collapseContextKey]: nextCollapsedIds,
+    }))
+    persistCollapsedGroupsForProject(project.id, nextCollapsedIds)
+  }
+
+  const handleExpandAllGroups = () => {
+    updateCollapsedGroups([])
+  }
+
+  const handleCollapseAllGroups = () => {
+    updateCollapsedGroups(groupIds)
+  }
+
+  const handleExpandedGroupsChange = (expandedGroupIds: string[]) => {
+    const expandedSet = new Set(expandedGroupIds)
+    const nextCollapsedIds = groupIds.filter((id) => !expandedSet.has(id))
+    updateCollapsedGroups(nextCollapsedIds)
+  }
+
+  const expandedGroupIds = useMemo(
+    () => groupIds.filter((id) => !collapsedGroupIds.has(id)),
+    [groupIds, collapsedGroupIds],
+  )
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -165,11 +298,35 @@ export function ProjectView({
           </Button>
         </div>
       ) : (
-        <Accordion
-          type="multiple"
-          defaultValue={defaultOpen}
-          className="mt-4 w-full"
-        >
+        <div className="mt-4 space-y-3">
+          {sortedGroups.length > 1 ? (
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="border-slate-300 text-slate-700"
+                onClick={handleExpandAllGroups}
+              >
+                Развернуть все
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="border-slate-300 text-slate-700"
+                onClick={handleCollapseAllGroups}
+              >
+                Свернуть все
+              </Button>
+            </div>
+          ) : null}
+          <Accordion
+            type="multiple"
+            value={expandedGroupIds}
+            onValueChange={handleExpandedGroupsChange}
+            className="w-full"
+          >
           {sortedGroups.map((group) => {
             const gProgress = getGroupProgress(group)
             const taskCount = group.tasks.length
@@ -253,7 +410,8 @@ export function ProjectView({
               </AccordionItem>
             )
           })}
-        </Accordion>
+          </Accordion>
+        </div>
       )}
     </div>
   )

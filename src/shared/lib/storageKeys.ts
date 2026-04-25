@@ -5,3 +5,7 @@ export const DASHBOARD_STAT_VISIBILITY_STORAGE_KEY =
   "canada-progress-os-dashboard-stat-visibility"
 export const SIDEBAR_COLLAPSED_STORAGE_KEY =
   "canada-progress-os-sidebar-collapsed"
+export const PROJECT_GROUPS_COLLAPSE_MODE_STORAGE_KEY =
+  "canada-progress-os-project-groups-collapse-mode"
+export const COLLAPSED_PROJECT_GROUPS_STORAGE_KEY =
+  "canada-progress-os-collapsed-project-groups"
