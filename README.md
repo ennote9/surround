@@ -38,6 +38,16 @@ npm run lint
 npm run preview
 ```
 
+## Deployment
+
+- First production target: **Vercel**
+- Build command: `npm run build`
+- Output directory: `dist`
+- Required env variables:
+  - `VITE_SUPABASE_URL`
+  - `VITE_SUPABASE_ANON_KEY`
+- Full guide: [docs/deployment-vercel.md](docs/deployment-vercel.md)
+
 ## Структура проекта
 
 - `src/app` - инициализация приложения и провайдеры.
