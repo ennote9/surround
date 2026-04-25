@@ -9,41 +9,56 @@ type CloudStateGateProps = {
 
 export function CloudStateGate({ children }: CloudStateGateProps) {
   const { user } = useAuth()
-  const [loading, setLoading] = useState(true)
+  const userId = user?.id ?? null
+
+  const [loading, setLoading] = useState(!!userId)
   const [error, setError] = useState<string | null>(null)
   const [appState, setAppState] = useState<AppState | null>(null)
 
-  const loadState = useCallback(async () => {
-    if (!user) {
-      setError("Пользователь не авторизован.")
-      setLoading(false)
-      setAppState(null)
-      return
-    }
-
+  const loadStateForUser = useCallback(async (id: string) => {
     setLoading(true)
     setError(null)
 
-    const result = await loadCloudAppState(user.id)
+    const result = await loadCloudAppState(id)
     if (result.error) {
       setError(result.error)
       setAppState(null)
     } else {
       setAppState(result.data)
     }
-
     setLoading(false)
-  }, [user])
+  }, [])
 
+  // Зависит только от user.id (строка). Новый объект user от onAuthStateChange/фокуса вкладки
+  // не трогает userId, эффект не перезапускается, полноэкранный cloud loader не всплывает.
   useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      void loadState()
-    }, 0)
-
-    return () => {
-      window.clearTimeout(timeoutId)
+    if (!userId) {
+      return
     }
-  }, [loadState])
+    const id = userId
+    // Не вызывать setState внутри эффекта синхронно (react-hooks/set-state-in-effect).
+    globalThis.queueMicrotask(() => {
+      void loadStateForUser(id)
+    })
+  }, [userId, loadStateForUser])
+
+  const handleRetry = useCallback(() => {
+    if (!userId) {
+      return
+    }
+    void loadStateForUser(userId)
+  }, [loadStateForUser, userId])
+
+  if (!userId) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+        <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white px-6 py-5 text-center shadow-sm">
+          <p className="text-sm font-semibold text-slate-900">Пользователь не авторизован</p>
+          <p className="mt-2 text-xs text-slate-600">Нет id пользователя в сессии.</p>
+        </div>
+      </div>
+    )
+  }
 
   if (loading) {
     return (
@@ -66,9 +81,7 @@ export function CloudStateGate({ children }: CloudStateGateProps) {
           <p className="mt-2 text-xs text-slate-600">{error}</p>
           <button
             type="button"
-            onClick={() => {
-              void loadState()
-            }}
+            onClick={handleRetry}
             className="mt-4 inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-slate-700"
           >
             Повторить
