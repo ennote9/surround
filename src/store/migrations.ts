@@ -1,4 +1,4 @@
-import { isCharacterStatType } from "@/features/dashboard/characterStats"
+import { isCharacterStatType } from "@/shared/lib/characterStats"
 import { isProjectPhase } from "@/shared/lib/projectPhases"
 import type { AppState, CharacterStatType, Project } from "./appState.types"
 import { initialAppState } from "./initialState"

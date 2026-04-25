@@ -11,10 +11,10 @@ import {
 } from "@/features/dashboard/dashboardWidgets"
 import { DataManagementCard } from "@/features/settings/components/DataManagementCard"
 import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
-
-const DASHBOARD_WIDGETS_STORAGE_KEY = "canada-progress-os-dashboard-widgets"
-const DASHBOARD_STAT_VISIBILITY_STORAGE_KEY =
-  "canada-progress-os-dashboard-stat-visibility"
+import {
+  DASHBOARD_STAT_VISIBILITY_STORAGE_KEY,
+  DASHBOARD_WIDGETS_STORAGE_KEY,
+} from "@/shared/lib/storageKeys"
 
 export default function SettingsPage() {
   const [widgetsStored, setWidgets] = useLocalStorage(

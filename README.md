@@ -1,73 +1,69 @@
-# React + TypeScript + Vite
+# Canada Progress OS
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Персональное React-приложение для отслеживания подготовки к большим жизненным целям: проекты, задачи, рутины, прогресс, статы персонажа, аналитика и импорт/экспорт данных.
 
-Currently, two official plugins are available:
+## Возможности
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Главная с компактными плитками и настраиваемыми виджетами.
+- Проекты, группы и задачи с прогрессом выполнения.
+- Рутина и недельный compliance по привычкам.
+- Аналитика по проектам, задачам и привычкам.
+- Статы персонажа, связанные с проектами.
+- Настройки Главной (видимость виджетов и статов).
+- Экспорт и импорт состояния приложения в JSON.
+- Очистка текущих данных и reset к начальному состоянию.
+- Seed JSON для быстрой загрузки подготовленной структуры данных.
 
-## React Compiler
+## Стек
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Vite
+- React
+- TypeScript
+- React Router
+- Tailwind CSS v4
+- shadcn/ui / Radix
+- Recharts
+- date-fns
+- Sonner
+- localStorage persistence
 
-## Expanding the ESLint configuration
+## Запуск
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
+npm run build
+npm run lint
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Структура проекта
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- `src/app` - инициализация приложения и провайдеры.
+- `src/pages` - страничные контейнеры.
+- `src/layouts` - общий layout и навигация.
+- `src/features` - функциональные модули (dashboard, projects, settings и др.).
+- `src/store` - типы состояния, reducer, миграции, провайдер состояния.
+- `src/shared` - общие хуки, утилиты и доменная логика.
+- `src/components/ui` - базовые UI-компоненты.
+- `docs` - документация и seed-данные.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Данные и localStorage
+
+- Основное состояние приложения сохраняется в localStorage.
+- Поддерживаются экспорт и импорт JSON-резервной копии.
+- Перед импортом seed рекомендуется сделать export backup.
+- Seed-файл находится в `docs/canada-life-progress-seed.json`.
+
+## Seed
+
+- `docs/canada-life-progress-seed.json` - пример импортируемого состояния.
+- `docs/canada-life-seed-plan.md` - planning-документ по seed-структуре.
+- Импорт выполняется через `Настройки -> Данные приложения`.
+
+## Roadmap
+
+- Unit-тесты для миграций и селекторов.
+- Улучшение UI для milestones.
+- Code splitting для оптимизации бандла.
+- Дополнительные пресеты dashboard.

@@ -13,10 +13,9 @@ import {
   type TaskFormValues,
 } from "@/features/projects/components/TaskDialog"
 import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
+import { SELECTED_PROJECT_STORAGE_KEY } from "@/shared/lib/storageKeys"
 import type { Project, Task, TaskGroup } from "@/store/appState.types"
 import { useAppState } from "@/store/useAppState"
-
-export const SELECTED_PROJECT_STORAGE_KEY = "canada-progress-os-selected-project"
 
 type DeleteTarget =
   | { kind: "project"; id: string; name: string }

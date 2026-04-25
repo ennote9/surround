@@ -11,16 +11,16 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
+import {
+  DASHBOARD_STAT_VISIBILITY_STORAGE_KEY,
+  DASHBOARD_WIDGETS_STORAGE_KEY,
+  SELECTED_PROJECT_STORAGE_KEY,
+} from "@/shared/lib/storageKeys"
 import type { AppState } from "@/store/appState.types"
 import { tryParseImportedAppState } from "@/store/migrations"
 import { useAppState } from "@/store/useAppState"
 
 const BACKUP_FILENAME = "canada-progress-os-backup.json"
-
-const SELECTED_PROJECT_STORAGE_KEY = "canada-progress-os-selected-project"
-const DASHBOARD_WIDGETS_STORAGE_KEY = "canada-progress-os-dashboard-widgets"
-const DASHBOARD_STAT_VISIBILITY_STORAGE_KEY =
-  "canada-progress-os-dashboard-stat-visibility"
 
 const DEFAULT_SETTINGS: AppState["settings"] = {
   theme: "light",

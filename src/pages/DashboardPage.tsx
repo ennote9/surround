@@ -16,14 +16,14 @@ import {
 } from "@/features/dashboard/dashboardWidgets"
 import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
 import { getTodayISO } from "@/shared/lib/dates"
+import {
+  DASHBOARD_STAT_VISIBILITY_STORAGE_KEY,
+  DASHBOARD_WIDGETS_STORAGE_KEY,
+  SELECTED_PROJECT_STORAGE_KEY,
+} from "@/shared/lib/storageKeys"
 import { cn } from "@/lib/utils"
 import { getOverallProgress, getProjectTaskStats } from "@/store/selectors"
 import { useAppState } from "@/store/useAppState"
-import { SELECTED_PROJECT_STORAGE_KEY } from "@/pages/ProjectsPage"
-
-const DASHBOARD_WIDGETS_STORAGE_KEY = "canada-progress-os-dashboard-widgets"
-const DASHBOARD_STAT_VISIBILITY_STORAGE_KEY =
-  "canada-progress-os-dashboard-stat-visibility"
 
 function isWidgetEnabled(
   widgets: ReturnType<typeof normalizeDashboardWidgets>,

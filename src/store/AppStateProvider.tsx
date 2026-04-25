@@ -1,16 +1,15 @@
 import { useEffect, useMemo, useReducer, type ReactNode } from "react"
+import { APP_STATE_STORAGE_KEY } from "@/shared/lib/storageKeys"
 import type { AppState } from "./appState.types"
 import { AppStateContext } from "./appStateContext"
 import { initialAppState } from "./initialState"
 import { migrateAppState } from "./migrations"
 import { appStateReducer } from "./reducer"
 
-const STORAGE_KEY = "canada-progress-os-state"
-
 function readPersistedState(): AppState {
   try {
     if (typeof window === "undefined") return initialAppState
-    const raw = window.localStorage.getItem(STORAGE_KEY)
+    const raw = window.localStorage.getItem(APP_STATE_STORAGE_KEY)
     if (raw === null) return initialAppState
     const parsed: unknown = JSON.parse(raw)
     return migrateAppState(parsed)
@@ -22,7 +21,7 @@ function readPersistedState(): AppState {
 function writePersistedState(state: AppState): void {
   try {
     if (typeof window === "undefined") return
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+    window.localStorage.setItem(APP_STATE_STORAGE_KEY, JSON.stringify(state))
   } catch {
     // ignore
   }

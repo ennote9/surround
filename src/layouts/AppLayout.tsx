@@ -1,14 +1,13 @@
 import { cn } from "@/lib/utils"
 import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
+import { SIDEBAR_COLLAPSED_STORAGE_KEY } from "@/shared/lib/storageKeys"
 import { Outlet } from "react-router-dom"
 import { MobileNav } from "./MobileNav"
 import { Sidebar } from "./Sidebar"
 
-const SIDEBAR_COLLAPSED_KEY = "canada-progress-os-sidebar-collapsed"
-
 export function AppLayout() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useLocalStorage<boolean>(
-    SIDEBAR_COLLAPSED_KEY,
+    SIDEBAR_COLLAPSED_STORAGE_KEY,
     false,
   )
 
