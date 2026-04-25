@@ -27,16 +27,36 @@ function writePersistedState(state: AppState): void {
   }
 }
 
-export function AppStateProvider({ children }: { children: ReactNode }) {
+type AppStateProviderProps = {
+  children: ReactNode
+  initialState?: AppState
+  persistenceMode?: "localStorage" | "memory"
+}
+
+function getInitialState(initialState?: AppState): AppState {
+  if (initialState) {
+    return initialState
+  }
+  return readPersistedState()
+}
+
+export function AppStateProvider({
+  children,
+  initialState,
+  persistenceMode = "localStorage",
+}: AppStateProviderProps) {
   const [state, dispatch] = useReducer(
     appStateReducer,
-    undefined,
-    readPersistedState,
+    initialState,
+    getInitialState,
   )
 
   useEffect(() => {
+    if (persistenceMode !== "localStorage") {
+      return
+    }
     writePersistedState(state)
-  }, [state])
+  }, [state, persistenceMode])
 
   const value = useMemo(
     () => ({ state, dispatch }),

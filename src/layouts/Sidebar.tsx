@@ -7,13 +7,15 @@ import {
   CalendarCheck,
   FolderKanban,
   Home,
+  LogIn,
   PanelLeftClose,
   PanelLeftOpen,
   Settings,
   Target,
   type LucideIcon,
 } from "lucide-react"
-import { NavLink } from "react-router-dom"
+import { NavLink, Link } from "react-router-dom"
+import { useAuth } from "@/features/auth/useAuth"
 
 type NavItem = {
   to: string
@@ -55,6 +57,8 @@ function navLinkClassName({
 }
 
 export function Sidebar({ collapsed, onToggleCollapsed }: SidebarProps) {
+  const { isAuthenticated, user } = useAuth()
+
   return (
     <aside
       className={cn(
@@ -122,6 +126,27 @@ export function Sidebar({ collapsed, onToggleCollapsed }: SidebarProps) {
         <Separator className="shrink-0 bg-slate-200" />
 
         <div className="mt-auto flex shrink-0 flex-col gap-3">
+          <Button
+            asChild
+            type="button"
+            variant="outline"
+            size={collapsed ? "icon" : "default"}
+            className={cn(
+              "shrink-0 border-slate-200 bg-white text-slate-950 hover:bg-slate-50",
+              collapsed ? "mx-auto" : "w-full justify-center gap-2",
+            )}
+            title={isAuthenticated ? user?.email ?? "Аккаунт" : "Войти"}
+          >
+            <Link to="/auth">
+              <LogIn className="size-4 shrink-0" aria-hidden />
+              {!collapsed ? (
+                <span className="truncate">
+                  {isAuthenticated ? "Аккаунт" : "Войти"}
+                </span>
+              ) : null}
+            </Link>
+          </Button>
+
           {!collapsed ? (
             <p className="text-xs leading-relaxed text-slate-500">
               Локальное хранение данных

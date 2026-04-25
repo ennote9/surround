@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom"
 import { AppLayout } from "@/layouts/AppLayout"
 import AnalyticsPage from "@/pages/AnalyticsPage"
+import AuthPage from "@/pages/AuthPage"
 import DashboardPage from "@/pages/DashboardPage"
 import GoalsPage from "@/pages/GoalsPage"
 import NotFoundPage from "@/pages/NotFoundPage"
@@ -9,6 +10,7 @@ import RoutinePage from "@/pages/RoutinePage"
 import SettingsPage from "@/pages/SettingsPage"
 
 export const router = createBrowserRouter([
+  { path: "/auth", element: <AuthPage /> },
   {
     path: "/",
     element: <AppLayout />,
