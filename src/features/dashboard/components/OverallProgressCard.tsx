@@ -7,12 +7,14 @@ type OverallProgressCardProps = {
   progress: number
   totalTasks: number
   completedTasks: number
+  title?: string
 }
 
 export function OverallProgressCard({
   progress,
   totalTasks,
   completedTasks,
+  title,
 }: OverallProgressCardProps) {
   const hasTasks = totalTasks > 0
   const displayPercent = hasTasks ? progress : 0
@@ -29,10 +31,10 @@ export function OverallProgressCard({
             <h3 className="min-w-0 text-sm">
               <Link
                 to="/analytics"
-                title="Общий прогресс"
+                title={title ?? "Общий прогресс"}
                 className="block truncate font-semibold text-slate-950 transition-colors hover:text-blue-600 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               >
-                Общий прогресс
+                {title ?? "Общий прогресс"}
               </Link>
             </h3>
           </div>

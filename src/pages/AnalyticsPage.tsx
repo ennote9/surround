@@ -5,6 +5,14 @@ import { ProjectTargetDatesCard } from "@/features/analytics/components/ProjectT
 import { ProjectProgressChart } from "@/features/analytics/components/ProjectProgressChart"
 import { TaskStatusChart } from "@/features/analytics/components/TaskStatusChart"
 import { UpcomingDeadlines } from "@/features/analytics/components/UpcomingDeadlines"
+import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
+import {
+  ALL_GOALS_SCOPE,
+  getSelectableGoals,
+  getSelectedGoalTitle,
+  normalizeSelectedGoalId,
+} from "@/shared/lib/selectedGoal"
+import { SELECTED_GOAL_STORAGE_KEY } from "@/shared/lib/storageKeys"
 import {
   getHabitTotalCompliance,
   getOverallProgress,
@@ -16,11 +24,32 @@ export default function AnalyticsPage() {
   const { state } = useAppState()
   const projects = state.projects
   const habits = state.habits
+  const [rawSelectedGoalId] = useLocalStorage(
+    SELECTED_GOAL_STORAGE_KEY,
+    ALL_GOALS_SCOPE,
+  )
+  const selectedGoalId = normalizeSelectedGoalId(rawSelectedGoalId, state.goals)
+  const selectableGoals = getSelectableGoals(state.goals)
+  const selectedGoalTitle = getSelectedGoalTitle(selectedGoalId, state.goals)
+  const visibleGoalIds = useMemo(
+    () => new Set(selectableGoals.map((goal) => goal.id)),
+    [selectableGoals],
+  )
+  const scopedProjects = useMemo(() => {
+    if (selectedGoalId === ALL_GOALS_SCOPE) {
+      return projects.filter((project) =>
+        project.goalId
+          ? visibleGoalIds.has(project.goalId)
+          : visibleGoalIds.has("goal-canada"),
+      )
+    }
+    return projects.filter((project) => project.goalId === selectedGoalId)
+  }, [projects, selectedGoalId, visibleGoalIds])
 
-  const overallProgress = getOverallProgress(projects)
+  const overallProgress = getOverallProgress(scopedProjects)
 
   const taskAgg = useMemo(() => {
-    return projects.reduce(
+    return scopedProjects.reduce(
       (acc, p) => {
         const s = getProjectTaskStats(p)
         return {
@@ -31,7 +60,7 @@ export default function AnalyticsPage() {
       },
       { total: 0, completed: 0, pending: 0 },
     )
-  }, [projects])
+  }, [scopedProjects])
 
   const averageHabitCompliance = useMemo(() => {
     if (habits.length === 0) return 0
@@ -46,12 +75,14 @@ export default function AnalyticsPage() {
           Аналитика
         </h1>
         <p className="mt-3 text-slate-600">
-          Графики, сводки и динамика прогресса по направлениям подготовки.
+          {selectedGoalId === ALL_GOALS_SCOPE
+            ? "Аналитика по всем активным целям, проектам, задачам и привычкам."
+            : `Аналитика цели «${selectedGoalTitle}». Привычки пока учитываются глобально.`}
         </p>
       </header>
 
       <AnalyticsSummaryCards
-        totalProjects={projects.length}
+        totalProjects={scopedProjects.length}
         totalTasks={taskAgg.total}
         completedTasks={taskAgg.completed}
         pendingTasks={taskAgg.pending}
@@ -60,7 +91,7 @@ export default function AnalyticsPage() {
       />
 
       <div className="grid gap-4 xl:grid-cols-2">
-        <ProjectProgressChart projects={projects} />
+        <ProjectProgressChart projects={scopedProjects} />
         <TaskStatusChart
           completed={taskAgg.completed}
           pending={taskAgg.pending}
@@ -69,11 +100,11 @@ export default function AnalyticsPage() {
 
       <div className="grid gap-4 xl:grid-cols-2">
         <HabitComplianceChart habits={habits} />
-        <UpcomingDeadlines projects={projects} />
+        <UpcomingDeadlines projects={scopedProjects} />
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
-        <ProjectTargetDatesCard projects={projects} />
+        <ProjectTargetDatesCard projects={scopedProjects} />
       </div>
     </div>
   )

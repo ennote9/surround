@@ -7,6 +7,7 @@ import {
   Home,
   Menu,
   Settings,
+  Target,
   type LucideIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -26,6 +27,7 @@ const items: {
   end?: boolean
 }[] = [
   { to: "/", label: "Главная", icon: Home, end: true },
+  { to: "/goals", label: "Цели", icon: Target },
   { to: "/projects", label: "Проекты", icon: FolderKanban },
   { to: "/routine", label: "Рутина", icon: CalendarCheck },
   { to: "/analytics", label: "Аналитика", icon: BarChart3 },
@@ -58,7 +60,7 @@ export function MobileNav() {
           <Menu className="size-5" />
         </Button>
         <span className="truncate text-base font-semibold tracking-tight text-slate-950">
-          Canada Progress OS
+          Life Progress OS
         </span>
       </header>
 
@@ -69,10 +71,10 @@ export function MobileNav() {
         >
           <SheetHeader className="border-b border-slate-200 p-4 text-left">
             <SheetTitle className="text-slate-950">
-              Canada Progress OS
+              Life Progress OS
             </SheetTitle>
             <p className="text-sm font-normal text-slate-500">
-              Трекер подготовки
+              Система целей и прогресса
             </p>
           </SheetHeader>
 

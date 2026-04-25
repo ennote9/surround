@@ -94,3 +94,41 @@ export function getProjectTaskStats(project: Project): {
     pending: total - completed,
   }
 }
+
+export function getProjectsForGoal(projects: Project[], goalId: string): Project[] {
+  return projects.filter((project) => project.goalId === goalId)
+}
+
+export function getGoalTaskStats(
+  goalId: string,
+  projects: Project[],
+): {
+  total: number
+  completed: number
+  pending: number
+} {
+  const goalProjects = getProjectsForGoal(projects, goalId)
+
+  let total = 0
+  let completed = 0
+
+  for (const project of goalProjects) {
+    for (const group of project.groups) {
+      for (const task of group.tasks) {
+        total += 1
+        if (task.completed) completed += 1
+      }
+    }
+  }
+
+  return {
+    total,
+    completed,
+    pending: total - completed,
+  }
+}
+
+export function getGoalProgress(goalId: string, projects: Project[]): number {
+  const stats = getGoalTaskStats(goalId, projects)
+  return pct(stats.completed, stats.total)
+}

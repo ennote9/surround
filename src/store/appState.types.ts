@@ -27,6 +27,19 @@ export type AppSettings = {
   accentColor: string
 }
 
+export type GoalStatus = "active" | "later" | "archived"
+
+export type Goal = {
+  id: string
+  title: string
+  description?: string
+  targetDate?: string
+  status: GoalStatus
+  showOnDashboard?: boolean
+  createdAt: string
+  updatedAt: string
+}
+
 export type Task = {
   id: string
   groupId: string
@@ -52,6 +65,7 @@ export type TaskGroup = {
 
 export type Project = {
   id: string
+  goalId?: string
   title: string
   description?: string
   /** undefined = как «Сейчас» для старых данных */
@@ -86,7 +100,8 @@ export type Milestone = {
 }
 
 export type AppState = {
-  version: number
+  version: 2
+  goals: Goal[]
   projects: Project[]
   habits: Habit[]
   milestones: Milestone[]

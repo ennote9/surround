@@ -17,6 +17,7 @@ import {
   SELECTED_PROJECT_STORAGE_KEY,
 } from "@/shared/lib/storageKeys"
 import type { AppState } from "@/store/appState.types"
+import { createInitialCanadaGoal } from "@/store/initialState"
 import { tryParseImportedAppState } from "@/store/migrations"
 import { useAppState } from "@/store/useAppState"
 
@@ -121,8 +122,9 @@ export function DataManagementCard() {
         : DEFAULT_SETTINGS
 
     const emptyState: AppState = {
-      version: 1,
+      version: 2,
       settings,
+      goals: [createInitialCanadaGoal()],
       projects: [],
       habits: [],
       milestones: [],

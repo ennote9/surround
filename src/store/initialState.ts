@@ -2,6 +2,7 @@ import { createId } from "@/shared/lib/ids"
 import type {
   AppState,
   CharacterStatType,
+  Goal,
   Habit,
   Project,
   Task,
@@ -9,6 +10,20 @@ import type {
 } from "./appState.types"
 
 const now = new Date().toISOString()
+export const CANADA_GOAL_ID = "goal-canada"
+
+export function createInitialCanadaGoal(timestamp: string = now): Goal {
+  return {
+    id: CANADA_GOAL_ID,
+    title: "Канада",
+    description:
+      "Подготовка к иммиграции в Канаду через английский, Android-разработку, образование, документы, финансы и Express Entry / PNP.",
+    status: "active",
+    showOnDashboard: true,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  }
+}
 
 function makeTask(
   groupId: string,
@@ -51,11 +66,13 @@ function makeProject(
   groupTitle: string,
   taskTitles: string[],
   statType?: CharacterStatType,
+  goalId: string = CANADA_GOAL_ID,
 ): Project {
   const id = createId("project")
   const group = makeGroup(id, groupTitle, 0, taskTitles)
   return {
     id,
+    goalId,
     title,
     showOnDashboard: true,
     ...(statType !== undefined ? { statType } : {}),
@@ -76,11 +93,12 @@ function makeHabit(name: string): Habit {
 }
 
 export const initialAppState: AppState = {
-  version: 1,
+  version: 2,
   settings: {
     theme: "light",
     accentColor: "#4a86e8",
   },
+  goals: [createInitialCanadaGoal(now)],
   projects: [
     makeProject(
       "🎓 UoPeople",

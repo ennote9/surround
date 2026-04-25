@@ -1,7 +1,15 @@
 import { createId } from "@/shared/lib/ids"
-import type { AppState, Habit, Milestone, Project, Task, TaskGroup } from "./appState.types"
+import type {
+  AppState,
+  Goal,
+  Habit,
+  Milestone,
+  Project,
+  Task,
+  TaskGroup,
+} from "./appState.types"
 import type { AppAction } from "./actions"
-import { initialAppState } from "./initialState"
+import { CANADA_GOAL_ID, initialAppState } from "./initialState"
 
 function now(): string {
   return new Date().toISOString()
@@ -21,10 +29,73 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
     case "IMPORT_STATE":
       return structuredClone(action.payload)
 
+    case "ADD_GOAL": {
+      const title = action.payload.title.trim()
+      if (!title) return state
+
+      const goal: Goal = {
+        id: createId("goal"),
+        title,
+        description: action.payload.description?.trim() || undefined,
+        targetDate: action.payload.targetDate?.trim() || undefined,
+        status: action.payload.status ?? "active",
+        showOnDashboard: action.payload.showOnDashboard ?? true,
+        createdAt: t,
+        updatedAt: t,
+      }
+
+      return { ...state, goals: [...state.goals, goal] }
+    }
+
+    case "UPDATE_GOAL": {
+      const { goalId, patch } = action.payload
+      return {
+        ...state,
+        goals: state.goals.map((goal) => {
+          if (goal.id !== goalId) return goal
+
+          const nextTitle = patch.title?.trim()
+          return {
+            ...goal,
+            ...(nextTitle ? { title: nextTitle } : {}),
+            ...(patch.description !== undefined
+              ? { description: patch.description.trim() || undefined }
+              : {}),
+            ...(patch.targetDate !== undefined
+              ? { targetDate: patch.targetDate.trim() || undefined }
+              : {}),
+            ...(patch.status !== undefined ? { status: patch.status } : {}),
+            ...(patch.showOnDashboard !== undefined
+              ? { showOnDashboard: patch.showOnDashboard }
+              : {}),
+            updatedAt: t,
+          }
+        }),
+      }
+    }
+
+    case "ARCHIVE_GOAL": {
+      const { goalId } = action.payload
+      return {
+        ...state,
+        goals: state.goals.map((goal) =>
+          goal.id === goalId
+            ? {
+                ...goal,
+                status: "archived",
+                showOnDashboard: false,
+                updatedAt: t,
+              }
+            : goal,
+        ),
+      }
+    }
+
     case "ADD_PROJECT": {
       const p = action.payload
       const project: Project = {
         id: createId("project"),
+        goalId: p.goalId || CANADA_GOAL_ID,
         title: p.title,
         description: p.description,
         targetDate: p.targetDate?.trim() || undefined,

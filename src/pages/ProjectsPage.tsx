@@ -13,7 +13,16 @@ import {
   type TaskFormValues,
 } from "@/features/projects/components/TaskDialog"
 import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
-import { SELECTED_PROJECT_STORAGE_KEY } from "@/shared/lib/storageKeys"
+import {
+  ALL_GOALS_SCOPE,
+  getSelectableGoals,
+  getSelectedGoalTitle,
+  normalizeSelectedGoalId,
+} from "@/shared/lib/selectedGoal"
+import {
+  SELECTED_GOAL_STORAGE_KEY,
+  SELECTED_PROJECT_STORAGE_KEY,
+} from "@/shared/lib/storageKeys"
 import type { Project, Task, TaskGroup } from "@/store/appState.types"
 import { useAppState } from "@/store/useAppState"
 
@@ -35,7 +44,30 @@ type DeleteTarget =
 
 export default function ProjectsPage() {
   const { state, dispatch } = useAppState()
-  const projects = state.projects
+
+  const [rawSelectedGoalId] = useLocalStorage(
+    SELECTED_GOAL_STORAGE_KEY,
+    ALL_GOALS_SCOPE,
+  )
+  const selectedGoalId = normalizeSelectedGoalId(rawSelectedGoalId, state.goals)
+  const selectableGoals = getSelectableGoals(state.goals)
+
+  const visibleGoalIds = useMemo(
+    () => new Set(selectableGoals.map((goal) => goal.id)),
+    [selectableGoals],
+  )
+  const scopedProjects = useMemo(() => {
+    if (selectedGoalId === ALL_GOALS_SCOPE) {
+      return state.projects.filter((project) => {
+        if (!project.goalId) return visibleGoalIds.has("goal-canada")
+        return visibleGoalIds.has(project.goalId)
+      })
+    }
+    return state.projects.filter((project) => project.goalId === selectedGoalId)
+  }, [selectedGoalId, state.projects, visibleGoalIds])
+
+  const defaultGoalId =
+    selectedGoalId === ALL_GOALS_SCOPE ? selectableGoals[0]?.id : selectedGoalId
 
   const [selectedProjectId, setSelectedProjectId] = useLocalStorage<string>(
     SELECTED_PROJECT_STORAGE_KEY,
@@ -62,19 +94,22 @@ export default function ProjectsPage() {
 
   // Синхронизация выбора после удаления проекта или смены списка (данные из store).
   useEffect(() => {
-    if (projects.length === 0) {
+    if (scopedProjects.length === 0) {
       queueMicrotask(() => setSelectedProjectId(""))
       return
     }
-    if (!projects.some((p) => p.id === selectedProjectId)) {
-      queueMicrotask(() => setSelectedProjectId(projects[0].id))
+    if (!scopedProjects.some((p) => p.id === selectedProjectId)) {
+      queueMicrotask(() => setSelectedProjectId(scopedProjects[0].id))
     }
-  }, [projects, selectedProjectId, setSelectedProjectId])
+  }, [scopedProjects, selectedProjectId, setSelectedProjectId])
 
   const selectedProject = useMemo(() => {
-    if (projects.length === 0) return undefined
-    return projects.find((p) => p.id === selectedProjectId) ?? projects[0]
-  }, [projects, selectedProjectId])
+    if (scopedProjects.length === 0) return undefined
+    return (
+      scopedProjects.find((project) => project.id === selectedProjectId) ??
+      scopedProjects[0]
+    )
+  }, [scopedProjects, selectedProjectId])
 
   const openAddProject = () => {
     setEditingProject(null)
@@ -94,6 +129,7 @@ export default function ProjectsPage() {
           id: editingProject.id,
           patch: {
             title: values.title,
+            goalId: values.goalId,
             description: values.description,
             showOnDashboard: values.showOnDashboard,
             statType: values.statType,
@@ -108,6 +144,7 @@ export default function ProjectsPage() {
         type: "ADD_PROJECT",
         payload: {
           title: values.title,
+          goalId: values.goalId || defaultGoalId,
           description: values.description,
           showOnDashboard: values.showOnDashboard ?? true,
           statType: values.statType,
@@ -244,14 +281,14 @@ export default function ProjectsPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,320px)_1fr]">
         <ProjectList
-          projects={projects}
+          projects={scopedProjects}
           selectedProjectId={selectedProjectId}
           onSelectProject={setSelectedProjectId}
           onAddProject={openAddProject}
         />
 
         <div className="min-w-0">
-          {projects.length > 0 && selectedProject ? (
+          {scopedProjects.length > 0 && selectedProject ? (
             <ProjectView
               project={selectedProject}
               onEditProject={() => openEditProject(selectedProject)}
@@ -308,10 +345,15 @@ export default function ProjectsPage() {
             />
           ) : (
             <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
-              <p className="font-medium text-slate-950">Проектов пока нет</p>
+              <p className="font-medium text-slate-950">
+                {selectedGoalId === ALL_GOALS_SCOPE
+                  ? "Проектов пока нет"
+                  : `В цели «${getSelectedGoalTitle(selectedGoalId, state.goals)}» пока нет проектов`}
+              </p>
               <p className="mt-2 text-sm text-slate-600">
-                Создайте первый проект в списке слева, чтобы планировать задачи и
-                дедлайны.
+                {selectedGoalId === ALL_GOALS_SCOPE
+                  ? "Создайте первый проект в списке слева, чтобы планировать задачи и дедлайны."
+                  : "Создайте первый проект для выбранной цели."}
               </p>
             </div>
           )}
@@ -322,6 +364,8 @@ export default function ProjectsPage() {
         open={projectDialogOpen}
         onOpenChange={setProjectDialogOpen}
         initialProject={editingProject ?? undefined}
+        goals={selectableGoals}
+        defaultGoalId={defaultGoalId}
         onSubmit={handleProjectSubmit}
       />
 

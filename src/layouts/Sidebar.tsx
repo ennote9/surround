@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { SidebarGoalSwitcher } from "@/layouts/SidebarGoalSwitcher"
 import {
   BarChart3,
   CalendarCheck,
@@ -9,6 +10,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Settings,
+  Target,
   type LucideIcon,
 } from "lucide-react"
 import { NavLink } from "react-router-dom"
@@ -22,6 +24,7 @@ type NavItem = {
 
 const items: NavItem[] = [
   { to: "/", label: "Главная", icon: Home, end: true },
+  { to: "/goals", label: "Цели", icon: Target },
   { to: "/projects", label: "Проекты", icon: FolderKanban },
   { to: "/routine", label: "Рутина", icon: CalendarCheck },
   { to: "/analytics", label: "Аналитика", icon: BarChart3 },
@@ -73,23 +76,27 @@ export function Sidebar({ collapsed, onToggleCollapsed }: SidebarProps) {
         >
           {collapsed ? (
             <>
-              <span className="sr-only">Canada Progress OS</span>
+              <span className="sr-only">Life Progress OS</span>
               <div
                 className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-sm font-bold tracking-tight text-blue-700 ring-1 ring-blue-200"
                 aria-hidden
               >
-                CP
+                LP
               </div>
             </>
           ) : (
             <div className="min-w-0 flex-1">
               <p className="text-lg font-semibold tracking-tight text-slate-950">
-                Canada Progress OS
+                Life Progress OS
               </p>
-              <p className="mt-1 text-sm text-slate-500">Трекер подготовки</p>
+              <p className="mt-1 text-sm text-slate-500">
+                Система целей и прогресса
+              </p>
             </div>
           )}
         </div>
+
+        <SidebarGoalSwitcher collapsed={collapsed} />
 
         <Separator className="shrink-0 bg-slate-200" />
 

@@ -15,12 +15,14 @@ import { CHARACTER_STATS } from "@/features/dashboard/characterStats"
 import { PROJECT_PHASES } from "@/shared/lib/projectPhases"
 import type {
   CharacterStatType,
+  Goal,
   Project,
   ProjectPhase,
 } from "@/store/appState.types"
 
 export type ProjectFormValues = {
   title: string
+  goalId?: string
   description?: string
   showOnDashboard: boolean
   statType?: CharacterStatType
@@ -32,18 +34,28 @@ type ProjectDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   initialProject?: Project
+  goals: Goal[]
+  defaultGoalId?: string
   onSubmit: (values: ProjectFormValues) => void
 }
 
 function ProjectDialogFields({
   initialProject,
+  goals,
+  defaultGoalId,
   onSubmit,
   onOpenChange,
 }: {
   initialProject?: Project
+  goals: Goal[]
+  defaultGoalId?: string
   onSubmit: (values: ProjectFormValues) => void
   onOpenChange: (open: boolean) => void
 }) {
+  const firstGoalId = goals[0]?.id
+  const [goalId, setGoalId] = useState(
+    initialProject?.goalId ?? defaultGoalId ?? firstGoalId ?? "",
+  )
   const [title, setTitle] = useState(initialProject?.title ?? "")
   const [description, setDescription] = useState(
     initialProject?.description ?? "",
@@ -64,6 +76,7 @@ function ProjectDialogFields({
     if (!t) return
     onSubmit({
       title: t,
+      goalId: goalId || undefined,
       description: description.trim() || undefined,
       showOnDashboard,
       statType:
@@ -143,15 +156,33 @@ function ProjectDialogFields({
             </div>
           </div>
 
-          <div className="max-w-xs space-y-2">
-            <Label htmlFor="project-target-date">Целевая дата</Label>
-            <Input
-              id="project-target-date"
-              type="date"
-              value={targetDate}
-              onChange={(e) => setTargetDate(e.target.value)}
-              className="border-slate-300"
-            />
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid min-w-0 gap-2">
+              <Label htmlFor="project-goal">Цель</Label>
+              <select
+                id="project-goal"
+                value={goalId}
+                onChange={(e) => setGoalId(e.target.value)}
+                className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 shadow-xs outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/30"
+              >
+                {goals.map((goal) => (
+                  <option key={goal.id} value={goal.id}>
+                    {goal.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid min-w-0 gap-2">
+              <Label htmlFor="project-target-date">Целевая дата</Label>
+              <Input
+                id="project-target-date"
+                type="date"
+                value={targetDate}
+                onChange={(e) => setTargetDate(e.target.value)}
+                className="border-slate-300"
+              />
+            </div>
           </div>
 
           <div className="flex gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
@@ -199,6 +230,8 @@ export function ProjectDialog({
   open,
   onOpenChange,
   initialProject,
+  goals,
+  defaultGoalId,
   onSubmit,
 }: ProjectDialogProps) {
   return (
@@ -211,6 +244,8 @@ export function ProjectDialog({
           <ProjectDialogFields
             key={initialProject?.id ?? "__add__"}
             initialProject={initialProject}
+            goals={goals}
+            defaultGoalId={defaultGoalId}
             onSubmit={onSubmit}
             onOpenChange={onOpenChange}
           />

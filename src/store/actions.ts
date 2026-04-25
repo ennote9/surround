@@ -2,6 +2,8 @@ import type {
   AppState,
   AppSettings,
   CharacterStatType,
+  Goal,
+  GoalStatus,
   Habit,
   Milestone,
   Project,
@@ -12,6 +14,7 @@ import type {
 
 export type AddProjectPayload = {
   title: string
+  goalId?: string
   description?: string
   showOnDashboard?: boolean
   statType?: CharacterStatType
@@ -25,6 +28,7 @@ export type UpdateProjectPayload = {
     Pick<
       Project,
       | "title"
+      | "goalId"
       | "description"
       | "showOnDashboard"
       | "statType"
@@ -35,6 +39,21 @@ export type UpdateProjectPayload = {
 }
 
 export type DeleteProjectPayload = { id: string }
+
+export type AddGoalPayload = {
+  title: string
+  description?: string
+  targetDate?: string
+  status?: GoalStatus
+  showOnDashboard?: boolean
+}
+
+export type UpdateGoalPayload = {
+  goalId: string
+  patch: Partial<
+    Pick<Goal, "title" | "description" | "targetDate" | "status" | "showOnDashboard">
+  >
+}
 
 export type AddGroupPayload = { projectId: string; title: string }
 
@@ -104,6 +123,9 @@ export type UpdateSettingsPayload = { patch: Partial<AppSettings> }
 export type AppAction =
   | { type: "RESET_STATE" }
   | { type: "IMPORT_STATE"; payload: AppState }
+  | { type: "ADD_GOAL"; payload: AddGoalPayload }
+  | { type: "UPDATE_GOAL"; payload: UpdateGoalPayload }
+  | { type: "ARCHIVE_GOAL"; payload: { goalId: string } }
   | { type: "ADD_PROJECT"; payload: AddProjectPayload }
   | { type: "UPDATE_PROJECT"; payload: UpdateProjectPayload }
   | { type: "DELETE_PROJECT"; payload: DeleteProjectPayload }
