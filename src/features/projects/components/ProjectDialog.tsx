@@ -93,10 +93,6 @@ function ProjectDialogFields({
                 className="border-slate-300"
                 placeholder="Например, Подготовка к IELTS"
               />
-              <p className="text-xs text-slate-500">
-                Короткое название проекта. Оно будет отображаться в списке, на
-                Главной и в аналитике.
-              </p>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="project-desc">Описание</Label>
@@ -107,10 +103,6 @@ function ProjectDialogFields({
                 className="border-slate-300"
                 rows={3}
               />
-              <p className="text-xs text-slate-500">
-                Кратко опишите роль проекта: зачем он нужен и какой результат должен
-                дать.
-              </p>
             </div>
           </div>
 
@@ -130,9 +122,6 @@ function ProjectDialogFields({
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-slate-500">
-                Выберите характеристику, которую прокачивает этот проект.
-              </p>
             </div>
             <div className="grid min-w-0 gap-2">
               <Label htmlFor="project-phase">Фаза проекта</Label>
@@ -148,10 +137,6 @@ function ProjectDialogFields({
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-slate-500">
-                Фаза помогает отличать текущие проекты от будущих и стратегических
-                целей.
-              </p>
             </div>
           </div>
 
@@ -161,28 +146,20 @@ function ProjectDialogFields({
               checked={showOnDashboard}
               onCheckedChange={(v) => setShowOnDashboard(v === true)}
               className="mt-0.5 border-slate-400 data-checked:border-blue-600 data-checked:bg-blue-600"
-              aria-describedby="project-show-dashboard-hint"
             />
-            <div className="min-w-0 flex-1 space-y-1">
+            <div className="min-w-0 flex-1">
               <Label
                 htmlFor="project-show-dashboard"
                 className="cursor-pointer text-sm font-medium leading-snug text-slate-950"
               >
                 Показывать плитку на Главной
               </Label>
-              <p
-                id="project-show-dashboard-hint"
-                className="text-xs leading-relaxed text-slate-500"
-              >
-                Если выключено, проект останется во вкладке «Проекты», но исчезнет с
-                Главной.
-              </p>
             </div>
           </div>
         </div>
       </div>
 
-      <DialogFooter className="shrink-0 gap-2 border-t border-slate-200 bg-slate-50/90 px-5 py-4 sm:flex-row sm:justify-end sm:gap-2">
+      <DialogFooter className="shrink-0 gap-2 border-t border-slate-200 bg-slate-50/90 px-8.5 pb-8 pt-4 sm:flex-row sm:justify-end sm:gap-0">
         <Button
           type="button"
           variant="outline"
