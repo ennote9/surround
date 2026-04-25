@@ -1,6 +1,7 @@
 import { useMemo } from "react"
 import { AnalyticsSummaryCards } from "@/features/analytics/components/AnalyticsSummaryCards"
 import { HabitComplianceChart } from "@/features/analytics/components/HabitComplianceChart"
+import { ProjectTargetDatesCard } from "@/features/analytics/components/ProjectTargetDatesCard"
 import { ProjectProgressChart } from "@/features/analytics/components/ProjectProgressChart"
 import { TaskStatusChart } from "@/features/analytics/components/TaskStatusChart"
 import { UpcomingDeadlines } from "@/features/analytics/components/UpcomingDeadlines"
@@ -69,6 +70,10 @@ export default function AnalyticsPage() {
       <div className="grid gap-4 xl:grid-cols-2">
         <HabitComplianceChart habits={habits} />
         <UpcomingDeadlines projects={projects} />
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <ProjectTargetDatesCard projects={projects} />
       </div>
     </div>
   )
