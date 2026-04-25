@@ -1,5 +1,4 @@
 import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -7,8 +6,11 @@ import { useAuth } from "@/features/auth/useAuth"
 
 type AuthMode = "signIn" | "signUp"
 
+function goToHome() {
+  window.location.assign("/")
+}
+
 export default function AuthPage() {
-  const navigate = useNavigate()
   const {
     user,
     loading,
@@ -41,7 +43,7 @@ export default function AuthPage() {
 
     if (mode === "signIn") {
       await signIn(cleanEmail, cleanPassword)
-      navigate("/")
+      goToHome()
       return
     }
 
@@ -87,7 +89,7 @@ export default function AuthPage() {
                 type="button"
                 variant="outline"
                 className="border-slate-300"
-                onClick={() => navigate("/")}
+                onClick={() => goToHome()}
               >
                 Перейти в приложение
               </Button>
@@ -190,9 +192,12 @@ export default function AuthPage() {
 
         <p className="mt-4 text-xs text-slate-500">
           Для возврата используйте{" "}
-          <Link to="/" className="underline underline-offset-2 hover:text-blue-600">
+          <a
+            href="/"
+            className="underline underline-offset-2 hover:text-blue-600"
+          >
             главную страницу
-          </Link>
+          </a>
           .
         </p>
       </div>

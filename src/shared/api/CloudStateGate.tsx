@@ -79,11 +79,27 @@ export function CloudStateGate({ children }: CloudStateGateProps) {
   }
 
   if (!appState) {
-    return null
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+        <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white px-6 py-5 text-center shadow-sm">
+          <p className="text-sm font-semibold text-slate-900">
+            Не удалось инициализировать приложение
+          </p>
+          <p className="mt-2 text-xs text-slate-600">Нет данных состояния после загрузки.</p>
+        </div>
+      </div>
+    )
   }
 
   if (!user) {
-    return null
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+        <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white px-6 py-5 text-center shadow-sm">
+          <p className="text-sm font-semibold text-slate-900">Сессия не найдена</p>
+          <p className="mt-2 text-xs text-slate-600">Обновите страницу или войдите снова.</p>
+        </div>
+      </div>
+    )
   }
 
   return <>{children(appState, user.id)}</>
