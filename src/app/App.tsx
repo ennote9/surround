@@ -12,10 +12,12 @@ export default function App() {
       <>
         <ProtectedApp>
           <CloudStateGate>
-            {(initialState) => (
+            {(initialState, userId) => (
               <AppStateProvider
                 initialState={initialState}
                 persistenceMode="memory"
+                cloudSaveMode="goals-projects-tasks-habits-milestones-settings"
+                userId={userId}
               >
                 <RouterProvider router={router} />
               </AppStateProvider>

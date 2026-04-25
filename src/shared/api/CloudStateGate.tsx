@@ -4,7 +4,7 @@ import type { AppState } from "@/store/appState.types"
 import { loadCloudAppState } from "./cloudStateAssembler"
 
 type CloudStateGateProps = {
-  children: (initialState: AppState) => ReactNode
+  children: (initialState: AppState, userId: string) => ReactNode
 }
 
 export function CloudStateGate({ children }: CloudStateGateProps) {
@@ -82,5 +82,9 @@ export function CloudStateGate({ children }: CloudStateGateProps) {
     return null
   }
 
-  return <>{children(appState)}</>
+  if (!user) {
+    return null
+  }
+
+  return <>{children(appState, user.id)}</>
 }

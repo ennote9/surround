@@ -13,6 +13,7 @@ import type {
 } from "./appState.types"
 
 export type AddProjectPayload = {
+  id?: string
   title: string
   goalId?: string
   description?: string
@@ -20,6 +21,8 @@ export type AddProjectPayload = {
   statType?: CharacterStatType
   phase?: ProjectPhase
   targetDate?: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 export type UpdateProjectPayload = {
@@ -41,11 +44,14 @@ export type UpdateProjectPayload = {
 export type DeleteProjectPayload = { id: string }
 
 export type AddGoalPayload = {
+  id?: string
   title: string
   description?: string
   targetDate?: string
   status?: GoalStatus
   showOnDashboard?: boolean
+  createdAt?: string
+  updatedAt?: string
 }
 
 export type UpdateGoalPayload = {
@@ -55,7 +61,13 @@ export type UpdateGoalPayload = {
   >
 }
 
-export type AddGroupPayload = { projectId: string; title: string }
+export type AddGroupPayload = {
+  id?: string
+  projectId: string
+  title: string
+  createdAt?: string
+  updatedAt?: string
+}
 
 export type UpdateGroupPayload = {
   projectId: string
@@ -66,12 +78,15 @@ export type UpdateGroupPayload = {
 export type DeleteGroupPayload = { projectId: string; groupId: string }
 
 export type AddTaskPayload = {
+  id?: string
   projectId: string
   groupId: string
   title: string
   deadline?: string
   notes?: string
   priority?: Task["priority"]
+  createdAt?: string
+  updatedAt?: string
 }
 
 export type UpdateTaskPayload = {
@@ -87,9 +102,16 @@ export type TaskRefPayload = {
   projectId: string
   groupId: string
   taskId: string
+  completed?: boolean
 }
 
-export type AddHabitPayload = { name: string; description?: string }
+export type AddHabitPayload = {
+  id?: string
+  name: string
+  description?: string
+  createdAt?: string
+  updatedAt?: string
+}
 
 export type UpdateHabitPayload = {
   id: string
@@ -98,13 +120,20 @@ export type UpdateHabitPayload = {
 
 export type DeleteHabitPayload = { id: string }
 
-export type ToggleHabitDatePayload = { id: string; date: string }
+export type ToggleHabitDatePayload = {
+  id: string
+  date: string
+  completed?: boolean
+}
 
 export type AddMilestonePayload = {
+  id?: string
   title: string
   date: string
   projectId?: string
   completed?: boolean
+  createdAt?: string
+  updatedAt?: string
 }
 
 export type UpdateMilestonePayload = {
@@ -116,7 +145,7 @@ export type UpdateMilestonePayload = {
 
 export type DeleteMilestonePayload = { id: string }
 
-export type ToggleMilestonePayload = { id: string }
+export type ToggleMilestonePayload = { id: string; completed?: boolean }
 
 export type UpdateSettingsPayload = { patch: Partial<AppSettings> }
 

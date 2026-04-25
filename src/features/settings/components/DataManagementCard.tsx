@@ -1,5 +1,7 @@
 import { useRef, useState, type ChangeEvent } from "react"
 import { toast } from "sonner"
+import { importAppStateIntoCloud } from "@/shared/api/cloudImportAppState"
+import { useAuth } from "@/features/auth/useAuth"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,11 +30,16 @@ const DEFAULT_SETTINGS: AppState["settings"] = {
   accentColor: "#4a86e8",
 }
 
+const CLOUD_IMPORT_CONFIRM =
+  "Импорт заменит текущие облачные данные аккаунта. Это действие нельзя отменить. Рекомендуется заранее экспортировать backup. Продолжить?"
+
 export function DataManagementCard() {
   const { state, dispatch } = useAppState()
+  const { user } = useAuth()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [resetOpen, setResetOpen] = useState(false)
   const [clearOpen, setClearOpen] = useState(false)
+  const [importing, setImporting] = useState(false)
 
   const handleExportJson = () => {
     let url: string | undefined
@@ -76,28 +83,57 @@ export function DataManagementCard() {
 
     const reader = new FileReader()
     reader.onload = () => {
-      try {
-        const text = reader.result
-        if (typeof text !== "string") {
-          toast.error("Не удалось прочитать файл")
-          return
-        }
-        const parsed: unknown = JSON.parse(text)
-        const imported = tryParseImportedAppState(parsed)
-        if (!imported) {
-          toast.error("Неверный формат резервной копии", {
-            description:
-              "Убедитесь, что выбран JSON-файл, экспортированный из этого приложения.",
+      void (async () => {
+        try {
+          const text = reader.result
+          if (typeof text !== "string") {
+            toast.error("Не удалось прочитать файл")
+            return
+          }
+          const parsed: unknown = JSON.parse(text)
+          const imported = tryParseImportedAppState(parsed)
+          if (!imported) {
+            toast.error("Неверный формат резервной копии", {
+              description:
+                "Убедитесь, что выбран JSON-файл, экспортированный из этого приложения.",
+            })
+            return
+          }
+          if (!user?.id) {
+            toast.error("Нужно войти в аккаунт для импорта в облако.")
+            return
+          }
+          if (!window.confirm(CLOUD_IMPORT_CONFIRM)) {
+            return
+          }
+
+          setImporting(true)
+          try {
+            const result = await importAppStateIntoCloud(user.id, imported)
+            if (result.error) {
+              toast.error("Не удалось импортировать в облако", {
+                description: result.error,
+              })
+              return
+            }
+            const nextState = result.data
+            if (nextState === null) {
+              toast.error("Не удалось импортировать в облако", {
+                description: "Пустой ответ сервера.",
+              })
+              return
+            }
+            dispatch({ type: "IMPORT_STATE", payload: nextState })
+            toast.success("Данные импортированы в облако и применены")
+          } finally {
+            setImporting(false)
+          }
+        } catch {
+          toast.error("Ошибка при разборе JSON", {
+            description: "Файл повреждён или не является корректным JSON.",
           })
-          return
         }
-        dispatch({ type: "IMPORT_STATE", payload: imported })
-        toast.success("Данные импортированы")
-      } catch {
-        toast.error("Ошибка при разборе JSON", {
-          description: "Файл повреждён или не является корректным JSON.",
-        })
-      }
+      })()
     }
     reader.onerror = () => {
       toast.error("Не удалось прочитать файл")
@@ -171,9 +207,10 @@ export function DataManagementCard() {
             variant="outline"
             className="border-slate-200 bg-white text-slate-950 hover:bg-slate-50"
             aria-label="Импортировать JSON из файла"
+            disabled={importing}
             onClick={handleImportClick}
           >
-            Импорт JSON
+            {importing ? "Импортируем..." : "Импорт JSON"}
           </Button>
           <Button
             type="button"

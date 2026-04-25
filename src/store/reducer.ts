@@ -30,18 +30,21 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
       return structuredClone(action.payload)
 
     case "ADD_GOAL": {
-      const title = action.payload.title.trim()
+      const p = action.payload
+      const title = p.title.trim()
       if (!title) return state
 
+      const createdAt = p.createdAt ?? t
+      const updatedAt = p.updatedAt ?? t
       const goal: Goal = {
-        id: createId("goal"),
+        id: p.id ?? createId("goal"),
         title,
-        description: action.payload.description?.trim() || undefined,
-        targetDate: action.payload.targetDate?.trim() || undefined,
-        status: action.payload.status ?? "active",
-        showOnDashboard: action.payload.showOnDashboard ?? true,
-        createdAt: t,
-        updatedAt: t,
+        description: p.description?.trim() || undefined,
+        targetDate: p.targetDate?.trim() || undefined,
+        status: p.status ?? "active",
+        showOnDashboard: p.showOnDashboard ?? true,
+        createdAt,
+        updatedAt,
       }
 
       return { ...state, goals: [...state.goals, goal] }
@@ -94,7 +97,7 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
     case "ADD_PROJECT": {
       const p = action.payload
       const project: Project = {
-        id: createId("project"),
+        id: p.id ?? createId("project"),
         goalId: p.goalId || CANADA_GOAL_ID,
         title: p.title,
         description: p.description,
@@ -102,8 +105,8 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
         showOnDashboard: p.showOnDashboard ?? true,
         phase: p.phase ?? "active",
         groups: [],
-        createdAt: t,
-        updatedAt: t,
+        createdAt: p.createdAt ?? t,
+        updatedAt: p.updatedAt ?? t,
         ...(p.statType !== undefined ? { statType: p.statType } : {}),
       }
       return { ...state, projects: [...state.projects, project] }
@@ -141,13 +144,13 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
             -1,
           )
           const group: TaskGroup = {
-            id: createId("group"),
+            id: action.payload.id ?? createId("group"),
             projectId,
             title,
             tasks: [],
             order: maxOrder + 1,
-            createdAt: t,
-            updatedAt: t,
+            createdAt: action.payload.createdAt ?? t,
+            updatedAt: action.payload.updatedAt ?? t,
           }
           return {
             ...proj,
@@ -194,7 +197,7 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
       const { projectId, groupId, title, deadline, notes, priority } =
         action.payload
       const task: Task = {
-        id: createId("task"),
+        id: action.payload.id ?? createId("task"),
         groupId,
         projectId,
         title,
@@ -202,8 +205,8 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
         deadline,
         notes,
         priority,
-        createdAt: t,
-        updatedAt: t,
+        createdAt: action.payload.createdAt ?? t,
+        updatedAt: action.payload.updatedAt ?? t,
       }
       return {
         ...state,
@@ -306,12 +309,12 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
 
     case "ADD_HABIT": {
       const habit: Habit = {
-        id: createId("habit"),
+        id: action.payload.id ?? createId("habit"),
         name: action.payload.name,
         description: action.payload.description,
         dailyStatus: {},
-        createdAt: t,
-        updatedAt: t,
+        createdAt: action.payload.createdAt ?? t,
+        updatedAt: action.payload.updatedAt ?? t,
       }
       return { ...state, habits: [...state.habits, habit] }
     }
@@ -340,7 +343,10 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
         habits: state.habits.map((h) => {
           if (h.id !== id) return h
           const prev = h.dailyStatus[date]
-          const nextVal = prev !== true
+          const nextVal =
+            typeof action.payload.completed === "boolean"
+              ? action.payload.completed
+              : prev !== true
           return {
             ...h,
             dailyStatus: { ...h.dailyStatus, [date]: nextVal },
@@ -353,13 +359,13 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
     case "ADD_MILESTONE": {
       const p = action.payload
       const milestone: Milestone = {
-        id: createId("milestone"),
+        id: p.id ?? createId("milestone"),
         projectId: p.projectId,
         title: p.title,
         date: p.date,
         completed: p.completed ?? false,
-        createdAt: t,
-        updatedAt: t,
+        createdAt: p.createdAt ?? t,
+        updatedAt: p.updatedAt ?? t,
       }
       return { ...state, milestones: [...state.milestones, milestone] }
     }
@@ -387,7 +393,14 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
         ...state,
         milestones: state.milestones.map((m) =>
           m.id === id
-            ? { ...m, completed: !m.completed, updatedAt: t }
+            ? {
+                ...m,
+                completed:
+                  typeof action.payload.completed === "boolean"
+                    ? action.payload.completed
+                    : !m.completed,
+                updatedAt: t,
+              }
             : m,
         ),
       }

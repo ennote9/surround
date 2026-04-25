@@ -21,6 +21,7 @@ export async function createProjectGroup(
   projectId: string,
   title: string,
   sortOrder?: number,
+  id?: string,
 ): Promise<RepositoryResult<TaskGroup>> {
   if (!supabase) {
     return repositoryFailure("Supabase не настроен.")
@@ -32,6 +33,7 @@ export async function createProjectGroup(
     projectId,
     title,
     order,
+    id,
   )
   const { data, error } = await supabase
     .from("project_groups")

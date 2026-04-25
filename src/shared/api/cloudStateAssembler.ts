@@ -11,23 +11,30 @@ import {
   type RepositoryResult,
 } from "./repositoryResult"
 
-function isAppSettings(value: unknown): value is AppSettings {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) {
-    return false
-  }
-
-  const maybe = value as { theme?: unknown; accentColor?: unknown }
-  const isThemeValid =
-    maybe.theme === "light" || maybe.theme === "dark" || maybe.theme === "system"
-
-  return isThemeValid && typeof maybe.accentColor === "string"
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
 }
 
+/**
+ * Безопасно объединяет снимок из `user_settings.settings` с дефолтом.
+ * Лишние ключи из JSON не ломают `AppSettings`: берём только theme + accentColor.
+ */
 function resolveSettings(settings: Record<string, unknown> | null): AppSettings {
-  if (settings && isAppSettings(settings)) {
-    return settings
+  if (!settings || !isRecord(settings)) {
+    return initialAppState.settings
   }
-  return initialAppState.settings
+
+  const merged = { ...initialAppState.settings, ...settings }
+  const theme =
+    merged.theme === "light" || merged.theme === "dark" || merged.theme === "system"
+      ? merged.theme
+      : initialAppState.settings.theme
+  const accentColor =
+    typeof merged.accentColor === "string" && merged.accentColor.trim() !== ""
+      ? merged.accentColor
+      : initialAppState.settings.accentColor
+
+  return { theme, accentColor }
 }
 
 export async function loadCloudAppState(
