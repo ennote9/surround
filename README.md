@@ -47,6 +47,7 @@ npm run preview
   - `VITE_SUPABASE_URL`
   - `VITE_SUPABASE_ANON_KEY`
 - Full guide: [docs/deployment-vercel.md](docs/deployment-vercel.md)
+- Production checklist: [docs/production-launch-checklist.md](docs/production-launch-checklist.md)
 
 ## Структура проекта
 
