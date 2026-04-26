@@ -182,19 +182,19 @@ export function ProjectView({
   )
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex flex-col gap-4 border-b border-slate-200 pb-4 sm:flex-row sm:items-start sm:justify-between">
+    <div className="min-w-0 max-w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+      <div className="flex flex-col gap-4 border-b border-slate-200 pb-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 flex-1">
-          <div className="flex min-w-0 items-center gap-2">
+          <div className="flex min-w-0 items-start gap-2 sm:items-center">
             <CharacterStatIcon
               statType={project.statType}
-              className="h-5 w-5 shrink-0 text-slate-600"
+              className="mt-0.5 h-5 w-5 shrink-0 text-slate-600 sm:mt-0"
             />
-            <h2 className="truncate text-xl font-semibold text-slate-950">
+            <h2 className="min-w-0 flex-1 break-words text-xl font-semibold text-slate-950 lg:truncate">
               {project.title}
             </h2>
           </div>
-          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
+          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-pretty text-xs">
             <span
               className={
                 project.showOnDashboard === false
@@ -237,28 +237,32 @@ export function ProjectView({
             ) : null}
           </div>
           {project.description ? (
-            <p className="mt-2 text-sm text-slate-600">{project.description}</p>
+            <p className="mt-2 break-words text-sm text-slate-600">
+              {project.description}
+            </p>
           ) : null}
           <div className="mt-3 space-y-2">
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 items-center gap-2 sm:gap-3">
               <Progress
                 value={stats.total > 0 ? progress : 0}
-                className="h-2 max-w-xs flex-1 bg-slate-200 [&>[data-slot=progress-indicator]]:bg-blue-600"
+                className="h-2 min-w-0 flex-1 bg-slate-200 lg:max-w-xs [&>[data-slot=progress-indicator]]:bg-blue-600"
               />
-              <span className="text-sm font-medium text-blue-600">{progress}%</span>
+              <span className="shrink-0 text-sm font-medium text-blue-600">
+                {progress}%
+              </span>
             </div>
-            <p className="text-sm text-slate-600">
+            <p className="text-pretty text-sm text-slate-600">
               Задач: {stats.completed} / {stats.total} выполнено, в ожидании:{" "}
               {stats.pending}
             </p>
           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex w-full min-w-0 flex-col gap-2 lg:w-auto lg:flex-row lg:flex-wrap">
           <Button
             type="button"
             variant="outline"
             size="sm"
-            className="border-slate-300 text-slate-700"
+            className="min-h-10 w-full border-slate-300 text-slate-700 lg:w-auto lg:min-h-9"
             onClick={onEditProject}
           >
             Редактировать
@@ -267,7 +271,7 @@ export function ProjectView({
             type="button"
             variant="outline"
             size="sm"
-            className="border-red-200 text-red-600 hover:bg-red-50"
+            className="min-h-10 w-full border-red-200 text-red-600 hover:bg-red-50 lg:w-auto lg:min-h-9"
             onClick={onDeleteProject}
           >
             Удалить
@@ -275,7 +279,7 @@ export function ProjectView({
           <Button
             type="button"
             size="sm"
-            className="bg-blue-600 text-white hover:bg-blue-700"
+            className="min-h-10 w-full bg-blue-600 text-white hover:bg-blue-700 lg:w-auto lg:min-h-9"
             onClick={onAddGroup}
           >
             <Plus className="mr-1 size-4" />
@@ -286,12 +290,10 @@ export function ProjectView({
 
       {sortedGroups.length === 0 ? (
         <div className="py-10 text-center">
-          <p className="text-sm text-slate-600">
-            В проекте пока нет групп задач
-          </p>
+          <p className="text-sm text-slate-600">В проекте пока нет групп задач</p>
           <Button
             type="button"
-            className="mt-4 bg-blue-600 text-white hover:bg-blue-700"
+            className="mt-4 min-h-10 w-full max-w-xs bg-blue-600 text-white hover:bg-blue-700 sm:w-auto"
             onClick={onAddGroup}
           >
             Добавить группу
@@ -300,12 +302,12 @@ export function ProjectView({
       ) : (
         <div className="mt-4 space-y-3">
           {sortedGroups.length > 1 ? (
-            <div className="flex flex-wrap gap-2">
+            <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                className="border-slate-300 text-slate-700"
+                className="min-h-10 border-slate-300 text-slate-700 sm:min-h-9"
                 onClick={handleExpandAllGroups}
               >
                 Развернуть все
@@ -314,7 +316,7 @@ export function ProjectView({
                 type="button"
                 variant="outline"
                 size="sm"
-                className="border-slate-300 text-slate-700"
+                className="min-h-10 border-slate-300 text-slate-700 sm:min-h-9"
                 onClick={handleCollapseAllGroups}
               >
                 Свернуть все
@@ -337,21 +339,23 @@ export function ProjectView({
                 value={group.id}
                 className="border-slate-200"
               >
-                <AccordionTrigger className="py-3 hover:no-underline">
+                <AccordionTrigger className="min-h-11 items-center py-3 hover:no-underline">
                   <div className="flex min-w-0 flex-1 flex-col items-start gap-1 pr-2 text-left sm:flex-row sm:items-center sm:gap-4">
-                    <span className="font-medium text-slate-950">{group.title}</span>
-                    <span className="text-xs text-slate-600">
+                    <span className="min-w-0 break-words font-medium text-slate-950 sm:truncate">
+                      {group.title}
+                    </span>
+                    <span className="shrink-0 text-xs text-slate-600">
                       {gProgress}% · Задач: {taskCount}
                     </span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 pb-3">
+                  <div className="grid grid-cols-1 gap-2 border-b border-slate-100 pb-3 sm:flex sm:flex-wrap sm:items-center sm:gap-2">
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="border-slate-300"
+                      className="min-h-10 w-full border-slate-300 sm:w-auto sm:min-h-9"
                       onClick={() => onEditGroup(group.id)}
                     >
                       <Pencil className="mr-1 size-3.5" />
@@ -361,7 +365,7 @@ export function ProjectView({
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="border-red-200 text-red-600 hover:bg-red-50"
+                      className="min-h-10 w-full border-red-200 text-red-600 hover:bg-red-50 sm:w-auto sm:min-h-9"
                       onClick={() => onDeleteGroup(group.id)}
                     >
                       <Trash2 className="mr-1 size-3.5" />
@@ -370,7 +374,7 @@ export function ProjectView({
                     <Button
                       type="button"
                       size="sm"
-                      className="bg-blue-600 text-white hover:bg-blue-700"
+                      className="min-h-10 w-full bg-blue-600 text-white hover:bg-blue-700 sm:w-auto sm:min-h-9"
                       onClick={() => onAddTask(group.id)}
                     >
                       <Plus className="mr-1 size-3.5" />
@@ -386,7 +390,7 @@ export function ProjectView({
                       <Button
                         type="button"
                         size="sm"
-                        className="mt-3 bg-blue-600 text-white hover:bg-blue-700"
+                        className="mt-3 min-h-10 w-full max-w-xs bg-blue-600 text-white hover:bg-blue-700 sm:w-auto"
                         onClick={() => onAddTask(group.id)}
                       >
                         Добавить задачу

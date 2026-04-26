@@ -74,38 +74,40 @@ export function ProjectTargetDatesCard({ projects }: ProjectTargetDatesCardProps
   const targets = collectProjectTargets(projects)
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 className="text-lg font-semibold text-slate-950">
+    <div className="min-w-0 max-w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+      <h2 className="min-w-0 break-words text-lg font-semibold text-slate-950">
         Ближайшие проектные цели
       </h2>
 
       {targets.length === 0 ? (
-        <div className="mt-6 space-y-1">
-          <p className="text-sm text-slate-600">Проектных целей пока нет</p>
-          <p className="text-xs text-slate-500">
+        <div className="mt-6 min-w-0 space-y-1">
+          <p className="break-words text-sm text-slate-600">Проектных целей пока нет</p>
+          <p className="text-pretty text-xs break-words text-slate-500">
             Добавьте целевую дату в редактировании проекта.
           </p>
         </div>
       ) : (
         <ul className="mt-4 divide-y divide-slate-100">
           {targets.map(({ project, progress, daysLeft }) => (
-            <li key={project.id} className="py-3 first:pt-0 last:pb-0">
-              <div className="flex items-center justify-between gap-3">
+            <li key={project.id} className="min-w-0 py-3.5 first:pt-0 last:pb-0 sm:py-3">
+              <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
                 <Link
                   to="/projects"
                   onClick={() => handleOpenProject(project.id)}
-                  className="min-w-0 truncate text-sm font-medium text-slate-950 transition-colors hover:text-blue-600 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                  className="min-h-11 min-w-0 break-words text-sm font-medium text-slate-950 transition-colors hover:text-blue-600 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 sm:min-h-0 sm:flex-1 sm:truncate"
                   title={project.title}
                 >
                   {project.title}
                 </Link>
-                <span className="shrink-0 text-sm font-semibold text-blue-600">
+                <span className="shrink-0 text-sm font-semibold tabular-nums text-blue-600">
                   {progress}%
                 </span>
               </div>
               <p
                 className={
-                  daysLeft < 0 ? "mt-1 text-sm text-red-600" : "mt-1 text-sm text-slate-500"
+                  daysLeft < 0
+                    ? "mt-1 text-pretty text-sm break-words text-red-600"
+                    : "mt-1 text-pretty text-sm break-words text-slate-500"
                 }
               >
                 {formatDateOnly(project.targetDate)} · {formatDaysLeftLabel(daysLeft)}

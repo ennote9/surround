@@ -40,6 +40,7 @@ npm run preview
 
 ## Deployment
 
+- **PWA:** базовый `manifest.webmanifest` и иконки в `public/icons/`; установка из браузера поддерживается на уровне метаданных. Offline и service worker не включены — приложению нужна сеть (Supabase).
 - First production target: **Vercel**
 - Build command: `npm run build`
 - Output directory: `dist`
@@ -48,6 +49,7 @@ npm run preview
   - `VITE_SUPABASE_ANON_KEY`
 - Full guide: [docs/deployment-vercel.md](docs/deployment-vercel.md)
 - Production checklist: [docs/production-launch-checklist.md](docs/production-launch-checklist.md)
+- Mobile QA (ручная проверка mobile + PWA metadata): [docs/mobile-qa-checklist.md](docs/mobile-qa-checklist.md)
 
 ## Структура проекта
 

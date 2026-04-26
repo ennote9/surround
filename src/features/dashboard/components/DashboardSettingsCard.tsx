@@ -35,21 +35,21 @@ export function DashboardSettingsCard({
   }
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 text-slate-950 shadow-sm">
-      <div className="border-b border-slate-200 pb-4">
-        <h3 className="text-base font-semibold text-slate-950">
+    <div className="min-w-0 max-w-full rounded-2xl border border-slate-200 bg-white p-4 text-slate-950 shadow-sm sm:p-5">
+      <div className="min-w-0 border-b border-slate-200 pb-4">
+        <h3 className="break-words text-base font-semibold text-slate-950">
           Виджеты на Главной
         </h3>
-        <p className="mt-1 text-sm text-slate-600">
+        <p className="mt-1 text-pretty text-sm text-slate-600">
           Выберите, какие плитки отображать на странице.
         </p>
       </div>
 
-      <ul className="mt-4 grid gap-3">
+      <ul className="mt-4 grid min-w-0 gap-3">
         {widgets.map((w) => (
           <li
             key={w.id}
-            className="flex gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3"
+            className="flex min-w-0 gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3"
           >
             <Checkbox
               id={`dashboard-settings-widget-${w.id}`}
@@ -61,31 +61,35 @@ export function DashboardSettingsCard({
             <div className="min-w-0 flex-1">
               <label
                 htmlFor={`dashboard-settings-widget-${w.id}`}
-                className={cn("cursor-pointer text-sm font-medium text-slate-950")}
+                className={cn(
+                  "cursor-pointer text-sm font-medium break-words text-slate-950",
+                )}
               >
                 {w.title}
               </label>
-              <p className="mt-1 text-xs text-slate-500">{w.description}</p>
+              <p className="mt-1 text-pretty text-xs break-words text-slate-500">
+                {w.description}
+              </p>
             </div>
           </li>
         ))}
       </ul>
 
-      <div className="mt-6 space-y-2 border-t border-slate-200 pt-4">
-        <h3 className="text-sm font-semibold text-slate-950">
+      <div className="mt-6 min-w-0 space-y-2 border-t border-slate-200 pt-4">
+        <h3 className="break-words text-sm font-semibold text-slate-950">
           Отображаемые статы
         </h3>
-        <p className="text-xs text-slate-500">
+        <p className="text-pretty text-xs break-words text-slate-500">
           Выберите, какие статы персонажа показывать на Главной.
         </p>
-        <ul className="mt-3 grid max-h-[min(360px,50vh)] grid-cols-1 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
+        <ul className="mt-3 grid max-h-[min(360px,50vh)] min-w-0 grid-cols-1 gap-2 overflow-y-auto overscroll-contain pr-1 sm:grid-cols-2">
           {CHARACTER_STATS.map((stat) => {
             const row = statVisibility.find((v) => v.id === stat.id)
             const checked = row?.enabled ?? false
             return (
               <li
                 key={stat.id}
-                className="flex gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3"
+                className="flex min-w-0 gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3"
               >
                 <Checkbox
                   id={`dashboard-settings-stat-${stat.id}`}
@@ -97,14 +101,16 @@ export function DashboardSettingsCard({
                 <div className="min-w-0 flex-1">
                   <label
                     htmlFor={`dashboard-settings-stat-${stat.id}`}
-                    className="cursor-pointer text-sm font-medium text-slate-950"
+                    className="cursor-pointer text-sm font-medium break-words text-slate-950"
                   >
                     {stat.title}{" "}
-                    <span className="font-mono text-xs font-normal text-slate-500">
+                    <span className="font-mono text-xs font-normal break-all text-slate-500">
                       ({stat.shortTitle})
                     </span>
                   </label>
-                  <p className="mt-1 text-xs text-slate-500">{stat.description}</p>
+                  <p className="mt-1 text-pretty text-xs break-words text-slate-500">
+                    {stat.description}
+                  </p>
                 </div>
               </li>
             )
@@ -112,11 +118,11 @@ export function DashboardSettingsCard({
         </ul>
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center justify-end gap-2 border-t border-slate-200 pt-4">
+      <div className="mt-6 flex flex-col gap-2 border-t border-slate-200 pt-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
         <Button
           type="button"
           variant="outline"
-          className="border-slate-200 bg-white text-slate-950 hover:bg-slate-50"
+          className="min-h-10 w-full border-slate-200 bg-white text-slate-950 hover:bg-slate-50 sm:w-auto sm:min-h-9"
           onClick={onReset}
         >
           Сбросить всё

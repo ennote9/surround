@@ -24,42 +24,48 @@ export function ProjectSummaryCard({
   return (
     <Card
       className={cn(
-        "h-[116px] min-w-0 gap-0 overflow-hidden rounded-2xl border border-slate-200 bg-white py-0 text-slate-950 shadow-sm ring-0",
+        "min-h-[116px] min-w-0 gap-0 overflow-hidden rounded-2xl border border-slate-200 bg-white py-0 text-slate-950 shadow-sm ring-0 md:h-[116px]",
       )}
     >
-      <CardContent className="flex h-full min-h-0 flex-col justify-between p-4">
+      <CardContent className="flex min-h-[116px] flex-1 flex-col justify-between gap-2 p-4 md:min-h-0 md:h-full">
         <div className="flex shrink-0 items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <h3 className="min-w-0 text-sm">
+            <h3 className="min-w-0 text-sm leading-snug">
               <Link
                 to="/projects"
                 onClick={() => onOpenProject?.(project.id)}
                 title={project.title}
-                className="flex min-w-0 items-center gap-1.5 font-semibold text-slate-950 transition-colors hover:text-blue-600 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                className="flex min-h-11 min-w-0 items-center gap-1.5 rounded-md py-0.5 font-semibold text-slate-950 transition-colors hover:text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 md:min-h-0 md:py-0"
               >
                 <CharacterStatIcon
                   statType={project.statType}
                   className="h-4 w-4 shrink-0 text-slate-500"
                 />
-                <span className="truncate">{project.title}</span>
+                <span className="break-words md:truncate">{project.title}</span>
               </Link>
             </h3>
-            <p className="truncate text-xs leading-tight text-slate-500">
-              Групп: {groupCount} · {getProjectPhaseTitle(project.phase)}
+            <p className="mt-0.5 flex flex-wrap gap-x-1 text-pretty text-xs leading-tight text-slate-500">
+              <span className="shrink-0">Групп: {groupCount}</span>
+              <span className="text-slate-300" aria-hidden>
+                ·
+              </span>
+              <span className="min-w-0 break-words">
+                {getProjectPhaseTitle(project.phase)}
+              </span>
             </p>
           </div>
 
-          <span className="shrink-0 text-xl font-semibold tabular-nums text-blue-600">
+          <span className="shrink-0 text-lg font-semibold tabular-nums text-blue-600 md:text-xl">
             {progress}%
           </span>
         </div>
 
         <Progress
           value={barValue}
-          className="h-2 shrink-0 bg-slate-200 [&>[data-slot=progress-indicator]]:bg-blue-600"
+          className="h-2 w-full min-w-0 shrink-0 bg-slate-200 [&>[data-slot=progress-indicator]]:bg-blue-600"
         />
 
-        <p className="shrink-0 truncate text-xs text-slate-600">
+        <p className="shrink-0 text-pretty text-xs text-slate-600 md:truncate">
           {stats.completed} из {stats.total} задач
         </p>
       </CardContent>

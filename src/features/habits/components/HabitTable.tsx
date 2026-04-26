@@ -26,24 +26,26 @@ export function HabitTable({
 }: HabitTableProps) {
   if (habits.length === 0) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white px-6 py-12 text-center shadow-sm">
-        <p className="text-sm font-medium text-slate-950">Привычек пока нет</p>
+      <div className="min-w-0 max-w-full rounded-2xl border border-slate-200 bg-white px-4 py-10 text-center shadow-sm sm:px-6 sm:py-12">
+        <p className="break-words text-sm font-medium text-slate-950">
+          Привычек пока нет
+        </p>
       </div>
     )
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div className="min-w-0 max-w-full overflow-x-auto overscroll-x-contain rounded-2xl border border-slate-200 bg-white shadow-sm [-webkit-overflow-scrolling:touch]">
       <table className="w-full min-w-[720px] border-collapse text-sm">
         <thead>
           <tr className="border-b border-slate-200 bg-slate-50">
-            <th className="px-3 py-3 text-left font-semibold text-slate-950">
+            <th className="min-w-[140px] max-w-[min(40vw,280px)] px-3 py-3 text-left font-semibold text-slate-950">
               Привычка
             </th>
             {weekDates.map((iso, i) => (
               <th
                 key={iso}
-                className="w-12 px-1 py-3 text-center font-semibold text-slate-950"
+                className="min-w-11 w-12 px-1 py-3 text-center font-semibold text-slate-950"
               >
                 <div className="flex flex-col items-center gap-0.5">
                   <span>{WEEKDAY_SHORT[i]}</span>

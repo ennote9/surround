@@ -269,17 +269,17 @@ export default function ProjectsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <header>
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-950">
+    <div className="mx-auto min-w-0 w-full max-w-6xl space-y-4 sm:space-y-6">
+      <header className="min-w-0">
+        <h1 className="text-balance break-words text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
           Проекты и задачи
         </h1>
-        <p className="mt-3 text-slate-600">
+        <p className="mt-2 text-pretty text-sm text-slate-600 sm:mt-3 sm:text-base">
           Управление проектами, группами задач, дедлайнами и прогрессом.
         </p>
       </header>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,320px)_1fr]">
+      <div className="grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,320px)_1fr] lg:gap-6">
         <ProjectList
           projects={scopedProjects}
           selectedProjectId={selectedProjectId}
@@ -287,7 +287,7 @@ export default function ProjectsPage() {
           onAddProject={openAddProject}
         />
 
-        <div className="min-w-0">
+        <div className="min-w-0 pb-1 lg:pb-0">
           {scopedProjects.length > 0 && selectedProject ? (
             <ProjectView
               project={selectedProject}
@@ -344,13 +344,13 @@ export default function ProjectsPage() {
               }}
             />
           ) : (
-            <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
-              <p className="font-medium text-slate-950">
+            <div className="min-w-0 max-w-full rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-10">
+              <p className="break-words font-medium text-slate-950">
                 {selectedGoalId === ALL_GOALS_SCOPE
                   ? "Проектов пока нет"
                   : `В цели «${getSelectedGoalTitle(selectedGoalId, state.goals)}» пока нет проектов`}
               </p>
-              <p className="mt-2 text-sm text-slate-600">
+              <p className="mx-auto mt-2 max-w-full text-pretty text-sm text-slate-600 sm:max-w-md">
                 {selectedGoalId === ALL_GOALS_SCOPE
                   ? "Создайте первый проект в списке слева, чтобы планировать задачи и дедлайны."
                   : "Создайте первый проект для выбранной цели."}

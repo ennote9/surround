@@ -69,19 +69,19 @@ export default function RoutinePage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <header>
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-950">
+    <div className="mx-auto min-w-0 w-full max-w-6xl space-y-4 sm:space-y-6">
+      <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <header className="min-w-0">
+          <h1 className="text-balance break-words text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
             Ежедневная рутина
           </h1>
-          <p className="mt-3 max-w-2xl text-slate-600">
+          <p className="mt-2 max-w-full text-pretty text-sm text-slate-600 sm:mt-3 sm:max-w-2xl sm:text-base">
             Трекер привычек и ежедневных действий, влияющих на общий прогресс.
           </p>
         </header>
         <Button
           type="button"
-          className="shrink-0 bg-blue-600 text-white hover:bg-blue-700"
+          className="min-h-10 w-full shrink-0 bg-blue-600 text-white hover:bg-blue-700 sm:w-auto sm:min-h-9"
           onClick={openAddHabit}
         >
           Добавить привычку
@@ -102,17 +102,17 @@ export default function RoutinePage() {
       />
 
       {habits.length === 0 ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm sm:p-10">
-          <p className="text-base font-semibold text-slate-950">
+        <div className="min-w-0 max-w-full rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-10">
+          <p className="break-words text-base font-semibold text-slate-950">
             Привычек пока нет
           </p>
-          <p className="mx-auto mt-2 max-w-md text-sm text-slate-600">
+          <p className="mx-auto mt-2 max-w-full text-pretty text-sm text-slate-600 sm:max-w-md">
             Добавьте первую привычку, чтобы отслеживать ежедневную рутину и
             compliance по неделям.
           </p>
           <Button
             type="button"
-            className="mt-6 bg-blue-600 text-white hover:bg-blue-700"
+            className="mt-6 min-h-10 w-full max-w-xs bg-blue-600 text-white hover:bg-blue-700 sm:w-auto"
             onClick={openAddHabit}
           >
             Добавить привычку

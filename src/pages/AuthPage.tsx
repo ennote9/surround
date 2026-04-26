@@ -54,16 +54,16 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[70vh] w-full max-w-xl items-center">
-      <div className="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-950">
+    <div className="mx-auto flex min-h-[70vh] w-full min-w-0 max-w-xl items-center px-4 py-6 sm:px-0 sm:py-8">
+      <div className="min-w-0 w-full max-w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+        <h1 className="text-balance break-words text-xl font-semibold tracking-tight text-slate-950 sm:text-2xl">
           Life Progress OS
         </h1>
-        <p className="mt-2 text-sm text-slate-600">
+        <p className="mt-2 text-pretty text-sm text-slate-600">
           Войдите в аккаунт, чтобы синхронизировать цели, проекты и задачи между
           устройствами.
         </p>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-pretty text-xs text-slate-500">
           Синхронизация данных будет подключена на следующих этапах. Сейчас
           проверяется вход в аккаунт.
         </p>
@@ -71,24 +71,39 @@ export default function AuthPage() {
         {!isConfigured ? (
           <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
             <p className="font-medium">Supabase не настроен</p>
-            <p className="mt-1">
-              Заполните `VITE_SUPABASE_URL` и `VITE_SUPABASE_ANON_KEY` в
-              `.env.local`. Пример есть в `.env.example`.
+            <p className="mt-1 text-pretty break-words">
+              Заполните{" "}
+              <code className="break-all rounded bg-amber-100/80 px-1 py-0.5 text-xs">
+                VITE_SUPABASE_URL
+              </code>{" "}
+              и{" "}
+              <code className="break-all rounded bg-amber-100/80 px-1 py-0.5 text-xs">
+                VITE_SUPABASE_ANON_KEY
+              </code>{" "}
+              в{" "}
+              <code className="break-all rounded bg-amber-100/80 px-1 py-0.5 text-xs">
+                .env.local
+              </code>
+              . Пример есть в{" "}
+              <code className="break-all rounded bg-amber-100/80 px-1 py-0.5 text-xs">
+                .env.example
+              </code>
+              .
             </p>
           </div>
         ) : null}
 
         {user ? (
-          <div className="mt-5 space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <div className="mt-5 min-w-0 space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
             <p className="text-sm font-medium text-slate-950">
               Вы уже вошли в аккаунт
             </p>
-            <p className="text-xs text-slate-600">{user.email}</p>
-            <div className="flex flex-wrap gap-2">
+            <p className="break-all text-xs text-slate-600">{user.email}</p>
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
               <Button
                 type="button"
                 variant="outline"
-                className="border-slate-300"
+                className="min-h-10 w-full border-slate-300 sm:w-auto sm:min-h-9"
                 onClick={() => goToHome()}
               >
                 Перейти в приложение
@@ -96,7 +111,7 @@ export default function AuthPage() {
               <Button
                 type="button"
                 variant="outline"
-                className="border-slate-300"
+                className="min-h-10 w-full border-slate-300 sm:w-auto sm:min-h-9"
                 onClick={() => void signOut()}
               >
                 Выйти
@@ -105,14 +120,14 @@ export default function AuthPage() {
           </div>
         ) : (
           <div className="mt-5 space-y-4">
-            <div className="flex gap-2">
+            <div className="grid w-full grid-cols-2 gap-2">
               <Button
                 type="button"
                 variant={mode === "signIn" ? "default" : "outline"}
                 className={
                   mode === "signIn"
-                    ? "bg-blue-600 text-white hover:bg-blue-700"
-                    : "border-slate-300"
+                    ? "min-h-10 bg-blue-600 text-white hover:bg-blue-700"
+                    : "min-h-10 border-slate-300"
                 }
                 onClick={() => {
                   setMode("signIn")
@@ -128,8 +143,8 @@ export default function AuthPage() {
                 variant={mode === "signUp" ? "default" : "outline"}
                 className={
                   mode === "signUp"
-                    ? "bg-blue-600 text-white hover:bg-blue-700"
-                    : "border-slate-300"
+                    ? "min-h-10 bg-blue-600 text-white hover:bg-blue-700"
+                    : "min-h-10 border-slate-300"
                 }
                 onClick={() => {
                   setMode("signUp")
@@ -142,26 +157,26 @@ export default function AuthPage() {
               </Button>
             </div>
 
-            <div className="space-y-3">
-              <div className="grid gap-2">
+            <div className="min-w-0 space-y-3">
+              <div className="grid min-w-0 gap-2">
                 <Label htmlFor="auth-email">Email</Label>
                 <Input
                   id="auth-email"
                   type="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  className="border-slate-300"
+                  className="min-w-0 border-slate-300"
                   autoComplete="email"
                 />
               </div>
-              <div className="grid gap-2">
+              <div className="grid min-w-0 gap-2">
                 <Label htmlFor="auth-password">Пароль</Label>
                 <Input
                   id="auth-password"
                   type="password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  className="border-slate-300"
+                  className="min-w-0 border-slate-300"
                   autoComplete={
                     mode === "signIn" ? "current-password" : "new-password"
                   }
@@ -170,14 +185,20 @@ export default function AuthPage() {
             </div>
 
             {localError ? (
-              <p className="text-sm text-red-600">{localError}</p>
+              <p className="text-pretty text-sm break-words text-red-600">
+                {localError}
+              </p>
             ) : null}
-            {error ? <p className="text-sm text-red-600">{error}</p> : null}
-            {info ? <p className="text-sm text-slate-600">{info}</p> : null}
+            {error ? (
+              <p className="text-pretty text-sm break-words text-red-600">{error}</p>
+            ) : null}
+            {info ? (
+              <p className="text-pretty text-sm break-words text-slate-600">{info}</p>
+            ) : null}
 
             <Button
               type="button"
-              className="w-full bg-blue-600 text-white hover:bg-blue-700"
+              className="min-h-11 w-full bg-blue-600 text-white hover:bg-blue-700 sm:min-h-10"
               onClick={() => void handleSubmit()}
               disabled={loading || !isConfigured}
             >
@@ -190,7 +211,7 @@ export default function AuthPage() {
           </div>
         )}
 
-        <p className="mt-4 text-xs text-slate-500">
+        <p className="mt-4 text-pretty text-xs text-slate-500">
           Для возврата используйте{" "}
           <a
             href="/"

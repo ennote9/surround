@@ -182,22 +182,22 @@ export function DataManagementCard() {
 
   return (
     <>
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h3 className="text-lg font-semibold tracking-tight text-slate-950">
+      <div className="min-w-0 max-w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+        <h3 className="break-words text-lg font-semibold tracking-tight text-slate-950">
           Данные приложения
         </h3>
-        <p className="mt-2 text-sm text-slate-600">
+        <p className="mt-2 text-pretty text-sm text-slate-600">
           Экспортируйте резервную копию или импортируйте сохранённое состояние.
         </p>
-        <p className="mt-2 text-xs leading-relaxed text-slate-500">
+        <p className="mt-2 text-pretty text-xs leading-relaxed break-words text-slate-500">
           Очистка удаляет текущие проекты и рутины без возврата к стартовым данным.
           Используйте перед импортом нового seed.
         </p>
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <div className="mt-6 grid grid-cols-1 gap-2 sm:flex sm:flex-row sm:flex-wrap sm:gap-3">
           <Button
             type="button"
             variant="outline"
-            className="border-slate-200 bg-white text-slate-950 hover:bg-slate-50"
+            className="min-h-10 w-full border-slate-200 bg-white text-slate-950 hover:bg-slate-50 sm:w-auto sm:min-h-9"
             onClick={handleExportJson}
           >
             Экспорт JSON
@@ -205,7 +205,7 @@ export function DataManagementCard() {
           <Button
             type="button"
             variant="outline"
-            className="border-slate-200 bg-white text-slate-950 hover:bg-slate-50"
+            className="min-h-10 w-full border-slate-200 bg-white text-slate-950 hover:bg-slate-50 sm:w-auto sm:min-h-9"
             aria-label="Импортировать JSON из файла"
             disabled={importing}
             onClick={handleImportClick}
@@ -215,7 +215,7 @@ export function DataManagementCard() {
           <Button
             type="button"
             variant="outline"
-            className="border-red-200 text-red-700 hover:bg-red-50"
+            className="min-h-10 w-full border-red-200 text-red-700 hover:bg-red-50 sm:w-auto sm:min-h-9"
             onClick={() => setClearOpen(true)}
           >
             Очистить текущие данные
@@ -223,7 +223,7 @@ export function DataManagementCard() {
           <Button
             type="button"
             variant="outline"
-            className="border-red-200 text-red-700 hover:bg-red-50"
+            className="min-h-10 w-full border-red-200 text-red-700 hover:bg-red-50 sm:w-auto sm:min-h-9"
             onClick={() => setResetOpen(true)}
           >
             Сбросить данные
@@ -240,16 +240,18 @@ export function DataManagementCard() {
       </div>
 
       <AlertDialog open={clearOpen} onOpenChange={setClearOpen}>
-        <AlertDialogContent className="border-slate-200 bg-white text-slate-950 sm:max-w-md">
+        <AlertDialogContent className="max-w-[calc(100vw-1.5rem)] border-slate-200 bg-white text-slate-950 sm:max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Очистить текущие данные?</AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-600">
+            <AlertDialogTitle className="break-words text-slate-950">
+              Очистить текущие данные?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-pretty break-words text-slate-600">
               Будут удалены текущие проекты, задачи, рутины и milestones. После этого
               можно импортировать подготовленный seed JSON. Перед очисткой убедитесь,
               что вы сделали экспорт резервной копии.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter className="[&_button]:min-h-10 sm:[&_button]:min-h-9">
             <AlertDialogCancel className="border-slate-200">Отмена</AlertDialogCancel>
             <AlertDialogAction
               className="bg-red-600 text-white hover:bg-red-700"
@@ -262,15 +264,17 @@ export function DataManagementCard() {
       </AlertDialog>
 
       <AlertDialog open={resetOpen} onOpenChange={setResetOpen}>
-        <AlertDialogContent className="border-slate-200 bg-white text-slate-950 sm:max-w-md">
+        <AlertDialogContent className="max-w-[calc(100vw-1.5rem)] border-slate-200 bg-white text-slate-950 sm:max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Сбросить все данные?</AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-600">
+            <AlertDialogTitle className="break-words text-slate-950">
+              Сбросить все данные?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-pretty break-words text-slate-600">
               Проекты, задачи, привычки и вехи будут заменены начальным состоянием
               приложения. Это действие нельзя отменить.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter className="[&_button]:min-h-10 sm:[&_button]:min-h-9">
             <AlertDialogCancel className="border-slate-200">Отмена</AlertDialogCancel>
             <AlertDialogAction
               className="bg-red-600 text-white hover:bg-red-700"

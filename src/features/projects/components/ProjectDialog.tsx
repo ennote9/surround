@@ -91,13 +91,13 @@ function ProjectDialogFields({
 
   return (
     <>
-      <DialogHeader className="shrink-0 border-b border-slate-100 px-5 py-4">
-        <DialogTitle className="text-lg text-slate-950">
+      <DialogHeader className="shrink-0 border-b border-slate-100 px-4 py-4 sm:px-5">
+        <DialogTitle className="min-w-0 break-words text-lg text-slate-950">
           {initialProject ? "Редактировать проект" : "Новый проект"}
         </DialogTitle>
       </DialogHeader>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5">
         <div className="space-y-5">
           <div className="space-y-3">
             <div className="grid gap-2">
@@ -204,18 +204,18 @@ function ProjectDialogFields({
         </div>
       </div>
 
-      <DialogFooter className="shrink-0 gap-2 border-t border-slate-200 bg-slate-50/90 px-8.5 pb-8 pt-4 sm:flex-row sm:justify-end sm:gap-0">
+      <DialogFooter className="flex shrink-0 flex-col-reverse gap-2 border-t border-slate-200 bg-slate-50/90 px-4 pb-6 pt-4 sm:flex-row sm:justify-end sm:gap-2 sm:px-6 sm:pb-8">
         <Button
           type="button"
           variant="outline"
-          className="border-slate-300"
+          className="min-h-10 w-full border-slate-300 sm:w-auto sm:min-h-9"
           onClick={() => onOpenChange(false)}
         >
           Отмена
         </Button>
         <Button
           type="button"
-          className="bg-blue-600 text-white hover:bg-blue-700"
+          className="min-h-10 w-full bg-blue-600 text-white hover:bg-blue-700 sm:w-auto sm:min-h-9"
           disabled={!title.trim()}
           onClick={handleSubmit}
         >
@@ -238,7 +238,7 @@ export function ProjectDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton
-        className="flex max-h-[90vh] w-full max-w-[calc(100%-2rem)] flex-col gap-0 overflow-hidden border-slate-200 bg-white p-0 text-slate-950 sm:max-w-xl"
+        className="flex max-h-[90vh] w-full max-w-[calc(100vw-1.5rem)] flex-col gap-0 overflow-hidden border-slate-200 bg-white p-0 text-slate-950 sm:max-w-xl"
       >
         {open ? (
           <ProjectDialogFields

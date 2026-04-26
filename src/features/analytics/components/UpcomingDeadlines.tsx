@@ -36,8 +36,8 @@ export function UpcomingDeadlines({ projects }: UpcomingDeadlinesProps) {
   const rows = collectDeadlineRows(projects)
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 className="text-lg font-semibold text-slate-950">
+    <div className="min-w-0 max-w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+      <h2 className="min-w-0 break-words text-lg font-semibold text-slate-950">
         Ближайшие дедлайны
       </h2>
       {rows.length === 0 ? (
@@ -47,14 +47,16 @@ export function UpcomingDeadlines({ projects }: UpcomingDeadlinesProps) {
           {rows.map(({ task, project, group }) => (
             <li
               key={task.id}
-              className="flex flex-col gap-1 py-3 first:pt-0 sm:flex-row sm:items-center sm:justify-between"
+              className="flex min-w-0 flex-col gap-2 py-3.5 first:pt-0 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:py-3"
             >
-              <div className="min-w-0">
-                <p className="font-medium text-slate-950">{task.title}</p>
-                <p className="text-xs text-slate-600">
-                  {project.title}
-                  <span className="text-slate-400"> · </span>
-                  {group.title}
+              <div className="min-w-0 flex-1">
+                <p className="break-words font-medium text-slate-950">{task.title}</p>
+                <p className="mt-0.5 flex flex-wrap gap-x-1 text-pretty text-xs text-slate-600">
+                  <span className="min-w-0 break-words">{project.title}</span>
+                  <span className="text-slate-400" aria-hidden>
+                    ·
+                  </span>
+                  <span className="min-w-0 break-words">{group.title}</span>
                 </p>
               </div>
               <div className="flex shrink-0 flex-col items-start gap-0.5 sm:items-end">

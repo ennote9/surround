@@ -69,12 +69,12 @@ export default function AnalyticsPage() {
   }, [habits])
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8">
-      <header>
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-950">
+    <div className="mx-auto min-w-0 w-full max-w-6xl space-y-4 sm:space-y-6 lg:space-y-8">
+      <header className="min-w-0">
+        <h1 className="text-balance break-words text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
           Аналитика
         </h1>
-        <p className="mt-3 text-slate-600">
+        <p className="mt-2 max-w-full text-pretty text-sm text-slate-600 sm:mt-3 sm:text-base">
           {selectedGoalId === ALL_GOALS_SCOPE
             ? "Аналитика по всем активным целям, проектам, задачам и привычкам."
             : `Аналитика цели «${selectedGoalTitle}». Привычки пока учитываются глобально.`}
@@ -90,7 +90,7 @@ export default function AnalyticsPage() {
         averageHabitCompliance={averageHabitCompliance}
       />
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2 xl:gap-4">
         <ProjectProgressChart projects={scopedProjects} />
         <TaskStatusChart
           completed={taskAgg.completed}
@@ -98,12 +98,12 @@ export default function AnalyticsPage() {
         />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2 xl:gap-4">
         <HabitComplianceChart habits={habits} />
         <UpcomingDeadlines projects={scopedProjects} />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2 xl:gap-4">
         <ProjectTargetDatesCard projects={scopedProjects} />
       </div>
     </div>

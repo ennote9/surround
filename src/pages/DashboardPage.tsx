@@ -139,11 +139,13 @@ export default function DashboardPage() {
     <>
       {hasSummarySection ? (
         <section className="min-w-0 space-y-2">
-          <h2 className="text-base font-semibold text-slate-950">Сводка</h2>
+          <h2 className="min-w-0 break-words text-base font-semibold text-slate-950">
+            Сводка
+          </h2>
           <div
             className={cn(
-              "grid min-w-0 items-start gap-3",
-              showOverall && showToday && "md:grid-cols-2",
+              "grid min-w-0 grid-cols-1 items-start gap-4",
+              showOverall && showToday && "md:grid-cols-2 md:gap-3",
             )}
           >
             {showOverall ? (
@@ -166,44 +168,46 @@ export default function DashboardPage() {
       ) : null}
 
       {hasProjectsSection ? (
-        <section className="space-y-2">
-          <h2 className="text-base font-semibold text-slate-950">Проекты</h2>
+        <section className="min-w-0 space-y-2">
+          <h2 className="min-w-0 break-words text-base font-semibold text-slate-950">
+            Проекты
+          </h2>
           {scopedProjects.length === 0 ? (
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm">
-              <p className="text-sm font-medium text-slate-950">
+            <div className="min-w-0 w-full max-w-full rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm sm:p-5">
+              <p className="break-words text-sm font-medium text-slate-950">
                 {selectedGoalId === ALL_GOALS_SCOPE
                   ? "Проектов пока нет"
                   : `В этой цели (${selectedGoalTitle}) пока нет проектов`}
               </p>
-              <p className="mx-auto mt-1 max-w-md text-xs text-slate-600">
+              <p className="mx-auto mt-1 max-w-full text-pretty text-xs text-slate-600 sm:max-w-md">
                 {selectedGoalId === ALL_GOALS_SCOPE
                   ? "Создайте проекты и задачи в разделе «Проекты», чтобы видеть прогресс на главной."
                   : "Создайте первый проект для выбранной цели, чтобы видеть прогресс на главной."}
               </p>
               <Button
                 asChild
-                className="mt-4 bg-blue-600 text-white hover:bg-blue-700"
+                className="mt-4 min-h-10 w-full bg-blue-600 text-white hover:bg-blue-700 sm:w-auto"
               >
                 <Link to="/projects">Перейти к проектам</Link>
               </Button>
             </div>
           ) : dashboardProjects.length === 0 ? (
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm">
-              <p className="text-sm font-medium text-slate-950">
+            <div className="min-w-0 w-full max-w-full rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm sm:p-5">
+              <p className="break-words text-sm font-medium text-slate-950">
                 Нет проектов для отображения на Главной
               </p>
-              <p className="mx-auto mt-1 max-w-md text-xs text-slate-600">
+              <p className="mx-auto mt-1 max-w-full text-pretty text-xs text-slate-600 sm:max-w-md">
                 Включите отображение плитки в настройках нужного проекта.
               </p>
               <Button
                 asChild
-                className="mt-4 bg-blue-600 text-white hover:bg-blue-700"
+                className="mt-4 min-h-10 w-full bg-blue-600 text-white hover:bg-blue-700 sm:w-auto"
               >
                 <Link to="/projects">Открыть проекты</Link>
               </Button>
             </div>
           ) : (
-            <div className="grid min-w-0 gap-3 md:grid-cols-2">
+            <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2 md:gap-3">
               {dashboardProjects.map((project) => (
                 <ProjectSummaryCard
                   key={project.id}
@@ -219,33 +223,38 @@ export default function DashboardPage() {
   )
 
   return (
-    <div className="mx-auto max-w-5xl space-y-5">
-      <header>
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-950">
+    <div className="mx-auto min-w-0 w-full max-w-5xl space-y-4 lg:space-y-5">
+      <header className="min-w-0">
+        <h1 className="text-balance break-words text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
           Главная
         </h1>
       </header>
 
       {!anyWidgetEnabled ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm">
-          <p className="text-sm font-medium text-slate-950">Все плитки скрыты</p>
-          <p className="mx-auto mt-1 max-w-md text-xs text-slate-600">
+        <div className="min-w-0 w-full max-w-full rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm sm:p-5">
+          <p className="break-words text-sm font-medium text-slate-950">
+            Все плитки скрыты
+          </p>
+          <p className="mx-auto mt-1 max-w-full text-pretty text-xs text-slate-600 sm:max-w-md">
             Откройте настройки Главной, чтобы вернуть нужные блоки.
           </p>
-          <Button asChild className="mt-4 bg-blue-600 text-white hover:bg-blue-700">
+          <Button
+            asChild
+            className="mt-4 min-h-10 w-full bg-blue-600 text-white hover:bg-blue-700 sm:w-auto"
+          >
             <Link to="/settings">Настройки Главной</Link>
           </Button>
         </div>
       ) : hasLeftColumn && hasStatsSection ? (
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
-          <div className="min-w-0 space-y-5">{dashboardLeftColumn}</div>
+        <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)] xl:gap-5">
+          <div className="min-w-0 space-y-4 lg:space-y-5">{dashboardLeftColumn}</div>
 
           <aside className="min-w-0">
             <MetricsGrid projects={scopedProjects} visibleStatIds={visibleStatIds} />
           </aside>
         </div>
       ) : hasLeftColumn ? (
-        <div className="min-w-0 space-y-5">{dashboardLeftColumn}</div>
+        <div className="min-w-0 space-y-4 lg:space-y-5">{dashboardLeftColumn}</div>
       ) : hasStatsSection ? (
         <aside className="min-w-0">
           <MetricsGrid projects={scopedProjects} visibleStatIds={visibleStatIds} />

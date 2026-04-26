@@ -19,16 +19,16 @@ export function HabitWeekControls({
   const rangeLabel = `${format(weekStartDate, "d MMM", { locale: ru })} — ${format(weekEnd, "d MMM", { locale: ru })}`
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-center text-sm font-medium text-slate-700 sm:text-left">
+    <div className="flex min-w-0 flex-col gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-4">
+      <p className="min-w-0 break-words text-center text-sm font-medium text-slate-700 sm:text-left">
         {rangeLabel}
       </p>
-      <div className="flex flex-wrap items-center justify-center gap-2">
+      <div className="grid w-full grid-cols-1 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center sm:justify-center sm:gap-2">
         <Button
           type="button"
           variant="outline"
           size="sm"
-          className="border-slate-300 text-slate-700"
+          className="min-h-10 w-full border-slate-300 text-slate-700 sm:w-auto sm:min-h-9"
           onClick={onPreviousWeek}
         >
           ← Предыдущая
@@ -37,7 +37,7 @@ export function HabitWeekControls({
           type="button"
           variant="outline"
           size="sm"
-          className="border-slate-300 text-slate-700"
+          className="min-h-10 w-full border-slate-300 text-slate-700 sm:w-auto sm:min-h-9"
           onClick={onCurrentWeek}
         >
           Текущая
@@ -46,7 +46,7 @@ export function HabitWeekControls({
           type="button"
           variant="outline"
           size="sm"
-          className="border-slate-300 text-slate-700"
+          className="min-h-10 w-full border-slate-300 text-slate-700 sm:w-auto sm:min-h-9"
           onClick={onNextWeek}
         >
           Следующая →

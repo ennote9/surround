@@ -25,10 +25,12 @@ export function HabitRow({
 }: HabitRowProps) {
   return (
     <tr className="border-b border-slate-200 last:border-0">
-      <td className="min-w-[140px] px-3 py-3 align-top">
-        <p className="font-medium text-slate-950">{habit.name}</p>
+      <td className="min-w-[140px] max-w-[min(40vw,280px)] px-3 py-3 align-top">
+        <p className="break-words font-medium text-slate-950">{habit.name}</p>
         {habit.description ? (
-          <p className="mt-1 text-xs text-slate-600">{habit.description}</p>
+          <p className="mt-1 text-pretty text-xs break-words text-slate-600">
+            {habit.description}
+          </p>
         ) : null}
       </td>
       {weekDates.map((date) => {
@@ -37,16 +39,16 @@ export function HabitRow({
           <td
             key={date}
             className={cn(
-              "w-12 px-1 py-3 text-center align-middle",
+              "min-w-11 w-12 px-1 py-2 text-center align-middle sm:py-3",
               done && "bg-blue-50",
             )}
           >
-            <div className="flex justify-center">
+            <div className="mx-auto flex min-h-11 min-w-11 items-center justify-center touch-manipulation">
               <Checkbox
                 id={`habit-${habit.id}-${date}`}
                 checked={done}
                 onCheckedChange={() => onToggleDate(date)}
-                className="border-slate-400 data-checked:border-blue-600 data-checked:bg-blue-600"
+                className="size-5 border-slate-400 data-checked:border-blue-600 data-checked:bg-blue-600 sm:size-4"
                 aria-label={`${habit.name} ${date}`}
               />
             </div>
@@ -59,13 +61,13 @@ export function HabitRow({
       <td className="whitespace-nowrap px-2 py-3 text-center text-sm font-semibold text-blue-600">
         {totalCompliance}%
       </td>
-      <td className="whitespace-nowrap px-2 py-3 text-right">
+      <td className="whitespace-nowrap px-2 py-2 text-right sm:py-3">
         <div className="flex justify-end gap-1">
           <Button
             type="button"
             variant="ghost"
             size="icon-sm"
-            className="text-slate-600 hover:bg-slate-100 hover:text-slate-950"
+            className="min-h-10 min-w-10 text-slate-600 hover:bg-slate-100 hover:text-slate-950 sm:min-h-8 sm:min-w-8"
             aria-label="Редактировать"
             onClick={onEdit}
           >
@@ -75,7 +77,7 @@ export function HabitRow({
             type="button"
             variant="ghost"
             size="icon-sm"
-            className="text-slate-600 hover:bg-red-50 hover:text-red-600"
+            className="min-h-10 min-w-10 text-slate-600 hover:bg-red-50 hover:text-red-600 sm:min-h-8 sm:min-w-8"
             aria-label="Удалить"
             onClick={onDelete}
           >

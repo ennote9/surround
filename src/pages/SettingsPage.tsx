@@ -76,20 +76,20 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-950">
+    <div className="mx-auto min-w-0 w-full max-w-5xl space-y-4 sm:space-y-6 lg:space-y-8">
+      <div className="min-w-0">
+        <h1 className="text-balance break-words text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
           Настройки
         </h1>
-        <p className="mt-3 text-slate-600">
+        <p className="mt-2 max-w-full text-pretty text-sm text-slate-600 sm:mt-3 sm:text-base">
           Управление отображением, данными и поведением приложения.
         </p>
       </div>
 
-      <section className="space-y-3">
-        <div>
-          <h2 className="text-lg font-semibold text-slate-950">Главная</h2>
-          <p className="mt-1 text-sm text-slate-600">
+      <section className="min-w-0 space-y-3">
+        <div className="min-w-0">
+          <h2 className="break-words text-lg font-semibold text-slate-950">Главная</h2>
+          <p className="mt-1 text-pretty text-sm text-slate-600">
             Выберите, какие блоки и статы показывать на Главной.
           </p>
         </div>
@@ -102,25 +102,25 @@ export default function SettingsPage() {
         />
       </section>
 
-      <section className="space-y-3">
-        <div>
-          <h2 className="text-lg font-semibold text-slate-950">Проекты</h2>
-          <p className="mt-1 text-sm text-slate-600">
+      <section className="min-w-0 space-y-3">
+        <div className="min-w-0">
+          <h2 className="break-words text-lg font-semibold text-slate-950">Проекты</h2>
+          <p className="mt-1 text-pretty text-sm text-slate-600">
             Настройте поведение раскрытия групп задач при открытии проекта.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="space-y-2">
-            <h3 className="text-base font-semibold text-slate-950">
+        <div className="min-w-0 max-w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+          <div className="min-w-0 space-y-2">
+            <h3 className="break-words text-base font-semibold text-slate-950">
               Группы внутри проекта
             </h3>
-            <p className="text-sm text-slate-600">
+            <p className="text-pretty text-sm text-slate-600">
               Выберите, как открывать группы задач при переходе между проектами.
             </p>
           </div>
 
-          <div className="mt-4 max-w-xl space-y-2">
+          <div className="mt-4 min-w-0 max-w-full space-y-2 sm:max-w-xl">
             <label
               htmlFor="project-groups-collapse-mode"
               className="text-sm font-medium text-slate-900"
@@ -144,7 +144,7 @@ export default function SettingsPage() {
               ))}
             </select>
             {selectedProjectGroupsCollapseOption ? (
-              <p className="text-sm text-slate-600">
+              <p className="text-pretty text-sm break-words text-slate-600">
                 {selectedProjectGroupsCollapseOption.description}
               </p>
             ) : null}
@@ -155,12 +155,12 @@ export default function SettingsPage() {
               <Button
                 type="button"
                 variant="outline"
-                className="border-slate-300"
+                className="min-h-10 w-full border-slate-300 sm:w-auto sm:min-h-9"
                 onClick={handleResetCollapsedGroups}
               >
                 Сбросить состояния групп
               </Button>
-              <p className="mt-2 text-xs text-slate-500">
+              <p className="mt-2 text-pretty text-xs break-words text-slate-500">
                 Очищает сохраненные раскрытые и свернутые группы для режима
                 запоминания по проектам.
               </p>
@@ -169,12 +169,12 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      <section className="space-y-3">
-        <div>
-          <h2 className="text-lg font-semibold text-slate-950">
+      <section className="min-w-0 space-y-3">
+        <div className="min-w-0">
+          <h2 className="break-words text-lg font-semibold text-slate-950">
             Данные приложения
           </h2>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-pretty text-sm text-slate-600">
             Экспортируйте резервную копию, импортируйте seed JSON или очистите
             текущее состояние.
           </p>

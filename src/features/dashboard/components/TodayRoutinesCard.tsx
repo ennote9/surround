@@ -27,33 +27,33 @@ export function TodayRoutinesCard({ habits, todayISO }: TodayRoutinesCardProps) 
   return (
     <Card
       className={cn(
-        "h-[116px] min-w-0 gap-0 overflow-hidden rounded-2xl border border-slate-200 bg-white py-0 text-slate-950 shadow-sm ring-0",
+        "min-h-[116px] min-w-0 gap-0 overflow-hidden rounded-2xl border border-slate-200 bg-white py-0 text-slate-950 shadow-sm ring-0 md:h-[116px]",
       )}
     >
-      <CardContent className="flex h-full min-h-0 flex-col justify-between p-4">
-        <div className="flex shrink-0 items-center justify-between gap-2">
+      <CardContent className="flex min-h-[116px] flex-1 flex-col justify-between gap-2 p-4 md:min-h-0 md:h-full">
+        <div className="flex shrink-0 items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <h3 className="min-w-0 text-sm">
+            <h3 className="min-w-0 text-sm leading-snug">
               <Link
                 to="/routine"
                 title="Сегодняшние рутины"
-                className="block truncate font-semibold text-slate-950 transition-colors hover:text-blue-600 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="block break-words font-semibold text-slate-950 transition-colors hover:text-blue-600 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 md:truncate"
               >
                 Сегодняшние рутины
               </Link>
             </h3>
           </div>
-          <span className="shrink-0 text-xl font-semibold tabular-nums text-blue-600">
+          <span className="shrink-0 text-lg font-semibold tabular-nums text-blue-600 md:text-xl">
             {todayProgress}%
           </span>
         </div>
 
         <Progress
           value={todayProgress}
-          className="h-2 shrink-0 bg-slate-200 [&>[data-slot=progress-indicator]]:bg-blue-600"
+          className="h-2 w-full min-w-0 shrink-0 bg-slate-200 [&>[data-slot=progress-indicator]]:bg-blue-600"
         />
 
-        <p className="min-w-0 shrink-0 truncate text-xs text-slate-600">
+        <p className="min-w-0 shrink-0 text-pretty text-xs leading-snug text-slate-600 md:truncate">
           {totalHabits === 0
             ? "Привычек пока нет"
             : `Выполнено ${completedToday} из ${totalHabits} привычек`}

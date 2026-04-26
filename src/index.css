@@ -53,10 +53,12 @@ body {
   min-height: 100vh;
   margin: 0;
   background: #f8fafc;
+  overflow-x: hidden;
 }
 
 #root {
   min-height: 100vh;
+  min-width: 0;
 }
 
 .dark {
