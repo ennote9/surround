@@ -19,6 +19,7 @@ import {
   repositorySuccess,
   type RepositoryResult,
 } from "./repositoryResult"
+import { clearCloudAppData } from "./cloudClearAppData"
 import { upsertUserSettings } from "./repositories/userSettingsRepository"
 
 const UUID_RE =
@@ -196,36 +197,6 @@ function validateImportableState(appState: AppState): string | null {
   return null
 }
 
-async function deleteExistingCloudData(
-  userId: string,
-): Promise<RepositoryResult<null>> {
-  if (!supabase) {
-    return repositoryFailure("Supabase не настроен.")
-  }
-
-  const tablesInOrder = [
-    "habit_logs",
-    "tasks",
-    "project_groups",
-    "milestones",
-    "projects",
-    "habits",
-    "goals",
-    "user_settings",
-  ] as const
-
-  for (const table of tablesInOrder) {
-    const { error } = await supabase.from(table).delete().eq("user_id", userId)
-    if (error) {
-      return repositoryFailure(
-        `Не удалось очистить ${table}: ${getRepositoryErrorMessage(error)}`,
-      )
-    }
-  }
-
-  return repositorySuccess(null)
-}
-
 async function insertImportedCloudData(
   userId: string,
   state: AppState,
@@ -364,7 +335,7 @@ export async function importAppStateIntoCloud(
 
   const normalized = normalizeImportedAppStateIds(appState)
 
-  const del = await deleteExistingCloudData(userId)
+  const del = await clearCloudAppData(userId)
   if (del.error) {
     return repositoryFailure(del.error)
   }

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react"
-import { Link, NavLink, useLocation } from "react-router-dom"
+import { NavLink, useLocation } from "react-router-dom"
 import {
   BarChart3,
   CalendarCheck,
@@ -32,6 +32,7 @@ function isMoreRouteActive(pathname: string): boolean {
   return (
     pathname.startsWith("/analytics") ||
     pathname.startsWith("/settings") ||
+    pathname.startsWith("/profile") ||
     pathname.startsWith("/auth")
   )
 }
@@ -89,37 +90,83 @@ export function MobileBottomNavigation() {
           >
             <ul className="flex flex-col gap-0.5">
               <li role="none">
-                <Link
+                <NavLink
                   role="menuitem"
                   to="/analytics"
-                  className="flex min-h-11 items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-800 hover:bg-slate-100"
+                  className={({ isActive }) =>
+                    cn(
+                      "flex min-h-11 items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium",
+                      isActive
+                        ? "bg-blue-50 text-blue-700"
+                        : "text-slate-800 hover:bg-slate-100",
+                    )
+                  }
                   onClick={closeMore}
                 >
-                  <BarChart3 className="size-5 shrink-0 text-slate-600" aria-hidden />
+                  <BarChart3
+                    className={cn(
+                      "size-5 shrink-0",
+                      pathname.startsWith("/analytics")
+                        ? "text-blue-600"
+                        : "text-slate-600",
+                    )}
+                    aria-hidden
+                  />
                   Аналитика
-                </Link>
+                </NavLink>
               </li>
               <li role="none">
-                <Link
+                <NavLink
                   role="menuitem"
                   to="/settings"
-                  className="flex min-h-11 items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-800 hover:bg-slate-100"
+                  className={({ isActive }) =>
+                    cn(
+                      "flex min-h-11 items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium",
+                      isActive
+                        ? "bg-blue-50 text-blue-700"
+                        : "text-slate-800 hover:bg-slate-100",
+                    )
+                  }
                   onClick={closeMore}
                 >
-                  <Settings className="size-5 shrink-0 text-slate-600" aria-hidden />
+                  <Settings
+                    className={cn(
+                      "size-5 shrink-0",
+                      pathname.startsWith("/settings")
+                        ? "text-blue-600"
+                        : "text-slate-600",
+                    )}
+                    aria-hidden
+                  />
                   Настройки
-                </Link>
+                </NavLink>
               </li>
               <li role="none">
-                <Link
+                <NavLink
                   role="menuitem"
-                  to="/auth"
-                  className="flex min-h-11 items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-800 hover:bg-slate-100"
+                  to="/profile"
+                  end
+                  className={({ isActive }) =>
+                    cn(
+                      "flex min-h-11 items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium",
+                      isActive
+                        ? "bg-blue-50 text-blue-700"
+                        : "text-slate-800 hover:bg-slate-100",
+                    )
+                  }
                   onClick={closeMore}
                 >
-                  <User className="size-5 shrink-0 text-slate-600" aria-hidden />
+                  <User
+                    className={cn(
+                      "size-5 shrink-0",
+                      pathname.startsWith("/profile")
+                        ? "text-blue-600"
+                        : "text-slate-600",
+                    )}
+                    aria-hidden
+                  />
                   Аккаунт
-                </Link>
+                </NavLink>
               </li>
             </ul>
           </nav>

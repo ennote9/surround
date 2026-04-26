@@ -91,6 +91,8 @@ export type Habit = {
 
 export type Milestone = {
   id: string
+  /** Веха уровня цели в БД (goal_id); опционально в UI */
+  goalId?: string
   projectId?: string
   title: string
   date: string

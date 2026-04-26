@@ -7,6 +7,7 @@ import GoalsPage from "@/pages/GoalsPage"
 import NotFoundPage from "@/pages/NotFoundPage"
 import ProjectsPage from "@/pages/ProjectsPage"
 import RoutinePage from "@/pages/RoutinePage"
+import ProfilePage from "@/pages/ProfilePage"
 import SettingsPage from "@/pages/SettingsPage"
 
 export const router = createBrowserRouter([
@@ -21,6 +22,7 @@ export const router = createBrowserRouter([
       { path: "routine", element: <RoutinePage /> },
       { path: "analytics", element: <AnalyticsPage /> },
       { path: "settings", element: <SettingsPage /> },
+      { path: "profile", element: <ProfilePage /> },
       { path: "*", element: <NotFoundPage /> },
     ],
   },

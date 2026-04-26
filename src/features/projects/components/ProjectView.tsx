@@ -30,6 +30,8 @@ import { TaskItem } from "./TaskItem"
 
 type ProjectViewProps = {
   project: Project
+  /** Подпись цели из `getProjectGoalLabel` — «Без цели» или название цели */
+  goalContextLabel: string
   onEditProject: () => void
   onDeleteProject: () => void
   onAddGroup: () => void
@@ -81,8 +83,11 @@ function getInitialCollapsedGroupIds(params: {
   return groupIds.length > 3 ? [...groupIds] : []
 }
 
+const NO_GOAL_LABEL = "Без цели"
+
 export function ProjectView({
   project,
+  goalContextLabel,
   onEditProject,
   onDeleteProject,
   onAddGroup,
@@ -193,6 +198,18 @@ export function ProjectView({
             <h2 className="min-w-0 flex-1 break-words text-xl font-semibold text-slate-950 lg:truncate">
               {project.title}
             </h2>
+          </div>
+          <div className="mt-1.5 min-w-0">
+            {goalContextLabel === NO_GOAL_LABEL ? (
+              <span className="inline-flex max-w-full items-center rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-900">
+                Без цели
+              </span>
+            ) : (
+              <p className="text-pretty text-xs text-slate-500">
+                Цель:{" "}
+                <span className="font-medium text-slate-700">{goalContextLabel}</span>
+              </p>
+            )}
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-pretty text-xs">
             <span

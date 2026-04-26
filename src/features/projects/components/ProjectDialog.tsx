@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { CHARACTER_STATS } from "@/features/dashboard/characterStats"
+import { isProjectUnassigned } from "@/shared/lib/selectedGoal"
 import { PROJECT_PHASES } from "@/shared/lib/projectPhases"
 import type {
   CharacterStatType,
@@ -53,9 +54,14 @@ function ProjectDialogFields({
   onOpenChange: (open: boolean) => void
 }) {
   const firstGoalId = goals[0]?.id
-  const [goalId, setGoalId] = useState(
-    initialProject?.goalId ?? defaultGoalId ?? firstGoalId ?? "",
-  )
+  const [goalId, setGoalId] = useState(() => {
+    if (initialProject) {
+      return isProjectUnassigned(initialProject, goals)
+        ? ""
+        : (initialProject.goalId ?? "")
+    }
+    return defaultGoalId ?? firstGoalId ?? ""
+  })
   const [title, setTitle] = useState(initialProject?.title ?? "")
   const [description, setDescription] = useState(
     initialProject?.description ?? "",
@@ -76,7 +82,7 @@ function ProjectDialogFields({
     if (!t) return
     onSubmit({
       title: t,
-      goalId: goalId || undefined,
+      goalId: goalId === "" ? "" : goalId,
       description: description.trim() || undefined,
       showOnDashboard,
       statType:
@@ -165,6 +171,7 @@ function ProjectDialogFields({
                 onChange={(e) => setGoalId(e.target.value)}
                 className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 shadow-xs outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/30"
               >
+                <option value="">Без цели</option>
                 {goals.map((goal) => (
                   <option key={goal.id} value={goal.id}>
                     {goal.title}

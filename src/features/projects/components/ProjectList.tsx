@@ -7,11 +7,13 @@ import {
   getProjectPhaseBadgeClassName,
   getProjectPhaseTitle,
 } from "@/shared/lib/projectPhases"
-import type { Project } from "@/store/appState.types"
+import { isProjectUnassigned } from "@/shared/lib/selectedGoal"
+import type { Goal, Project } from "@/store/appState.types"
 import { getProjectProgress, getProjectTaskStats } from "@/store/selectors"
 
 type ProjectListProps = {
   projects: Project[]
+  goals: Goal[]
   selectedProjectId?: string
   onSelectProject: (projectId: string) => void
   onAddProject: () => void
@@ -19,6 +21,7 @@ type ProjectListProps = {
 
 export function ProjectList({
   projects,
+  goals,
   selectedProjectId,
   onSelectProject,
   onAddProject,
@@ -58,6 +61,7 @@ export function ProjectList({
             const stats = getProjectTaskStats(project)
             const groupCount = project.groups.length
             const isActive = project.id === selectedProjectId
+            const showUnassignedBadge = isProjectUnassigned(project, goals)
 
             return (
               <li key={project.id}>
@@ -88,6 +92,11 @@ export function ProjectList({
                     <span className="min-w-0 flex-1 break-words text-left sm:truncate">
                       {project.title}
                     </span>
+                    {showUnassignedBadge ? (
+                      <span className="shrink-0 rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-amber-900 sm:text-[11px]">
+                        Без цели
+                      </span>
+                    ) : null}
                   </div>
                   <p
                     className={cn(

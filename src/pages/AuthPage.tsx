@@ -54,19 +54,28 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[70vh] w-full min-w-0 max-w-xl items-center px-4 py-6 sm:px-0 sm:py-8">
+    <div className="mx-auto flex min-h-[70vh] w-full min-w-0 max-w-xl items-center overflow-x-hidden px-4 py-6 sm:px-0 sm:py-8">
       <div className="min-w-0 w-full max-w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
         <h1 className="text-balance break-words text-xl font-semibold tracking-tight text-slate-950 sm:text-2xl">
           Life Progress OS
         </h1>
-        <p className="mt-2 text-pretty text-sm text-slate-600">
-          Войдите в аккаунт, чтобы синхронизировать цели, проекты и задачи между
-          устройствами.
-        </p>
-        <p className="mt-1 text-pretty text-xs text-slate-500">
-          Синхронизация данных будет подключена на следующих этапах. Сейчас
-          проверяется вход в аккаунт.
-        </p>
+        {user ? (
+          <p className="mt-2 text-pretty text-sm text-slate-600">
+            Это страница входа и регистрации (шлюз). Вы уже авторизованы — ниже
+            быстрые переходы в приложение или в профиль.
+          </p>
+        ) : (
+          <>
+            <p className="mt-2 text-pretty text-sm text-slate-600">
+              Войдите в аккаунт, чтобы синхронизировать цели, проекты и задачи между
+              устройствами.
+            </p>
+            <p className="mt-1 text-pretty text-xs text-slate-500">
+              Синхронизация данных будет подключена на следующих этапах. Сейчас
+              проверяется вход в аккаунт.
+            </p>
+          </>
+        )}
 
         {!isConfigured ? (
           <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
@@ -94,24 +103,43 @@ export default function AuthPage() {
         ) : null}
 
         {user ? (
-          <div className="mt-5 min-w-0 space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <p className="text-sm font-medium text-slate-950">
-              Вы уже вошли в аккаунт
-            </p>
-            <p className="break-all text-xs text-slate-600">{user.email}</p>
+          <div
+            className="mt-5 min-w-0 space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-5"
+            role="region"
+            aria-label="Состояние входа"
+          >
+            <div className="min-w-0 space-y-2">
+              <h2 className="text-base font-semibold tracking-tight text-slate-950 sm:text-lg">
+                Вы уже вошли в аккаунт
+              </h2>
+              <p className="break-all text-sm text-slate-700">
+                {user.email?.trim() ? user.email : "Не указан"}
+              </p>
+              <p className="text-pretty text-sm text-slate-600">
+                Управлять профилем и безопасностью можно в разделе профиля.
+              </p>
+            </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
               <Button
                 type="button"
                 variant="outline"
-                className="min-h-10 w-full border-slate-300 sm:w-auto sm:min-h-9"
-                onClick={() => goToHome()}
+                className="min-h-11 w-full border-slate-300 sm:w-auto sm:min-h-10"
+                asChild
               >
-                Перейти в приложение
+                <a href="/profile">Перейти в профиль</a>
               </Button>
               <Button
                 type="button"
                 variant="outline"
-                className="min-h-10 w-full border-slate-300 sm:w-auto sm:min-h-9"
+                className="min-h-11 w-full border-slate-300 sm:w-auto sm:min-h-10"
+                asChild
+              >
+                <a href="/">Перейти в приложение</a>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="min-h-11 w-full border-red-200 text-red-800 hover:bg-red-50 sm:w-auto sm:min-h-10"
                 onClick={() => void signOut()}
               >
                 Выйти
@@ -165,7 +193,7 @@ export default function AuthPage() {
                   type="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  className="min-w-0 border-slate-300"
+                  className="min-h-10 min-w-0 w-full max-w-full border-slate-300"
                   autoComplete="email"
                 />
               </div>
@@ -176,7 +204,7 @@ export default function AuthPage() {
                   type="password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  className="min-w-0 border-slate-300"
+                  className="min-h-10 min-w-0 w-full max-w-full border-slate-300"
                   autoComplete={
                     mode === "signIn" ? "current-password" : "new-password"
                   }

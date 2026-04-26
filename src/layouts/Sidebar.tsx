@@ -5,18 +5,17 @@ import { SidebarGoalSwitcher } from "@/layouts/SidebarGoalSwitcher"
 import {
   BarChart3,
   CalendarCheck,
+  CircleUserRound,
   FolderKanban,
   Home,
-  LogIn,
   PanelLeftClose,
   PanelLeftOpen,
   Settings,
   Target,
   type LucideIcon,
 } from "lucide-react"
-import { NavLink, Link } from "react-router-dom"
+import { NavLink } from "react-router-dom"
 import { useAuth } from "@/features/auth/useAuth"
-import { SaveStatusIndicator } from "@/shared/components/SaveStatusIndicator"
 
 type NavItem = {
   to: string
@@ -59,6 +58,8 @@ function navLinkClassName({
 
 export function Sidebar({ collapsed, onToggleCollapsed }: SidebarProps) {
   const { isAuthenticated, user } = useAuth()
+  const accountTitle = isAuthenticated ? "Аккаунт" : "Войти"
+  const accountSubtitle = isAuthenticated ? "Профиль и безопасность" : "Авторизация"
 
   return (
     <aside
@@ -69,7 +70,7 @@ export function Sidebar({ collapsed, onToggleCollapsed }: SidebarProps) {
     >
       <div
         className={cn(
-          "flex min-h-0 flex-1 flex-col gap-6",
+          "flex min-h-0 flex-1 flex-col gap-5",
           collapsed ? "p-3" : "p-5",
         )}
       >
@@ -90,13 +91,26 @@ export function Sidebar({ collapsed, onToggleCollapsed }: SidebarProps) {
               </div>
             </>
           ) : (
-            <div className="min-w-0 flex-1">
-              <p className="text-lg font-semibold tracking-tight text-slate-950">
-                Life Progress OS
-              </p>
-              <p className="mt-1 text-sm text-slate-500">
-                Система целей и прогресса
-              </p>
+            <div className="flex min-w-0 flex-1 items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="truncate text-lg font-semibold tracking-tight text-slate-950">
+                  Life Progress OS
+                </p>
+                <p className="mt-1 truncate text-sm text-slate-500">
+                  Система целей и прогресса
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                className="shrink-0 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                aria-label="Свернуть сайдбар"
+                title="Свернуть сайдбар"
+                onClick={onToggleCollapsed}
+              >
+                <PanelLeftClose className="size-4" aria-hidden />
+              </Button>
             </div>
           )}
         </div>
@@ -126,58 +140,46 @@ export function Sidebar({ collapsed, onToggleCollapsed }: SidebarProps) {
 
         <Separator className="shrink-0 bg-slate-200" />
 
-        <div className="mt-auto flex shrink-0 flex-col gap-3">
-          <div className="space-y-2">
-            <SaveStatusIndicator collapsed={collapsed} />
-            <Button
-              asChild
-              type="button"
-              variant="outline"
-              size={collapsed ? "icon" : "default"}
-              className={cn(
-                "shrink-0 border-slate-200 bg-white text-slate-950 hover:bg-slate-50",
-                collapsed ? "mx-auto" : "w-full justify-center gap-2",
-              )}
-              title={isAuthenticated ? user?.email ?? "Аккаунт" : "Войти"}
-            >
-              <Link to="/auth">
-                <LogIn className="size-4 shrink-0" aria-hidden />
-                {!collapsed ? (
-                  <span className="truncate">
-                    {isAuthenticated ? "Аккаунт" : "Войти"}
-                  </span>
-                ) : null}
-              </Link>
-            </Button>
-          </div>
-
-          {!collapsed ? (
-            <p className="text-xs leading-relaxed text-slate-500">
-              Сохранение в аккаунте
-            </p>
-          ) : null}
-          <Button
-            type="button"
-            variant="outline"
-            size={collapsed ? "icon" : "default"}
-            className={cn(
-              "shrink-0 border-slate-200 bg-white text-slate-950 hover:bg-slate-50",
-              collapsed ? "mx-auto" : "w-full justify-center gap-2",
-            )}
-            aria-label={
-              collapsed ? "Развернуть сайдбар" : "Свернуть сайдбар"
+        <div className="mt-auto flex shrink-0 flex-col gap-3 border-t border-slate-200 pt-4">
+          <NavLink
+            to={isAuthenticated ? "/profile" : "/auth"}
+            end={!isAuthenticated}
+            title={isAuthenticated ? user?.email ?? "Аккаунт" : "Аккаунт и профиль"}
+            aria-label="Аккаунт и профиль"
+            className={({ isActive }) =>
+              cn(
+                "rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
+                isActive
+                  ? "bg-blue-50 text-blue-700 ring-1 ring-blue-200"
+                  : "text-slate-700 hover:bg-slate-100 hover:text-slate-950",
+                collapsed
+                  ? "mx-auto inline-flex size-10 items-center justify-center"
+                  : "flex w-full items-center gap-3 px-3 py-2.5",
+              )
             }
-            onClick={onToggleCollapsed}
           >
-            {collapsed ? (
-              <PanelLeftOpen className="size-5" aria-hidden />
-            ) : (
-              <>
-                <PanelLeftClose className="size-5 shrink-0" aria-hidden />
-                <span>Свернуть</span>
-              </>
-            )}
-          </Button>
+            <CircleUserRound className="size-5 shrink-0 opacity-90" aria-hidden />
+            {!collapsed ? (
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium">{accountTitle}</p>
+                <p className="truncate text-xs text-slate-500">{accountSubtitle}</p>
+              </div>
+            ) : null}
+          </NavLink>
+
+          {collapsed ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className="mx-auto text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              aria-label="Развернуть сайдбар"
+              title="Развернуть сайдбар"
+              onClick={onToggleCollapsed}
+            >
+              <PanelLeftOpen className="size-4" aria-hidden />
+            </Button>
+          ) : null}
         </div>
       </div>
     </aside>

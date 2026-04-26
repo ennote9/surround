@@ -18,7 +18,8 @@ import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
 import { getTodayISO } from "@/shared/lib/dates"
 import {
   ALL_GOALS_SCOPE,
-  getSelectableGoals,
+  getProjectGoalLabel,
+  getScopedProjectsForSelectedGoal,
   getSelectedGoalTitle,
   normalizeSelectedGoalId,
 } from "@/shared/lib/selectedGoal"
@@ -48,23 +49,11 @@ export default function DashboardPage() {
     ALL_GOALS_SCOPE,
   )
   const selectedGoalId = normalizeSelectedGoalId(rawSelectedGoalId, state.goals)
-  const selectableGoals = getSelectableGoals(state.goals)
   const selectedGoalTitle = getSelectedGoalTitle(selectedGoalId, state.goals)
-  const visibleGoalIds = useMemo(
-    () => new Set(selectableGoals.map((goal) => goal.id)),
-    [selectableGoals],
+  const scopedProjects = useMemo(
+    () => getScopedProjectsForSelectedGoal(projects, selectedGoalId, state.goals),
+    [projects, selectedGoalId, state.goals],
   )
-  const scopedProjects = useMemo(() => {
-    if (selectedGoalId === ALL_GOALS_SCOPE) {
-      return projects.filter((project) =>
-        project.goalId
-          ? visibleGoalIds.has(project.goalId)
-          : visibleGoalIds.has("goal-canada"),
-      )
-    }
-
-    return projects.filter((project) => project.goalId === selectedGoalId)
-  }, [projects, selectedGoalId, visibleGoalIds])
 
   const dashboardProjects = useMemo(
     () => scopedProjects.filter((project) => project.showOnDashboard !== false),
@@ -212,6 +201,7 @@ export default function DashboardPage() {
                 <ProjectSummaryCard
                   key={project.id}
                   project={project}
+                  goalContextLabel={getProjectGoalLabel(project, state.goals)}
                   onOpenProject={handleOpenProject}
                 />
               ))}

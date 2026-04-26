@@ -178,7 +178,7 @@ create table if not exists public.goals (
 create table if not exists public.projects (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
-  goal_id uuid not null references public.goals(id) on delete restrict,
+  goal_id uuid references public.goals(id) on delete set null,
   title text not null,
   description text,
   stat_type text,

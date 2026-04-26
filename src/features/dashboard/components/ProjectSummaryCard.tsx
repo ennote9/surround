@@ -7,13 +7,18 @@ import { getProjectPhaseTitle } from "@/shared/lib/projectPhases"
 import type { Project } from "@/store/appState.types"
 import { getProjectProgress, getProjectTaskStats } from "@/store/selectors"
 
+const NO_GOAL = "Без цели" as const
+
 type ProjectSummaryCardProps = {
   project: Project
+  /** «Без цели» или название цели; опционально, чтобы не раздувать бейджи без места. */
+  goalContextLabel?: string
   onOpenProject?: (projectId: string) => void
 }
 
 export function ProjectSummaryCard({
   project,
+  goalContextLabel,
   onOpenProject,
 }: ProjectSummaryCardProps) {
   const progress = getProjectProgress(project)
@@ -44,7 +49,23 @@ export function ProjectSummaryCard({
                 <span className="break-words md:truncate">{project.title}</span>
               </Link>
             </h3>
-            <p className="mt-0.5 flex flex-wrap gap-x-1 text-pretty text-xs leading-tight text-slate-500">
+            <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-pretty text-xs leading-tight text-slate-500">
+              {goalContextLabel ? (
+                <>
+                  {goalContextLabel === NO_GOAL ? (
+                    <span className="shrink-0 rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-900">
+                      {NO_GOAL}
+                    </span>
+                  ) : (
+                    <span className="min-w-0 max-w-full truncate" title={goalContextLabel}>
+                      {goalContextLabel}
+                    </span>
+                  )}
+                  <span className="text-slate-300" aria-hidden>
+                    ·
+                  </span>
+                </>
+              ) : null}
               <span className="shrink-0">Групп: {groupCount}</span>
               <span className="text-slate-300" aria-hidden>
                 ·

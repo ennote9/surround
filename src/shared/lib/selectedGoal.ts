@@ -1,4 +1,4 @@
-import type { Goal } from "@/store/appState.types"
+import type { Goal, Project } from "@/store/appState.types"
 
 export const ALL_GOALS_SCOPE = "all" as const
 
@@ -48,4 +48,58 @@ export function getSelectedGoalTitle(
   }
 
   return goals.find((goal) => goal.id === selectedGoalId)?.title ?? "Все активные цели"
+}
+
+const NO_GOAL_LABEL = "Без цели" as const
+
+/**
+ * Проект без привязки к существующей цели: нет `goalId`, пусто, ссылка на
+ * удалённую цель, или `goalId` не найден в `goals`.
+ * Не считать «сиротой» проект, привязанный к архивной цели: такие цели в «Все»
+ * по-прежнему не показываются.
+ */
+export function isProjectUnassigned(project: Project, goals: Goal[]): boolean {
+  const raw = project.goalId
+  if (raw === undefined || raw === null || String(raw).trim() === "") {
+    return true
+  }
+  const id = String(raw).trim()
+  return !goals.some((g) => g.id === id)
+}
+
+export function getProjectGoalLabel(project: Project, goals: Goal[]): string {
+  const raw = project.goalId?.trim()
+  if (!raw) return NO_GOAL_LABEL
+  const goal = goals.find((g) => g.id === raw)
+  if (!goal) return NO_GOAL_LABEL
+  return goal.title
+}
+
+/**
+ * «Все активные цели»: проекты неснятых с просмотра целей + проекты без цели/с
+ * «потерянной» ссылкой. Конкретная цель: только `project.goalId === selectedGoalId`.
+ */
+export function getScopedProjectsForSelectedGoal(
+  projects: Project[],
+  selectedGoalId: SelectedGoalScope,
+  goals: Goal[],
+): Project[] {
+  if (selectedGoalId === ALL_GOALS_SCOPE) {
+    const selectableGoals = getSelectableGoals(goals)
+    const visibleGoalIds = new Set(selectableGoals.map((g) => g.id))
+    return projects.filter((project) => {
+      const raw = project.goalId?.trim()
+      if (!raw) {
+        return true
+      }
+      if (!goals.some((g) => g.id === raw)) {
+        return true
+      }
+      return visibleGoalIds.has(raw)
+    })
+  }
+  const sid = String(selectedGoalId).trim()
+  return projects.filter(
+    (project) => (project.goalId?.trim() ?? "") === sid,
+  )
 }

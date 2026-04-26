@@ -26,10 +26,52 @@ import type {
   ProjectRow,
   ProjectInsert,
   ProjectUpdate,
+  Profile,
+  ProfileRow,
+  ProfileUpdate,
   TaskRow,
   TaskInsert,
   TaskUpdate,
 } from "./database.types"
+
+// --- Profile (public.profiles) ---
+
+export function profileRowToProfile(row: ProfileRow): Profile {
+  return {
+    id: row.id,
+    email: row.email,
+    displayName: row.display_name,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }
+}
+
+/**
+ * Полная строка для upsert (включая timestamps), если они уже известны из UI.
+ */
+export function profileToProfileUpsert(row: Profile): ProfileRow {
+  return {
+    id: row.id,
+    email: row.email,
+    display_name: row.displayName,
+    created_at: row.createdAt,
+    updated_at: row.updatedAt,
+  }
+}
+
+export function profilePatchToProfileUpdate(patch: {
+  displayName?: string | null
+  email?: string | null
+}): ProfileUpdate {
+  const o: ProfileUpdate = {}
+  if (patch.displayName !== undefined) {
+    o.display_name = patch.displayName
+  }
+  if (patch.email !== undefined) {
+    o.email = patch.email
+  }
+  return o
+}
 
 // --- Parsers (DB may return untrusted string; frontend expects unions) —
 
@@ -109,7 +151,7 @@ export function goalToGoalUpdate(patch: Partial<Goal>): GoalUpdate {
 export function projectRowToProjectBase(row: ProjectRow): Project {
   return {
     id: row.id,
-    goalId: row.goal_id,
+    goalId: row.goal_id ?? undefined,
     title: row.title,
     description: row.description ?? undefined,
     statType: mapStatTypeFromDb(row.stat_type),
@@ -123,13 +165,13 @@ export function projectRowToProjectBase(row: ProjectRow): Project {
 }
 
 /**
- * @returns `null` если у проекта нет `goalId` — в схеме БД `goal_id` NOT NULL.
+ * @returns `null`, если у проекта нет `goalId` — импорт/создание в облаке без цели не поддерживаются.
  */
 export function projectToProjectInsert(
   project: Project,
   userId: string,
 ): ProjectInsert | null {
-  if (project.goalId === undefined) {
+  if (project.goalId === undefined || project.goalId.trim() === "") {
     return null
   }
   return {
@@ -147,7 +189,7 @@ export function projectToProjectInsert(
 
 export function projectToProjectUpdate(patch: Partial<Project>): ProjectUpdate {
   const o: ProjectUpdate = {}
-  if (patch.goalId !== undefined) o.goal_id = patch.goalId
+  if (patch.goalId !== undefined) o.goal_id = patch.goalId ?? null
   if (patch.title !== undefined) o.title = patch.title
   if (patch.description !== undefined) o.description = patch.description ?? null
   if (patch.statType !== undefined) o.stat_type = patch.statType ?? null
@@ -299,6 +341,7 @@ export function habitToHabitUpdate(patch: Partial<Habit>): HabitUpdate {
 export function milestoneRowToMilestone(row: MilestoneRow): Milestone {
   return {
     id: row.id,
+    goalId: row.goal_id ?? undefined,
     projectId: row.project_id ?? undefined,
     title: row.title,
     date: row.target_date ?? "1970-01-01",
@@ -315,7 +358,7 @@ export function milestoneToMilestoneInsert(
   return {
     id: milestone.id,
     user_id: userId,
-    goal_id: null,
+    goal_id: milestone.projectId ? null : (milestone.goalId ?? null),
     project_id: milestone.projectId ?? null,
     title: milestone.title,
     target_date: milestone.date,
@@ -331,5 +374,6 @@ export function milestoneToMilestoneUpdate(
   if (patch.date !== undefined) o.target_date = patch.date
   if (patch.completed !== undefined) o.completed = patch.completed
   if (patch.projectId !== undefined) o.project_id = patch.projectId ?? null
+  if (patch.goalId !== undefined) o.goal_id = patch.goalId ?? null
   return o
 }

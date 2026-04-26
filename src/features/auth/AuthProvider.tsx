@@ -1,4 +1,10 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react"
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react"
 import type { Session, User } from "@supabase/supabase-js"
 import { isSupabaseConfigured, supabase } from "@/shared/lib/supabase"
 import { AuthContext } from "./auth.context"
@@ -100,6 +106,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const sendPasswordResetEmail = useCallback(
+    async (email: string): Promise<{ error: string | null }> => {
+      const trimmed = email.trim()
+      if (!trimmed) {
+        return { error: "Укажите email для сброса пароля." }
+      }
+      if (!supabase) {
+        return { error: NOT_CONFIGURED_MESSAGE }
+      }
+
+      const redirectTo = `${window.location.origin}/auth`
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+        trimmed,
+        { redirectTo },
+      )
+
+      if (resetError) {
+        return {
+          error:
+            resetError.message ||
+            "Не удалось отправить письмо для сброса пароля.",
+        }
+      }
+
+      return { error: null }
+    },
+    [],
+  )
+
   const value = useMemo(
     () => ({
       session,
@@ -111,9 +146,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signIn,
       signUp,
       signOut,
+      sendPasswordResetEmail,
       clearError,
     }),
-    [session, user, loading, error],
+    [session, user, loading, error, sendPasswordResetEmail],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

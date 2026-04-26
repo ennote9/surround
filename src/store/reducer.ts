@@ -94,11 +94,50 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
       }
     }
 
+    case "DELETE_GOAL": {
+      const { goalId, mode } = action.payload
+      if (mode === "goal-only") {
+        return {
+          ...state,
+          goals: state.goals.filter((g) => g.id !== goalId),
+          projects: state.projects.map((p) =>
+            p.goalId === goalId
+              ? { ...p, goalId: undefined, updatedAt: t }
+              : p,
+          ),
+          milestones: state.milestones.filter((m) => m.goalId !== goalId),
+        }
+      }
+
+      const projectIdsToDelete = state.projects
+        .filter((p) => p.goalId === goalId)
+        .map((p) => p.id)
+      const deleteProjectIds = new Set(projectIdsToDelete)
+
+      return {
+        ...state,
+        goals: state.goals.filter((g) => g.id !== goalId),
+        projects: state.projects.filter((p) => !deleteProjectIds.has(p.id)),
+        milestones: state.milestones.filter(
+          (m) =>
+            m.goalId !== goalId &&
+            !(m.projectId !== undefined && deleteProjectIds.has(m.projectId)),
+        ),
+      }
+    }
+
     case "ADD_PROJECT": {
       const p = action.payload
+      const rawGoal = p.goalId
+      const goalId: string | undefined =
+        rawGoal === undefined
+          ? CANADA_GOAL_ID
+          : String(rawGoal).trim() === ""
+            ? undefined
+            : String(rawGoal).trim()
       const project: Project = {
         id: p.id ?? createId("project"),
-        goalId: p.goalId || CANADA_GOAL_ID,
+        goalId,
         title: p.title,
         description: p.description,
         targetDate: p.targetDate?.trim() || undefined,
@@ -360,6 +399,7 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
       const p = action.payload
       const milestone: Milestone = {
         id: p.id ?? createId("milestone"),
+        ...(p.goalId !== undefined ? { goalId: p.goalId } : {}),
         projectId: p.projectId,
         title: p.title,
         date: p.date,

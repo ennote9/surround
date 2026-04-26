@@ -7,7 +7,12 @@ import {
   projectToProjectUpdate,
   taskRowToTask,
 } from "../database.mappers"
-import type { ProjectGroupRow, ProjectRow, TaskRow } from "../database.types"
+import type {
+  ProjectGroupRow,
+  ProjectInsert,
+  ProjectRow,
+  TaskRow,
+} from "../database.types"
 import {
   getRepositoryErrorMessage,
   repositoryFailure,
@@ -131,9 +136,22 @@ export async function createProject(
     return repositoryFailure("Supabase не настроен.")
   }
 
-  const insert = projectToProjectInsert(project, userId)
+  let insert: ProjectInsert | null = projectToProjectInsert(project, userId)
   if (insert === null) {
-    return repositoryFailure("Для сохранения проекта в облаке нужен goalId.")
+    if (project.goalId !== undefined && String(project.goalId).trim() !== "") {
+      return repositoryFailure("Для сохранения проекта в облаке нужен goalId.")
+    }
+    insert = {
+      id: project.id,
+      user_id: userId,
+      goal_id: null,
+      title: project.title,
+      description: project.description ?? null,
+      stat_type: project.statType ?? null,
+      phase: project.phase ?? null,
+      target_date: project.targetDate ?? null,
+      show_on_dashboard: project.showOnDashboard !== false,
+    }
   }
 
   const { data, error } = await supabase

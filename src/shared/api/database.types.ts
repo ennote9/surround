@@ -10,6 +10,26 @@ export type ProfileRow = {
   updated_at: string
 }
 
+/** App-level profile (camelCase), not Supabase Auth `User`. */
+export type Profile = {
+  id: string
+  email: string | null
+  displayName: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type ProfileInsert = {
+  id: string
+  email?: string | null
+  display_name?: string | null
+}
+
+export type ProfileUpdate = Partial<{
+  email: string | null
+  display_name: string | null
+}>
+
 export type GoalRow = {
   id: string
   user_id: string
@@ -43,7 +63,7 @@ export type GoalUpdate = Partial<{
 export type ProjectRow = {
   id: string
   user_id: string
-  goal_id: string
+  goal_id: string | null
   title: string
   description: string | null
   stat_type: string | null
@@ -57,7 +77,7 @@ export type ProjectRow = {
 export type ProjectInsert = {
   id?: string
   user_id: string
-  goal_id: string
+  goal_id: string | null
   title: string
   description: string | null
   stat_type: string | null
@@ -67,7 +87,7 @@ export type ProjectInsert = {
 }
 
 export type ProjectUpdate = Partial<{
-  goal_id: string
+  goal_id: string | null
   title: string
   description: string | null
   stat_type: string | null

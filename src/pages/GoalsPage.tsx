@@ -2,11 +2,16 @@ import { useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
+import { useAuth } from "@/features/auth/useAuth"
+import { DeleteGoalDialog } from "@/features/goals/components/DeleteGoalDialog"
 import {
   GoalDialog,
   type GoalFormValues,
 } from "@/features/goals/components/GoalDialog"
+import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
+import { deleteGoalOnly, deleteGoalWithProjects } from "@/shared/api/goalDeletion"
 import { formatDateOnly } from "@/shared/lib/dateFormat"
+import { ALL_GOALS_SCOPE } from "@/shared/lib/selectedGoal"
 import { SELECTED_GOAL_STORAGE_KEY } from "@/shared/lib/storageKeys"
 import type { Goal, GoalStatus } from "@/store/appState.types"
 import {
@@ -40,9 +45,17 @@ function getStatusClassName(status: GoalStatus): string {
 
 export default function GoalsPage() {
   const { state, dispatch } = useAppState()
+  const { user } = useAuth()
   const navigate = useNavigate()
+  const [rawSelectedGoalId, setRawSelectedGoalId] = useLocalStorage<string>(
+    SELECTED_GOAL_STORAGE_KEY,
+    ALL_GOALS_SCOPE,
+  )
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null)
+  const [deletingGoal, setDeletingGoal] = useState<Goal | null>(null)
+  const [deleteGoalError, setDeleteGoalError] = useState<string | null>(null)
+  const [isDeletingGoal, setIsDeletingGoal] = useState(false)
 
   const sortedGoals = useMemo(() => {
     return [...state.goals].sort((a, b) => {
@@ -96,17 +109,76 @@ export default function GoalsPage() {
     dispatch({ type: "ARCHIVE_GOAL", payload: { goalId } })
   }
 
-  const handleOpenGoal = (goalId: string) => {
-    try {
-      if (typeof window !== "undefined" && window.localStorage) {
-        window.localStorage.setItem(
-          SELECTED_GOAL_STORAGE_KEY,
-          JSON.stringify(goalId),
-        )
-      }
-    } catch {
-      // ignore quota / private mode
+  const openDeleteGoalDialog = (goal: Goal) => {
+    setDeleteGoalError(null)
+    setDeletingGoal(goal)
+  }
+
+  const handleDeleteGoalDialogOpenChange = (open: boolean) => {
+    if (!open) {
+      if (isDeletingGoal) return
+      setDeletingGoal(null)
+      setDeleteGoalError(null)
     }
+  }
+
+  const clearSelectedGoalIfDeleted = (deletedGoalId: string) => {
+    const raw = String(rawSelectedGoalId ?? "").trim()
+    if (raw === deletedGoalId) {
+      setRawSelectedGoalId(ALL_GOALS_SCOPE)
+    }
+  }
+
+  const handleDeleteGoalOnly = async () => {
+    const goal = deletingGoal
+    if (!goal) return
+    if (!user) {
+      setDeleteGoalError("Нужно войти в аккаунт, чтобы удалить цель.")
+      return
+    }
+    setIsDeletingGoal(true)
+    setDeleteGoalError(null)
+    const result = await deleteGoalOnly(user.id, goal.id)
+    setIsDeletingGoal(false)
+    if (result.error) {
+      setDeleteGoalError(result.error)
+      return
+    }
+    dispatch({
+      type: "DELETE_GOAL",
+      payload: { goalId: goal.id, mode: "goal-only" },
+    })
+    clearSelectedGoalIfDeleted(goal.id)
+    setDeletingGoal(null)
+    setDeleteGoalError(null)
+  }
+
+  const handleDeleteGoalWithProjects = async () => {
+    const goal = deletingGoal
+    if (!goal) return
+    if (!user) {
+      setDeleteGoalError("Нужно войти в аккаунт, чтобы удалить цель.")
+      return
+    }
+    setIsDeletingGoal(true)
+    setDeleteGoalError(null)
+    const result = await deleteGoalWithProjects(user.id, goal.id)
+    setIsDeletingGoal(false)
+    if (result.error) {
+      setDeleteGoalError(result.error)
+      return
+    }
+    dispatch({
+      type: "DELETE_GOAL",
+      payload: { goalId: goal.id, mode: "with-projects" },
+    })
+    clearSelectedGoalIfDeleted(goal.id)
+    setDeletingGoal(null)
+    setDeleteGoalError(null)
+  }
+
+  const handleOpenGoal = (goalId: string) => {
+    setRawSelectedGoalId(goalId)
     navigate("/projects")
   }
 
@@ -204,6 +276,14 @@ export default function GoalsPage() {
                       Архивировать
                     </Button>
                   ) : null}
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    className="h-10 min-h-10 border-0 bg-red-600 text-white hover:bg-red-700"
+                    onClick={() => openDeleteGoalDialog(goal)}
+                  >
+                    Удалить
+                  </Button>
                 </div>
               </section>
             )
@@ -216,6 +296,21 @@ export default function GoalsPage() {
         onOpenChange={setDialogOpen}
         goal={editingGoal ?? undefined}
         onSubmit={handleGoalSubmit}
+      />
+
+      <DeleteGoalDialog
+        open={deletingGoal !== null}
+        goal={deletingGoal}
+        projectCount={
+          deletingGoal
+            ? getProjectsForGoal(state.projects, deletingGoal.id).length
+            : 0
+        }
+        onOpenChange={handleDeleteGoalDialogOpenChange}
+        onDeleteGoalOnly={handleDeleteGoalOnly}
+        onDeleteWithProjects={handleDeleteGoalWithProjects}
+        loading={isDeletingGoal}
+        error={deleteGoalError}
       />
     </div>
   )

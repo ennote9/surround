@@ -1,10 +1,10 @@
 import { useRef, useState, type ChangeEvent } from "react"
 import { toast } from "sonner"
+import { clearCloudAppData } from "@/shared/api/cloudClearAppData"
 import { importAppStateIntoCloud } from "@/shared/api/cloudImportAppState"
 import { useAuth } from "@/features/auth/useAuth"
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -14,24 +14,36 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import {
-  DASHBOARD_STAT_VISIBILITY_STORAGE_KEY,
-  DASHBOARD_WIDGETS_STORAGE_KEY,
+  SELECTED_GOAL_STORAGE_KEY,
   SELECTED_PROJECT_STORAGE_KEY,
 } from "@/shared/lib/storageKeys"
+import { ALL_GOALS_SCOPE } from "@/shared/lib/selectedGoal"
 import type { AppState } from "@/store/appState.types"
-import { createInitialCanadaGoal } from "@/store/initialState"
+import { initialAppState } from "@/store/initialState"
 import { tryParseImportedAppState } from "@/store/migrations"
 import { useAppState } from "@/store/useAppState"
 
 const BACKUP_FILENAME = "canada-progress-os-backup.json"
 
-const DEFAULT_SETTINGS: AppState["settings"] = {
-  theme: "light",
-  accentColor: "#4a86e8",
-}
-
 const CLOUD_IMPORT_CONFIRM =
   "Импорт заменит текущие облачные данные аккаунта. Это действие нельзя отменить. Рекомендуется заранее экспортировать backup. Продолжить?"
+
+const CLOUD_CLEAR_CONFIRM =
+  "Это удалит все текущие облачные данные аккаунта: цели, проекты, задачи, привычки, вехи и настройки приложения. Рекомендуется сначала экспортировать backup. Продолжить?"
+
+const CLOUD_RESET_CONFIRM =
+  "Это заменит текущие облачные данные стартовым набором. Рекомендуется сначала экспортировать backup. Продолжить?"
+
+function createEmptyCloudAppState(): AppState {
+  return {
+    version: 2,
+    goals: [],
+    projects: [],
+    habits: [],
+    milestones: [],
+    settings: structuredClone(initialAppState.settings),
+  }
+}
 
 export function DataManagementCard() {
   const { state, dispatch } = useAppState()
@@ -40,6 +52,8 @@ export function DataManagementCard() {
   const [resetOpen, setResetOpen] = useState(false)
   const [clearOpen, setClearOpen] = useState(false)
   const [importing, setImporting] = useState(false)
+  const [clearing, setClearing] = useState(false)
+  const [resetting, setResetting] = useState(false)
 
   const handleExportJson = () => {
     let url: string | undefined
@@ -141,43 +155,72 @@ export function DataManagementCard() {
     reader.readAsText(file, "UTF-8")
   }
 
-  const handleResetConfirm = () => {
-    dispatch({ type: "RESET_STATE" })
-    setResetOpen(false)
-    toast.success("Данные сброшены", {
-      description: "Приложение возвращено к начальному состоянию.",
-    })
+  const resetSelectionStorage = () => {
+    try {
+      if (typeof window === "undefined" || !window.localStorage) return
+      window.localStorage.setItem(
+        SELECTED_GOAL_STORAGE_KEY,
+        JSON.stringify(ALL_GOALS_SCOPE),
+      )
+      window.localStorage.setItem(SELECTED_PROJECT_STORAGE_KEY, JSON.stringify(""))
+    } catch {
+      // ignore quota / private mode
+    }
   }
 
-  const handleClearCurrentConfirm = () => {
-    const settings =
-      state.settings &&
-      typeof state.settings.theme === "string" &&
-      typeof state.settings.accentColor === "string"
-        ? state.settings
-        : DEFAULT_SETTINGS
-
-    const emptyState: AppState = {
-      version: 2,
-      settings,
-      goals: [createInitialCanadaGoal()],
-      projects: [],
-      habits: [],
-      milestones: [],
+  const handleClearCurrentConfirm = async () => {
+    if (!user?.id) {
+      toast.error("Нужно войти в аккаунт, чтобы очистить облачные данные.")
+      return
     }
 
-    dispatch({ type: "IMPORT_STATE", payload: emptyState })
+    setClearing(true)
+    try {
+      const result = await clearCloudAppData(user.id)
+      if (result.error) {
+        toast.error("Не удалось очистить облачные данные", {
+          description: result.error,
+        })
+        return
+      }
+      dispatch({ type: "IMPORT_STATE", payload: createEmptyCloudAppState() })
+      resetSelectionStorage()
+      setClearOpen(false)
+      toast.success("Данные очищены.")
+    } finally {
+      setClearing(false)
+    }
+  }
 
-    if (typeof window !== "undefined") {
-      window.localStorage.removeItem(SELECTED_PROJECT_STORAGE_KEY)
-      window.localStorage.removeItem(DASHBOARD_WIDGETS_STORAGE_KEY)
-      window.localStorage.removeItem(DASHBOARD_STAT_VISIBILITY_STORAGE_KEY)
+  const handleResetConfirm = async () => {
+    if (!user?.id) {
+      toast.error("Нужно войти в аккаунт, чтобы сбросить облачные данные.")
+      return
     }
 
-    setClearOpen(false)
-    toast.success("Текущие данные очищены", {
-      description: "Теперь можно импортировать seed JSON.",
-    })
+    setResetting(true)
+    try {
+      const resetState = structuredClone(initialAppState)
+      const result = await importAppStateIntoCloud(user.id, resetState)
+      if (result.error) {
+        toast.error("Не удалось сбросить данные", {
+          description: result.error,
+        })
+        return
+      }
+      if (!result.data) {
+        toast.error("Не удалось сбросить данные", {
+          description: "Пустой ответ сервера.",
+        })
+        return
+      }
+      dispatch({ type: "IMPORT_STATE", payload: result.data })
+      resetSelectionStorage()
+      setResetOpen(false)
+      toast.success("Данные сброшены.")
+    } finally {
+      setResetting(false)
+    }
   }
 
   return (
@@ -190,8 +233,8 @@ export function DataManagementCard() {
           Экспортируйте резервную копию или импортируйте сохранённое состояние.
         </p>
         <p className="mt-2 text-pretty text-xs leading-relaxed break-words text-slate-500">
-          Очистка удаляет текущие проекты и рутины без возврата к стартовым данным.
-          Используйте перед импортом нового seed.
+          Очистка и сброс работают в облаке Supabase: удаляются/заменяются данные
+          аккаунта. Локальные UI-предпочтения в localStorage не очищаются.
         </p>
         <div className="mt-6 grid grid-cols-1 gap-2 sm:flex sm:flex-row sm:flex-wrap sm:gap-3">
           <Button
@@ -207,7 +250,7 @@ export function DataManagementCard() {
             variant="outline"
             className="min-h-10 w-full border-slate-200 bg-white text-slate-950 hover:bg-slate-50 sm:w-auto sm:min-h-9"
             aria-label="Импортировать JSON из файла"
-            disabled={importing}
+            disabled={importing || clearing || resetting}
             onClick={handleImportClick}
           >
             {importing ? "Импортируем..." : "Импорт JSON"}
@@ -216,17 +259,19 @@ export function DataManagementCard() {
             type="button"
             variant="outline"
             className="min-h-10 w-full border-red-200 text-red-700 hover:bg-red-50 sm:w-auto sm:min-h-9"
+            disabled={importing || clearing || resetting}
             onClick={() => setClearOpen(true)}
           >
-            Очистить текущие данные
+            {clearing ? "Очищаем..." : "Очистить текущие данные"}
           </Button>
           <Button
             type="button"
             variant="outline"
             className="min-h-10 w-full border-red-200 text-red-700 hover:bg-red-50 sm:w-auto sm:min-h-9"
+            disabled={importing || clearing || resetting}
             onClick={() => setResetOpen(true)}
           >
-            Сбросить данные
+            {resetting ? "Сбрасываем..." : "Сбросить данные"}
           </Button>
         </div>
         <input
@@ -246,19 +291,25 @@ export function DataManagementCard() {
               Очистить текущие данные?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-pretty break-words text-slate-600">
-              Будут удалены текущие проекты, задачи, рутины и milestones. После этого
-              можно импортировать подготовленный seed JSON. Перед очисткой убедитесь,
-              что вы сделали экспорт резервной копии.
+              Это удалит в облаке цели, проекты, группы, задачи, привычки, вехи и
+              настройки приложения. Профиль и аккаунт не удаляются.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="[&_button]:min-h-10 sm:[&_button]:min-h-9">
-            <AlertDialogCancel className="border-slate-200">Отмена</AlertDialogCancel>
-            <AlertDialogAction
+            <AlertDialogCancel className="border-slate-200" disabled={clearing}>
+              Отмена
+            </AlertDialogCancel>
+            <Button
+              type="button"
               className="bg-red-600 text-white hover:bg-red-700"
-              onClick={handleClearCurrentConfirm}
+              disabled={clearing}
+              onClick={() => {
+                if (!window.confirm(CLOUD_CLEAR_CONFIRM)) return
+                void handleClearCurrentConfirm()
+              }}
             >
-              Очистить
-            </AlertDialogAction>
+              {clearing ? "Очищаем..." : "Очистить"}
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -270,18 +321,25 @@ export function DataManagementCard() {
               Сбросить все данные?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-pretty break-words text-slate-600">
-              Проекты, задачи, привычки и вехи будут заменены начальным состоянием
-              приложения. Это действие нельзя отменить.
+              Текущие облачные данные будут заменены стартовым набором приложения.
+              Это действие нельзя отменить.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="[&_button]:min-h-10 sm:[&_button]:min-h-9">
-            <AlertDialogCancel className="border-slate-200">Отмена</AlertDialogCancel>
-            <AlertDialogAction
+            <AlertDialogCancel className="border-slate-200" disabled={resetting}>
+              Отмена
+            </AlertDialogCancel>
+            <Button
+              type="button"
               className="bg-red-600 text-white hover:bg-red-700"
-              onClick={handleResetConfirm}
+              disabled={resetting}
+              onClick={() => {
+                if (!window.confirm(CLOUD_RESET_CONFIRM)) return
+                void handleResetConfirm()
+              }}
             >
-              Сбросить
-            </AlertDialogAction>
+              {resetting ? "Сбрасываем..." : "Сбросить"}
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -15,6 +15,8 @@ import {
 import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
 import {
   ALL_GOALS_SCOPE,
+  getProjectGoalLabel,
+  getScopedProjectsForSelectedGoal,
   getSelectableGoals,
   getSelectedGoalTitle,
   normalizeSelectedGoalId,
@@ -52,19 +54,15 @@ export default function ProjectsPage() {
   const selectedGoalId = normalizeSelectedGoalId(rawSelectedGoalId, state.goals)
   const selectableGoals = getSelectableGoals(state.goals)
 
-  const visibleGoalIds = useMemo(
-    () => new Set(selectableGoals.map((goal) => goal.id)),
-    [selectableGoals],
+  const scopedProjects = useMemo(
+    () =>
+      getScopedProjectsForSelectedGoal(
+        state.projects,
+        selectedGoalId,
+        state.goals,
+      ),
+    [state.projects, state.goals, selectedGoalId],
   )
-  const scopedProjects = useMemo(() => {
-    if (selectedGoalId === ALL_GOALS_SCOPE) {
-      return state.projects.filter((project) => {
-        if (!project.goalId) return visibleGoalIds.has("goal-canada")
-        return visibleGoalIds.has(project.goalId)
-      })
-    }
-    return state.projects.filter((project) => project.goalId === selectedGoalId)
-  }, [selectedGoalId, state.projects, visibleGoalIds])
 
   const defaultGoalId =
     selectedGoalId === ALL_GOALS_SCOPE ? selectableGoals[0]?.id : selectedGoalId
@@ -129,7 +127,7 @@ export default function ProjectsPage() {
           id: editingProject.id,
           patch: {
             title: values.title,
-            goalId: values.goalId,
+            goalId: values.goalId === "" ? undefined : values.goalId,
             description: values.description,
             showOnDashboard: values.showOnDashboard,
             statType: values.statType,
@@ -140,11 +138,13 @@ export default function ProjectsPage() {
       })
       toast.success("Проект обновлён")
     } else {
+      const nextGoalId =
+        values.goalId === "" ? "" : (values.goalId || defaultGoalId)
       dispatch({
         type: "ADD_PROJECT",
         payload: {
           title: values.title,
-          goalId: values.goalId || defaultGoalId,
+          goalId: nextGoalId,
           description: values.description,
           showOnDashboard: values.showOnDashboard ?? true,
           statType: values.statType,
@@ -282,6 +282,7 @@ export default function ProjectsPage() {
       <div className="grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,320px)_1fr] lg:gap-6">
         <ProjectList
           projects={scopedProjects}
+          goals={state.goals}
           selectedProjectId={selectedProjectId}
           onSelectProject={setSelectedProjectId}
           onAddProject={openAddProject}
@@ -291,6 +292,10 @@ export default function ProjectsPage() {
           {scopedProjects.length > 0 && selectedProject ? (
             <ProjectView
               project={selectedProject}
+              goalContextLabel={getProjectGoalLabel(
+                selectedProject,
+                state.goals,
+              )}
               onEditProject={() => openEditProject(selectedProject)}
               onDeleteProject={() =>
                 setDeleteTarget({

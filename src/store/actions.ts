@@ -1,3 +1,4 @@
+import type { DeleteGoalMode } from "@/shared/api/goalDeletion"
 import type {
   AppState,
   AppSettings,
@@ -131,6 +132,7 @@ export type AddMilestonePayload = {
   title: string
   date: string
   projectId?: string
+  goalId?: string
   completed?: boolean
   createdAt?: string
   updatedAt?: string
@@ -139,7 +141,7 @@ export type AddMilestonePayload = {
 export type UpdateMilestonePayload = {
   id: string
   patch: Partial<
-    Pick<Milestone, "title" | "date" | "completed" | "projectId">
+    Pick<Milestone, "title" | "date" | "completed" | "projectId" | "goalId">
   >
 }
 
@@ -149,12 +151,18 @@ export type ToggleMilestonePayload = { id: string; completed?: boolean }
 
 export type UpdateSettingsPayload = { patch: Partial<AppSettings> }
 
+export type DeleteGoalPayload = {
+  goalId: string
+  mode: DeleteGoalMode
+}
+
 export type AppAction =
   | { type: "RESET_STATE" }
   | { type: "IMPORT_STATE"; payload: AppState }
   | { type: "ADD_GOAL"; payload: AddGoalPayload }
   | { type: "UPDATE_GOAL"; payload: UpdateGoalPayload }
   | { type: "ARCHIVE_GOAL"; payload: { goalId: string } }
+  | { type: "DELETE_GOAL"; payload: DeleteGoalPayload }
   | { type: "ADD_PROJECT"; payload: AddProjectPayload }
   | { type: "UPDATE_PROJECT"; payload: UpdateProjectPayload }
   | { type: "DELETE_PROJECT"; payload: DeleteProjectPayload }

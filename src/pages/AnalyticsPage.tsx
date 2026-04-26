@@ -8,7 +8,7 @@ import { UpcomingDeadlines } from "@/features/analytics/components/UpcomingDeadl
 import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
 import {
   ALL_GOALS_SCOPE,
-  getSelectableGoals,
+  getScopedProjectsForSelectedGoal,
   getSelectedGoalTitle,
   normalizeSelectedGoalId,
 } from "@/shared/lib/selectedGoal"
@@ -29,22 +29,11 @@ export default function AnalyticsPage() {
     ALL_GOALS_SCOPE,
   )
   const selectedGoalId = normalizeSelectedGoalId(rawSelectedGoalId, state.goals)
-  const selectableGoals = getSelectableGoals(state.goals)
   const selectedGoalTitle = getSelectedGoalTitle(selectedGoalId, state.goals)
-  const visibleGoalIds = useMemo(
-    () => new Set(selectableGoals.map((goal) => goal.id)),
-    [selectableGoals],
+  const scopedProjects = useMemo(
+    () => getScopedProjectsForSelectedGoal(projects, selectedGoalId, state.goals),
+    [projects, selectedGoalId, state.goals],
   )
-  const scopedProjects = useMemo(() => {
-    if (selectedGoalId === ALL_GOALS_SCOPE) {
-      return projects.filter((project) =>
-        project.goalId
-          ? visibleGoalIds.has(project.goalId)
-          : visibleGoalIds.has("goal-canada"),
-      )
-    }
-    return projects.filter((project) => project.goalId === selectedGoalId)
-  }, [projects, selectedGoalId, visibleGoalIds])
 
   const overallProgress = getOverallProgress(scopedProjects)
 

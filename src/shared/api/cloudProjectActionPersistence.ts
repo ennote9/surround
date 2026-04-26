@@ -22,9 +22,17 @@ function sanitizeAddProjectPayload(
 
   const now = new Date().toISOString()
 
+  const raw = payload.goalId
+  const goalId: string | undefined =
+    raw === undefined
+      ? CANADA_GOAL_ID
+      : String(raw).trim() === ""
+        ? undefined
+        : String(raw).trim()
+
   return {
     id: payload.id ?? "",
-    goalId: payload.goalId ?? CANADA_GOAL_ID,
+    goalId,
     title,
     description: payload.description?.trim() || undefined,
     targetDate: payload.targetDate?.trim() || undefined,
