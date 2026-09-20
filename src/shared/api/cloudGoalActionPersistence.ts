@@ -43,12 +43,12 @@ function sanitizeUpdateGoalPatch(
     }
   }
 
-  if (patch.description !== undefined) {
-    next.description = patch.description.trim() || undefined
+  if ("description" in patch) {
+    next.description = patch.description?.trim() || undefined
   }
 
-  if (patch.targetDate !== undefined) {
-    next.targetDate = patch.targetDate.trim() || undefined
+  if ("targetDate" in patch) {
+    next.targetDate = patch.targetDate?.trim() || undefined
   }
 
   if (patch.status !== undefined) {

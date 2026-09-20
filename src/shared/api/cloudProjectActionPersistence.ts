@@ -56,16 +56,16 @@ function sanitizeUpdateProjectPatch(
       next.title = title
     }
   }
-  if (patch.goalId !== undefined) next.goalId = patch.goalId
-  if (patch.description !== undefined) {
+  if ("goalId" in patch) next.goalId = patch.goalId?.trim() || undefined
+  if ("description" in patch) {
     next.description = patch.description?.trim() || undefined
   }
   if (patch.showOnDashboard !== undefined) {
     next.showOnDashboard = patch.showOnDashboard
   }
-  if (patch.statType !== undefined) next.statType = patch.statType
-  if (patch.phase !== undefined) next.phase = patch.phase
-  if (patch.targetDate !== undefined) {
+  if ("statType" in patch) next.statType = patch.statType
+  if ("phase" in patch) next.phase = patch.phase
+  if ("targetDate" in patch) {
     next.targetDate = patch.targetDate?.trim() || undefined
   }
 

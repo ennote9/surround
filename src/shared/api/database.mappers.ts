@@ -138,11 +138,15 @@ export function goalToGoalInsert(goal: Goal, userId: string): GoalInsert {
 
 export function goalToGoalUpdate(patch: Partial<Goal>): GoalUpdate {
   const o: GoalUpdate = {}
-  if (patch.title !== undefined) o.title = patch.title
-  if (patch.description !== undefined) o.description = patch.description ?? null
-  if (patch.targetDate !== undefined) o.target_date = patch.targetDate ?? null
-  if (patch.status !== undefined) o.status = parseGoalStatusFromDb(patch.status)
-  if (patch.showOnDashboard !== undefined) o.show_on_dashboard = patch.showOnDashboard
+  if ("title" in patch && patch.title !== undefined) o.title = patch.title
+  if ("description" in patch) o.description = patch.description ?? null
+  if ("targetDate" in patch) o.target_date = patch.targetDate ?? null
+  if ("status" in patch && patch.status !== undefined) {
+    o.status = parseGoalStatusFromDb(patch.status)
+  }
+  if ("showOnDashboard" in patch && patch.showOnDashboard !== undefined) {
+    o.show_on_dashboard = patch.showOnDashboard
+  }
   return o
 }
 
@@ -164,20 +168,15 @@ export function projectRowToProjectBase(row: ProjectRow): Project {
   }
 }
 
-/**
- * @returns `null`, если у проекта нет `goalId` — импорт/создание в облаке без цели не поддерживаются.
- */
 export function projectToProjectInsert(
   project: Project,
   userId: string,
-): ProjectInsert | null {
-  if (project.goalId === undefined || project.goalId.trim() === "") {
-    return null
-  }
+): ProjectInsert {
+  const goalId = project.goalId?.trim() || null
   return {
     id: project.id,
     user_id: userId,
-    goal_id: project.goalId,
+    goal_id: goalId,
     title: project.title,
     description: project.description ?? null,
     stat_type: project.statType ?? null,
@@ -189,13 +188,15 @@ export function projectToProjectInsert(
 
 export function projectToProjectUpdate(patch: Partial<Project>): ProjectUpdate {
   const o: ProjectUpdate = {}
-  if (patch.goalId !== undefined) o.goal_id = patch.goalId ?? null
-  if (patch.title !== undefined) o.title = patch.title
-  if (patch.description !== undefined) o.description = patch.description ?? null
-  if (patch.statType !== undefined) o.stat_type = patch.statType ?? null
-  if (patch.phase !== undefined) o.phase = patch.phase ?? null
-  if (patch.targetDate !== undefined) o.target_date = patch.targetDate ?? null
-  if (patch.showOnDashboard !== undefined) o.show_on_dashboard = patch.showOnDashboard
+  if ("goalId" in patch) o.goal_id = patch.goalId?.trim() || null
+  if ("title" in patch && patch.title !== undefined) o.title = patch.title
+  if ("description" in patch) o.description = patch.description ?? null
+  if ("statType" in patch) o.stat_type = patch.statType ?? null
+  if ("phase" in patch) o.phase = patch.phase ?? null
+  if ("targetDate" in patch) o.target_date = patch.targetDate ?? null
+  if ("showOnDashboard" in patch && patch.showOnDashboard !== undefined) {
+    o.show_on_dashboard = patch.showOnDashboard
+  }
   return o
 }
 
@@ -281,13 +282,17 @@ export function taskToTaskInsert(
 
 export function taskToTaskUpdate(patch: Partial<Task>): TaskUpdate {
   const o: TaskUpdate = {}
-  if (patch.groupId !== undefined) o.group_id = patch.groupId
-  if (patch.projectId !== undefined) o.project_id = patch.projectId
-  if (patch.title !== undefined) o.title = patch.title
-  if (patch.completed !== undefined) o.completed = patch.completed
-  if (patch.deadline !== undefined) o.deadline = patch.deadline ?? null
-  if (patch.notes !== undefined) o.notes = patch.notes ?? null
-  if (patch.priority !== undefined) o.priority = patch.priority ?? null
+  if ("groupId" in patch && patch.groupId !== undefined) o.group_id = patch.groupId
+  if ("projectId" in patch && patch.projectId !== undefined) {
+    o.project_id = patch.projectId
+  }
+  if ("title" in patch && patch.title !== undefined) o.title = patch.title
+  if ("completed" in patch && patch.completed !== undefined) {
+    o.completed = patch.completed
+  }
+  if ("deadline" in patch) o.deadline = patch.deadline ?? null
+  if ("notes" in patch) o.notes = patch.notes ?? null
+  if ("priority" in patch) o.priority = patch.priority ?? null
   return o
 }
 
@@ -331,8 +336,8 @@ export function habitToHabitInsert(habit: Habit, userId: string): HabitInsert {
 
 export function habitToHabitUpdate(patch: Partial<Habit>): HabitUpdate {
   const o: HabitUpdate = {}
-  if (patch.name !== undefined) o.title = patch.name
-  if (patch.description !== undefined) o.description = patch.description ?? null
+  if ("name" in patch && patch.name !== undefined) o.title = patch.name
+  if ("description" in patch) o.description = patch.description ?? null
   return o
 }
 
@@ -370,10 +375,18 @@ export function milestoneToMilestoneUpdate(
   patch: Partial<Milestone>,
 ): MilestoneUpdate {
   const o: MilestoneUpdate = {}
-  if (patch.title !== undefined) o.title = patch.title
-  if (patch.date !== undefined) o.target_date = patch.date
-  if (patch.completed !== undefined) o.completed = patch.completed
-  if (patch.projectId !== undefined) o.project_id = patch.projectId ?? null
-  if (patch.goalId !== undefined) o.goal_id = patch.goalId ?? null
+  if ("title" in patch && patch.title !== undefined) o.title = patch.title
+  if ("date" in patch && patch.date !== undefined) o.target_date = patch.date
+  if ("completed" in patch && patch.completed !== undefined) {
+    o.completed = patch.completed
+  }
+  if ("projectId" in patch) {
+    o.project_id = patch.projectId ?? null
+    if (patch.projectId) o.goal_id = null
+  }
+  if ("goalId" in patch) {
+    o.goal_id = patch.goalId ?? null
+    if (patch.goalId) o.project_id = null
+  }
   return o
 }

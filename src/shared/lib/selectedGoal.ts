@@ -76,8 +76,10 @@ export function getProjectGoalLabel(project: Project, goals: Goal[]): string {
 }
 
 /**
- * «Все активные цели»: проекты неснятых с просмотра целей + проекты без цели/с
- * «потерянной» ссылкой. Конкретная цель: только `project.goalId === selectedGoalId`.
+ * «Все активные цели»: проекты только целей со статусом active + проекты без цели/с
+ * «потерянной» ссылкой, чтобы они не становились недоступными в UI.
+ * Цели later доступны для явного выбора, но не входят в общий активный контекст.
+ * Конкретная цель: только `project.goalId === selectedGoalId`.
  */
 export function getScopedProjectsForSelectedGoal(
   projects: Project[],
@@ -85,8 +87,9 @@ export function getScopedProjectsForSelectedGoal(
   goals: Goal[],
 ): Project[] {
   if (selectedGoalId === ALL_GOALS_SCOPE) {
-    const selectableGoals = getSelectableGoals(goals)
-    const visibleGoalIds = new Set(selectableGoals.map((g) => g.id))
+    const activeGoalIds = new Set(
+      goals.filter((goal) => goal.status === "active").map((goal) => goal.id),
+    )
     return projects.filter((project) => {
       const raw = project.goalId?.trim()
       if (!raw) {
@@ -95,7 +98,7 @@ export function getScopedProjectsForSelectedGoal(
       if (!goals.some((g) => g.id === raw)) {
         return true
       }
-      return visibleGoalIds.has(raw)
+      return activeGoalIds.has(raw)
     })
   }
   const sid = String(selectedGoalId).trim()

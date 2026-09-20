@@ -125,8 +125,6 @@ export function normalizeImportedAppStateIds(appState: AppState): AppState {
     id: goalIdMap.get(g.id.trim())!,
   }))
 
-  const fallbackGoalId = goals[0]?.id
-
   const projects: Project[] = appState.projects.map((p) => {
     const newProjectId = projectIdMap.get(p.id.trim())!
     const rawGoal = p.goalId?.trim()
@@ -134,7 +132,7 @@ export function normalizeImportedAppStateIds(appState: AppState): AppState {
       rawGoal !== undefined && rawGoal !== ""
         ? goalIdMap.get(rawGoal)
         : undefined
-    const newGoalId = mappedGoal ?? fallbackGoalId
+    const newGoalId = mappedGoal
 
     const groups = p.groups.map((gr, groupIndex) => {
       const newGroupId = groupIdMap.get(gr.id.trim())!
@@ -168,11 +166,18 @@ export function normalizeImportedAppStateIds(appState: AppState): AppState {
 
   const milestones: Milestone[] = appState.milestones.map((m) => {
     const newId = milestoneIdMap.get(m.id.trim())!
-    if (m.projectId === undefined || m.projectId.trim() === "") {
-      return { ...m, id: newId, projectId: undefined }
+    const rawProjectId = m.projectId?.trim()
+    const rawGoalId = m.goalId?.trim()
+    const newProjectId = rawProjectId ? projectIdMap.get(rawProjectId) : undefined
+    const newGoalId =
+      !newProjectId && rawGoalId ? goalIdMap.get(rawGoalId) : undefined
+
+    return {
+      ...m,
+      id: newId,
+      projectId: newProjectId,
+      goalId: newProjectId ? undefined : newGoalId,
     }
-    const newProjectId = projectIdMap.get(m.projectId.trim())
-    return { ...m, id: newId, projectId: newProjectId }
   })
 
   return {
@@ -186,12 +191,30 @@ export function normalizeImportedAppStateIds(appState: AppState): AppState {
 }
 
 function validateImportableState(appState: AppState): string | null {
+  const goalIds = new Set(appState.goals.map((g) => g.id.trim()))
   const projectIds = new Set(appState.projects.map((p) => p.id.trim()))
+
+  for (const p of appState.projects) {
+    const goalId = p.goalId?.trim()
+    if (goalId && !goalIds.has(goalId)) {
+      return `Проект «${p.title}» ссылается на несуществующую цель (${p.goalId}).`
+    }
+  }
+
   for (const m of appState.milestones) {
-    if (m.projectId !== undefined && m.projectId.trim() !== "") {
-      if (!projectIds.has(m.projectId.trim())) {
-        return `Веха «${m.title}» ссылается на несуществующий проект (${m.projectId}).`
-      }
+    const projectId = m.projectId?.trim()
+    const goalId = m.goalId?.trim()
+    const hasProject = Boolean(projectId)
+    const hasGoal = Boolean(goalId)
+
+    if (hasProject === hasGoal) {
+      return `Веха «${m.title}» должна быть привязана ровно к одному объекту: проекту или цели.`
+    }
+    if (projectId && !projectIds.has(projectId)) {
+      return `Веха «${m.title}» ссылается на несуществующий проект (${m.projectId}).`
+    }
+    if (goalId && !goalIds.has(goalId)) {
+      return `Веха «${m.title}» ссылается на несуществующую цель (${m.goalId}).`
     }
   }
   return null
@@ -224,11 +247,6 @@ async function insertImportedCloudData(
 
   for (const p of state.projects) {
     const insert = projectToProjectInsert(p, userId)
-    if (insert === null) {
-      return repositoryFailure(
-        `Проект «${p.title}» не имеет goalId — вставка в облако невозможна.`,
-      )
-    }
     const { error } = await supabase.from("projects").insert(insert)
     if (error) {
       return repositoryFailure(
@@ -329,10 +347,6 @@ export async function importAppStateIntoCloud(
   if (validationError !== null) {
     return repositoryFailure(validationError)
   }
-  if (appState.goals.length === 0) {
-    return repositoryFailure("В импорте нет ни одной цели — облачный импорт невозможен.")
-  }
-
   const normalized = normalizeImportedAppStateIds(appState)
 
   const del = await clearCloudAppData(userId)
