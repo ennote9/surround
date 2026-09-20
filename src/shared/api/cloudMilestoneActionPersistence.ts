@@ -42,8 +42,8 @@ function sanitizeMilestonePatch(
   }
   if (patch.date !== undefined) next.date = patch.date
   if (patch.completed !== undefined) next.completed = patch.completed
-  if (patch.projectId !== undefined) next.projectId = patch.projectId
-  if (patch.goalId !== undefined) next.goalId = patch.goalId
+  if ("projectId" in patch) next.projectId = patch.projectId
+  if ("goalId" in patch) next.goalId = patch.goalId
   return next
 }
 
