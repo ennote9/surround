@@ -15,17 +15,21 @@ export default function AuthPage() {
     user,
     loading,
     error,
+    isPasswordRecovery,
     isConfigured,
     signIn,
     signUp,
     signOut,
     sendPasswordResetEmail,
+    updatePassword,
     clearError,
   } = useAuth()
 
   const [mode, setMode] = useState<AuthMode>("signIn")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [recoveryPassword, setRecoveryPassword] = useState("")
+  const [recoveryPasswordConfirm, setRecoveryPasswordConfirm] = useState("")
   const [localError, setLocalError] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
 
@@ -35,7 +39,7 @@ export default function AuthPage() {
     setInfo(null)
 
     const cleanEmail = email.trim()
-    const cleanPassword = password.trim()
+    const cleanPassword = password
 
     if (!cleanEmail || !cleanPassword) {
       setLocalError("Введите email и пароль.")
@@ -106,7 +110,84 @@ export default function AuthPage() {
           </div>
         ) : null}
 
-        {user ? (
+        {user && isPasswordRecovery ? (
+          <div
+            className="mt-5 min-w-0 space-y-4 rounded-xl border border-blue-200 bg-blue-50/50 p-4 sm:p-5"
+            role="region"
+            aria-label="Восстановление пароля"
+          >
+            <div className="space-y-2">
+              <h2 className="text-base font-semibold text-slate-950 sm:text-lg">
+                Задайте новый пароль
+              </h2>
+              <p className="text-pretty text-sm text-slate-600">
+                Ссылка восстановления подтверждена. Введите новый пароль для аккаунта.
+              </p>
+            </div>
+            <div className="grid gap-3">
+              <div className="grid gap-2">
+                <Label htmlFor="recovery-password">Новый пароль</Label>
+                <Input
+                  id="recovery-password"
+                  type="password"
+                  value={recoveryPassword}
+                  onChange={(event) => setRecoveryPassword(event.target.value)}
+                  autoComplete="new-password"
+                  className="min-h-10 border-slate-300 bg-white"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="recovery-password-confirm">Повторите пароль</Label>
+                <Input
+                  id="recovery-password-confirm"
+                  type="password"
+                  value={recoveryPasswordConfirm}
+                  onChange={(event) =>
+                    setRecoveryPasswordConfirm(event.target.value)
+                  }
+                  autoComplete="new-password"
+                  className="min-h-10 border-slate-300 bg-white"
+                />
+              </div>
+            </div>
+            {localError ? (
+              <p className="text-pretty text-sm break-words text-red-600">
+                {localError}
+              </p>
+            ) : null}
+            {info ? (
+              <p className="text-pretty text-sm break-words text-slate-600">{info}</p>
+            ) : null}
+            <Button
+              type="button"
+              className="min-h-11 w-full bg-blue-600 text-white hover:bg-blue-700 sm:min-h-10"
+              onClick={() => {
+                void (async () => {
+                  setLocalError(null)
+                  setInfo(null)
+                  if (recoveryPassword.length < 6) {
+                    setLocalError("Пароль должен содержать не менее 6 символов.")
+                    return
+                  }
+                  if (recoveryPassword !== recoveryPasswordConfirm) {
+                    setLocalError("Пароли не совпадают.")
+                    return
+                  }
+                  const result = await updatePassword(recoveryPassword)
+                  if (result.error) {
+                    setLocalError(result.error)
+                    return
+                  }
+                  setInfo("Пароль изменён. Теперь можно продолжить работу.")
+                  setRecoveryPassword("")
+                  setRecoveryPasswordConfirm("")
+                })()
+              }}
+            >
+              Сохранить новый пароль
+            </Button>
+          </div>
+        ) : user ? (
           <div
             className="mt-5 min-w-0 space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-5"
             role="region"
