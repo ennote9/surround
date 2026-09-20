@@ -7,8 +7,8 @@ export type AuthContextValue = {
   error: string | null
   isAuthenticated: boolean
   isConfigured: boolean
-  signIn: (email: string, password: string) => Promise<void>
-  signUp: (email: string, password: string) => Promise<void>
+  signIn: (email: string, password: string) => Promise<{ error: string | null }>
+  signUp: (email: string, password: string) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
   /** Сброс пароля по email; не пишет в общий `error` контекста — смотрите возврат. */
   sendPasswordResetEmail: (
