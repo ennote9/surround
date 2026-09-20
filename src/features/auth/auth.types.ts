@@ -6,6 +6,7 @@ export type AuthContextValue = {
   loading: boolean
   error: string | null
   isAuthenticated: boolean
+  isPasswordRecovery: boolean
   isConfigured: boolean
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
   signUp: (email: string, password: string) => Promise<{ error: string | null }>
@@ -14,5 +15,6 @@ export type AuthContextValue = {
   sendPasswordResetEmail: (
     email: string,
   ) => Promise<{ error: string | null }>
+  updatePassword: (password: string) => Promise<{ error: string | null }>
   clearError: () => void
 }
