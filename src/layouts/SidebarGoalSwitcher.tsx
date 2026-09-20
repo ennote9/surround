@@ -1,5 +1,13 @@
 import { useEffect } from "react"
-import { Target } from "lucide-react"
+import { ChevronDown, Target } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
 import { SELECTED_GOAL_STORAGE_KEY } from "@/shared/lib/storageKeys"
 import {
@@ -15,7 +23,9 @@ type SidebarGoalSwitcherProps = {
   collapsed?: boolean
 }
 
-export function SidebarGoalSwitcher({ collapsed = false }: SidebarGoalSwitcherProps) {
+export function SidebarGoalSwitcher({
+  collapsed = false,
+}: SidebarGoalSwitcherProps) {
   const { state } = useAppState()
   const [rawSelectedGoalId, setSelectedGoalId] =
     useLocalStorage<SelectedGoalScope>(
@@ -45,27 +55,65 @@ export function SidebarGoalSwitcher({ collapsed = false }: SidebarGoalSwitcherPr
   }
 
   return (
-    <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
+    <div className="min-w-0 space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
       <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-slate-500">
-        <Target className="size-3.5" aria-hidden />
+        <Target className="size-3.5 shrink-0" aria-hidden />
         <span>Цель</span>
       </div>
 
-      <select
-        value={selectedGoalId}
-        onChange={(event) =>
-          setSelectedGoalId(normalizeSelectedGoalId(event.target.value, state.goals))
-        }
-        className="h-9 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 shadow-xs outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/30"
-        aria-label="Текущая цель"
-      >
-        <option value={ALL_GOALS_SCOPE}>Все активные цели</option>
-        {selectableGoals.map((goal) => (
-          <option key={goal.id} value={goal.id}>
-            {goal.title}
-          </option>
-        ))}
-      </select>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            className="flex h-9 w-full min-w-0 items-center justify-between gap-2 rounded-md border border-slate-300 bg-white px-3 text-left text-sm text-slate-950 shadow-xs outline-none transition-colors hover:bg-slate-50 focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/30"
+            aria-label="Текущая цель"
+            title={selectedGoalTitle}
+          >
+            <span className="min-w-0 flex-1 truncate">{selectedGoalTitle}</span>
+            <ChevronDown className="size-4 shrink-0 text-slate-500" aria-hidden />
+          </button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent
+          align="start"
+          sideOffset={6}
+          className="min-w-[240px] max-w-72 border border-slate-200 bg-white p-1 text-slate-950 shadow-lg"
+        >
+          <DropdownMenuRadioGroup
+            value={selectedGoalId}
+            onValueChange={(value) =>
+              setSelectedGoalId(normalizeSelectedGoalId(value, state.goals))
+            }
+          >
+            <DropdownMenuRadioItem
+              value={ALL_GOALS_SCOPE}
+              className="min-h-9 px-2 pr-8 text-sm"
+            >
+              <span className="truncate">Все активные цели</span>
+            </DropdownMenuRadioItem>
+
+            {selectableGoals.length > 0 ? (
+              <DropdownMenuSeparator className="bg-slate-200" />
+            ) : null}
+
+            {selectableGoals.map((goal) => (
+              <DropdownMenuRadioItem
+                key={goal.id}
+                value={goal.id}
+                className="min-h-9 px-2 pr-8 text-sm"
+                title={goal.title}
+              >
+                <span className="min-w-0 flex-1 truncate">{goal.title}</span>
+                {goal.status === "later" ? (
+                  <span className="ml-2 shrink-0 text-[11px] text-slate-400">
+                    Позже
+                  </span>
+                ) : null}
+              </DropdownMenuRadioItem>
+            ))}
+          </DropdownMenuRadioGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   )
 }
