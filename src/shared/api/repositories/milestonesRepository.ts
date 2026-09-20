@@ -46,9 +46,11 @@ export async function createMilestone(
     return repositoryFailure("Supabase не настроен.")
   }
 
-  if (milestone.projectId === undefined) {
+  const hasProject = Boolean(milestone.projectId?.trim())
+  const hasGoal = Boolean(milestone.goalId?.trim())
+  if (hasProject === hasGoal) {
     return repositoryFailure(
-      "Сейчас в облаке можно сохранить веху только с projectId (цель-уровень — в следующей итерации).",
+      "Веха должна быть привязана ровно к одному объекту: проекту или цели.",
     )
   }
 
