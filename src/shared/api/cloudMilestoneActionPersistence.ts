@@ -23,6 +23,7 @@ function sanitizeNewMilestonePayload(
   return {
     id: payload.id ?? "",
     projectId: payload.projectId,
+    goalId: payload.projectId ? undefined : payload.goalId,
     title,
     date: payload.date,
     completed: payload.completed ?? false,
@@ -42,6 +43,7 @@ function sanitizeMilestonePatch(
   if (patch.date !== undefined) next.date = patch.date
   if (patch.completed !== undefined) next.completed = patch.completed
   if (patch.projectId !== undefined) next.projectId = patch.projectId
+  if (patch.goalId !== undefined) next.goalId = patch.goalId
   return next
 }
 
