@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null)
     if (!supabase) {
       setError(NOT_CONFIGURED_MESSAGE)
-      return
+      return { error: NOT_CONFIGURED_MESSAGE }
     }
 
     const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -73,14 +73,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (signInError) {
       setError(signInError.message)
+      return { error: signInError.message }
     }
+    return { error: null }
   }
 
   const signUp = async (email: string, password: string) => {
     setError(null)
     if (!supabase) {
       setError(NOT_CONFIGURED_MESSAGE)
-      return
+      return { error: NOT_CONFIGURED_MESSAGE }
     }
 
     const { error: signUpError } = await supabase.auth.signUp({
@@ -90,7 +92,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (signUpError) {
       setError(signUpError.message)
+      return { error: signUpError.message }
     }
+    return { error: null }
   }
 
   const signOut = async () => {
