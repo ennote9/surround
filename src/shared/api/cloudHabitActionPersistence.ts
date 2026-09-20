@@ -43,7 +43,7 @@ function sanitizeUpdateHabitPatch(
       next.name = name
     }
   }
-  if (patch.description !== undefined) {
+  if ("description" in patch) {
     next.description = patch.description?.trim() || undefined
   }
   return next
