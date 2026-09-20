@@ -164,7 +164,7 @@ export function GoalDialog({ open, onOpenChange, goal, onSubmit }: GoalDialogPro
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton
-        className="flex w-full max-w-[calc(100%-2rem)] flex-col gap-0 overflow-hidden border-slate-200 bg-white p-0 text-slate-950 sm:max-w-xl"
+        className="flex w-full max-w-[calc(100vw-2rem)] flex-col gap-0 overflow-hidden border-slate-200 bg-white p-0 text-slate-950 sm:max-w-xl"
       >
         {open ? (
           <GoalDialogFields
