@@ -58,11 +58,11 @@ function sanitizeTaskPatch(
     }
   }
   if (patch.completed !== undefined) next.completed = patch.completed
-  if (patch.deadline !== undefined) {
+  if ("deadline" in patch) {
     next.deadline = patch.deadline?.trim() || undefined
   }
-  if (patch.notes !== undefined) next.notes = patch.notes?.trim() || undefined
-  if (patch.priority !== undefined) next.priority = patch.priority
+  if ("notes" in patch) next.notes = patch.notes?.trim() || undefined
+  if ("priority" in patch) next.priority = patch.priority
 
   return next
 }
