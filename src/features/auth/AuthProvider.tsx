@@ -17,6 +17,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(isSupabaseConfigured)
   const [error, setError] = useState<string | null>(null)
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -43,10 +44,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const {
       data: { subscription },
-    } = client.auth.onAuthStateChange((_event, nextSession) => {
+    } = client.auth.onAuthStateChange((event, nextSession) => {
       if (cancelled) return
       setSession(nextSession)
       setUser(nextSession?.user ?? null)
+      if (event === "PASSWORD_RECOVERY") {
+        setIsPasswordRecovery(true)
+      } else if (event === "SIGNED_OUT") {
+        setIsPasswordRecovery(false)
+      }
     })
 
     void initializeSession()
@@ -139,6 +145,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   )
 
+  const updatePassword = useCallback(
+    async (password: string): Promise<{ error: string | null }> => {
+      if (!password) {
+        return { error: "Введите новый пароль." }
+      }
+      if (!supabase) {
+        return { error: NOT_CONFIGURED_MESSAGE }
+      }
+
+      const { error: updateError } = await supabase.auth.updateUser({ password })
+      if (updateError) {
+        return { error: updateError.message || "Не удалось изменить пароль." }
+      }
+
+      setIsPasswordRecovery(false)
+      return { error: null }
+    },
+    [],
+  )
+
   const value = useMemo(
     () => ({
       session,
@@ -146,14 +172,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       error,
       isAuthenticated: Boolean(session?.user),
+      isPasswordRecovery,
       isConfigured: isSupabaseConfigured,
       signIn,
       signUp,
       signOut,
       sendPasswordResetEmail,
+      updatePassword,
       clearError,
     }),
-    [session, user, loading, error, sendPasswordResetEmail],
+    [
+      session,
+      user,
+      loading,
+      error,
+      isPasswordRecovery,
+      sendPasswordResetEmail,
+      updatePassword,
+    ],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
