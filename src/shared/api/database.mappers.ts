@@ -164,20 +164,15 @@ export function projectRowToProjectBase(row: ProjectRow): Project {
   }
 }
 
-/**
- * @returns `null`, если у проекта нет `goalId` — импорт/создание в облаке без цели не поддерживаются.
- */
 export function projectToProjectInsert(
   project: Project,
   userId: string,
-): ProjectInsert | null {
-  if (project.goalId === undefined || project.goalId.trim() === "") {
-    return null
-  }
+): ProjectInsert {
+  const goalId = project.goalId?.trim() || null
   return {
     id: project.id,
     user_id: userId,
-    goal_id: project.goalId,
+    goal_id: goalId,
     title: project.title,
     description: project.description ?? null,
     stat_type: project.statType ?? null,
@@ -373,7 +368,13 @@ export function milestoneToMilestoneUpdate(
   if (patch.title !== undefined) o.title = patch.title
   if (patch.date !== undefined) o.target_date = patch.date
   if (patch.completed !== undefined) o.completed = patch.completed
-  if (patch.projectId !== undefined) o.project_id = patch.projectId ?? null
-  if (patch.goalId !== undefined) o.goal_id = patch.goalId ?? null
+  if (patch.projectId !== undefined) {
+    o.project_id = patch.projectId ?? null
+    if (patch.projectId) o.goal_id = null
+  }
+  if (patch.goalId !== undefined) {
+    o.goal_id = patch.goalId ?? null
+    if (patch.goalId) o.project_id = null
+  }
   return o
 }
