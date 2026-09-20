@@ -19,6 +19,7 @@ export default function AuthPage() {
     signIn,
     signUp,
     signOut,
+    sendPasswordResetEmail,
     clearError,
   } = useAuth()
 
@@ -42,15 +43,19 @@ export default function AuthPage() {
     }
 
     if (mode === "signIn") {
-      await signIn(cleanEmail, cleanPassword)
-      goToHome()
+      const result = await signIn(cleanEmail, cleanPassword)
+      if (!result.error) {
+        goToHome()
+      }
       return
     }
 
-    await signUp(cleanEmail, cleanPassword)
-    setInfo(
-      "Если включено подтверждение email, проверьте почту для завершения регистрации.",
-    )
+    const result = await signUp(cleanEmail, cleanPassword)
+    if (!result.error) {
+      setInfo(
+        "Если включено подтверждение email, проверьте почту для завершения регистрации.",
+      )
+    }
   }
 
   return (
@@ -71,8 +76,7 @@ export default function AuthPage() {
               устройствами.
             </p>
             <p className="mt-1 text-pretty text-xs text-slate-500">
-              Синхронизация данных будет подключена на следующих этапах. Сейчас
-              проверяется вход в аккаунт.
+              Данные синхронизируются через защищённое облачное хранилище Supabase.
             </p>
           </>
         )}
@@ -222,6 +226,28 @@ export default function AuthPage() {
             ) : null}
             {info ? (
               <p className="text-pretty text-sm break-words text-slate-600">{info}</p>
+            ) : null}
+
+            {mode === "signIn" ? (
+              <button
+                type="button"
+                className="w-full text-center text-sm text-blue-600 underline-offset-2 hover:underline"
+                onClick={() => {
+                  void (async () => {
+                    clearError()
+                    setLocalError(null)
+                    setInfo(null)
+                    const result = await sendPasswordResetEmail(email)
+                    if (result.error) {
+                      setLocalError(result.error)
+                    } else {
+                      setInfo("Письмо для сброса пароля отправлено. Проверьте почту.")
+                    }
+                  })()
+                }}
+              >
+                Забыли пароль?
+              </button>
             ) : null}
 
             <Button
