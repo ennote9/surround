@@ -4,6 +4,7 @@ import { Separator } from "@/components/ui/separator"
 import { SidebarGoalSwitcher } from "@/layouts/SidebarGoalSwitcher"
 import {
   BarChart3,
+  BookOpen,
   CalendarCheck,
   CircleUserRound,
   FolderKanban,
@@ -30,6 +31,7 @@ const items: NavItem[] = [
   { to: "/projects", label: "Проекты", icon: FolderKanban },
   { to: "/routine", label: "Рутина", icon: CalendarCheck },
   { to: "/analytics", label: "Аналитика", icon: BarChart3 },
+  { to: "/guide", label: "Справочник", icon: BookOpen },
   { to: "/settings", label: "Настройки", icon: Settings },
 ]
 
