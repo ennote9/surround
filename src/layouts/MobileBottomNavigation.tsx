@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 import { NavLink, useLocation } from "react-router-dom"
 import {
   BarChart3,
+  BookOpen,
   CalendarCheck,
   FolderKanban,
   Home,
@@ -31,6 +32,7 @@ const mainItems: MainItem[] = [
 function isMoreRouteActive(pathname: string): boolean {
   return (
     pathname.startsWith("/analytics") ||
+    pathname.startsWith("/guide") ||
     pathname.startsWith("/settings") ||
     pathname.startsWith("/profile") ||
     pathname.startsWith("/auth")
@@ -43,6 +45,47 @@ function mainItemClassName(isActive: boolean) {
     isActive
       ? "bg-blue-50 text-blue-700"
       : "text-slate-400 hover:bg-slate-100 hover:text-slate-700",
+  )
+}
+
+function MoreMenuLink({
+  to,
+  label,
+  icon: Icon,
+  active,
+  onClick,
+}: {
+  to: string
+  label: string
+  icon: typeof Home
+  active: boolean
+  onClick: () => void
+}) {
+  return (
+    <li role="none">
+      <NavLink
+        role="menuitem"
+        to={to}
+        className={({ isActive }) =>
+          cn(
+            "flex min-h-11 items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium",
+            isActive
+              ? "bg-blue-50 text-blue-700"
+              : "text-slate-800 hover:bg-slate-100",
+          )
+        }
+        onClick={onClick}
+      >
+        <Icon
+          className={cn(
+            "size-5 shrink-0",
+            active ? "text-blue-600" : "text-slate-600",
+          )}
+          aria-hidden
+        />
+        {label}
+      </NavLink>
+    </li>
   )
 }
 
@@ -89,85 +132,34 @@ export function MobileBottomNavigation() {
             className="pointer-events-auto absolute bottom-full left-2 right-2 z-[20] mb-2 max-h-[50vh] overflow-y-auto overscroll-contain rounded-2xl border border-slate-200 bg-white p-2 shadow-lg"
           >
             <ul className="flex flex-col gap-0.5">
-              <li role="none">
-                <NavLink
-                  role="menuitem"
-                  to="/analytics"
-                  className={({ isActive }) =>
-                    cn(
-                      "flex min-h-11 items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium",
-                      isActive
-                        ? "bg-blue-50 text-blue-700"
-                        : "text-slate-800 hover:bg-slate-100",
-                    )
-                  }
-                  onClick={closeMore}
-                >
-                  <BarChart3
-                    className={cn(
-                      "size-5 shrink-0",
-                      pathname.startsWith("/analytics")
-                        ? "text-blue-600"
-                        : "text-slate-600",
-                    )}
-                    aria-hidden
-                  />
-                  Аналитика
-                </NavLink>
-              </li>
-              <li role="none">
-                <NavLink
-                  role="menuitem"
-                  to="/settings"
-                  className={({ isActive }) =>
-                    cn(
-                      "flex min-h-11 items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium",
-                      isActive
-                        ? "bg-blue-50 text-blue-700"
-                        : "text-slate-800 hover:bg-slate-100",
-                    )
-                  }
-                  onClick={closeMore}
-                >
-                  <Settings
-                    className={cn(
-                      "size-5 shrink-0",
-                      pathname.startsWith("/settings")
-                        ? "text-blue-600"
-                        : "text-slate-600",
-                    )}
-                    aria-hidden
-                  />
-                  Настройки
-                </NavLink>
-              </li>
-              <li role="none">
-                <NavLink
-                  role="menuitem"
-                  to="/profile"
-                  end
-                  className={({ isActive }) =>
-                    cn(
-                      "flex min-h-11 items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium",
-                      isActive
-                        ? "bg-blue-50 text-blue-700"
-                        : "text-slate-800 hover:bg-slate-100",
-                    )
-                  }
-                  onClick={closeMore}
-                >
-                  <User
-                    className={cn(
-                      "size-5 shrink-0",
-                      pathname.startsWith("/profile")
-                        ? "text-blue-600"
-                        : "text-slate-600",
-                    )}
-                    aria-hidden
-                  />
-                  Аккаунт
-                </NavLink>
-              </li>
+              <MoreMenuLink
+                to="/analytics"
+                label="Аналитика"
+                icon={BarChart3}
+                active={pathname.startsWith("/analytics")}
+                onClick={closeMore}
+              />
+              <MoreMenuLink
+                to="/guide"
+                label="Справочник"
+                icon={BookOpen}
+                active={pathname.startsWith("/guide")}
+                onClick={closeMore}
+              />
+              <MoreMenuLink
+                to="/settings"
+                label="Настройки"
+                icon={Settings}
+                active={pathname.startsWith("/settings")}
+                onClick={closeMore}
+              />
+              <MoreMenuLink
+                to="/profile"
+                label="Аккаунт"
+                icon={User}
+                active={pathname.startsWith("/profile")}
+                onClick={closeMore}
+              />
             </ul>
           </nav>
         </>
