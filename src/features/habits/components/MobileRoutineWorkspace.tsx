@@ -22,9 +22,16 @@ import {
 } from "@/components/ui/dropdown-menu"
 import type { Habit } from "@/store/appState.types"
 import {
-  getHabitTargetPerWeek,
+  getHabitCompletionType,
+  getHabitScheduleMode,
+  getHabitTargetValue,
   getHabitTotalCompliance,
+  getHabitUnit,
+  getHabitWeeklyCompleted,
   getHabitWeeklyCompliance,
+  getHabitWeeklyTarget,
+  isHabitActiveOnDate,
+  isHabitScheduledOnDate,
 } from "@/store/selectors"
 
 type MobileRoutineWorkspaceProps = {
@@ -103,6 +110,35 @@ function formatWeekRange(weekDates: string[]): string {
   return `${format(first, "d MMM", { locale: ru })} — ${format(last, "d MMM", { locale: ru })}`
 }
 
+function formatHabitSchedule(habit: Habit): string {
+  const mode = getHabitScheduleMode(habit)
+  if (mode === "daily") return "Каждый день"
+  if (mode === "specific-days") {
+    const labels = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
+    return (habit.schedule?.daysOfWeek ?? [])
+      .map((day) => labels[day - 1])
+      .filter(Boolean)
+      .join(" · ")
+  }
+  return `${habit.schedule?.targetPerWeek ?? 7}× в неделю`
+}
+
+function formatHabitTarget(habit: Habit): string {
+  const type = getHabitCompletionType(habit)
+  if (type === "check") return "Галочка"
+  const target = getHabitTargetValue(habit)
+  const unit = getHabitUnit(habit)
+  return target ? `${target} ${unit}` : type === "duration" ? "Время" : "Количество"
+}
+
+function formatEntryValue(value: number): string {
+  if (Math.abs(value) >= 1000) {
+    const compact = value / 1000
+    return `${Number.isInteger(compact) ? compact : compact.toFixed(1)}k`
+  }
+  return Number.isInteger(value) ? String(value) : value.toFixed(1)
+}
+
 export function MobileRoutineWorkspace({
   habits,
   weekDates,
@@ -126,14 +162,12 @@ export function MobileRoutineWorkspace({
 
   const weeklyStats = useMemo(() => {
     const possible = habits.reduce(
-      (sum, habit) => sum + getHabitTargetPerWeek(habit),
+      (sum, habit) => sum + getHabitWeeklyTarget(habit, weekDates),
       0,
     )
     const completed = habits.reduce((sum, habit) => {
-      const target = getHabitTargetPerWeek(habit)
-      const done = weekDates.filter(
-        (date) => habit.dailyStatus[date] === true,
-      ).length
+      const target = getHabitWeeklyTarget(habit, weekDates)
+      const done = getHabitWeeklyCompleted(habit, weekDates)
       return sum + Math.min(done, target)
     }, 0)
     return {
@@ -143,18 +177,24 @@ export function MobileRoutineWorkspace({
     }
   }, [habits, weekDates])
 
-  const todayDone = habits.filter(
+  const todayHabits = habits.filter((habit) =>
+    isHabitScheduledOnDate(habit, todayISO),
+  )
+  const todayDone = todayHabits.filter(
     (habit) => habit.dailyStatus[todayISO] === true,
   ).length
 
+  const activeHabits = habits.filter(
+    (habit) => !habit.settings?.period?.paused,
+  )
   const averageTotalCompliance =
-    habits.length === 0
+    activeHabits.length === 0
       ? 0
       : Math.round(
-          habits.reduce(
+          activeHabits.reduce(
             (sum, habit) => sum + getHabitTotalCompliance(habit),
             0,
-          ) / habits.length,
+          ) / activeHabits.length,
         )
 
   return (
@@ -168,7 +208,7 @@ export function MobileRoutineWorkspace({
             Рутина
           </h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            {habits.length} привычек · сегодня {todayDone}/{habits.length}
+            {activeHabits.length} активных · сегодня {todayDone}/{todayHabits.length}
           </p>
         </div>
         <Button
@@ -203,7 +243,7 @@ export function MobileRoutineWorkspace({
           <div className="rounded-2xl bg-white/10 p-3 ring-1 ring-white/12">
             <p className="text-[10px] text-blue-100">Сегодня</p>
             <p className="mt-1 text-lg font-semibold">
-              {todayDone}/{habits.length}
+              {todayDone}/{todayHabits.length}
             </p>
           </div>
           <div className="rounded-2xl bg-white/10 p-3 ring-1 ring-white/12">
@@ -298,7 +338,9 @@ export function MobileRoutineWorkspace({
             {habits.map((habit) => {
               const weeklyCompliance = getHabitWeeklyCompliance(habit, weekDates)
               const totalCompliance = getHabitTotalCompliance(habit)
-              const targetPerWeek = getHabitTargetPerWeek(habit)
+              const targetPerWeek = getHabitWeeklyTarget(habit, weekDates)
+              const completionType = getHabitCompletionType(habit)
+              const paused = habit.settings?.period?.paused === true
 
               return (
                 <article
@@ -355,9 +397,16 @@ export function MobileRoutineWorkspace({
 
                   <div className="mt-3 flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
                     <span className="rounded-full bg-slate-100 px-2 py-1 dark:bg-slate-800">
-                      Норма: {targetPerWeek}/нед.
+                      {formatHabitSchedule(habit)}
                     </span>
-                    {habit.projectId ? (
+                    <span className="rounded-full bg-slate-100 px-2 py-1 dark:bg-slate-800">
+                      {formatHabitTarget(habit)}
+                    </span>
+                    {paused ? (
+                      <span className="rounded-full bg-amber-50 px-2 py-1 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
+                        На паузе
+                      </span>
+                    ) : habit.projectId ? (
                       <span className="truncate rounded-full bg-blue-50 px-2 py-1 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">
                         Привязана к проекту
                       </span>
@@ -371,15 +420,24 @@ export function MobileRoutineWorkspace({
                   <div className="mt-4 grid grid-cols-7 gap-1.5">
                     {weekDates.map((date, index) => {
                       const done = habit.dailyStatus[date] === true
+                      const entry = habit.dailyEntries?.[date]
                       const isToday = date === todayISO
+                      const active = isHabitActiveOnDate(habit, date)
+                      const scheduled = isHabitScheduledOnDate(habit, date)
+                      const enabled = active && scheduled
 
                       return (
                         <button
                           key={date}
                           type="button"
+                          disabled={!enabled}
                           onClick={() => onToggleHabitDate(habit.id, date)}
-                          className="flex min-w-0 flex-col items-center gap-1.5"
-                          aria-label={`${habit.name}, ${date}, ${done ? "выполнено" : "не выполнено"}`}
+                          className={
+                            enabled
+                              ? "flex min-w-0 flex-col items-center gap-1.5"
+                              : "flex min-w-0 flex-col items-center gap-1.5 opacity-35"
+                          }
+                          aria-label={`${habit.name}, ${date}, ${enabled ? (done ? "выполнено" : "не выполнено") : "не запланировано"}`}
                         >
                           <span
                             className={
@@ -392,14 +450,22 @@ export function MobileRoutineWorkspace({
                           </span>
                           <span
                             className={
-                              done
-                                ? "flex size-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm shadow-blue-600/20"
-                                : isToday
-                                  ? "flex size-9 items-center justify-center rounded-xl border border-blue-500 bg-blue-50 text-xs font-medium text-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
-                                  : "flex size-9 items-center justify-center rounded-xl bg-slate-100 text-xs font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                              entry?.skipped
+                                ? "flex size-9 items-center justify-center rounded-xl bg-amber-50 text-xs font-semibold text-amber-600 dark:bg-amber-500/10 dark:text-amber-300"
+                                : done
+                                  ? "flex size-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm shadow-blue-600/20"
+                                  : entry?.value != null
+                                    ? "flex size-9 items-center justify-center rounded-xl border border-amber-300 bg-amber-50 text-[10px] font-semibold text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300"
+                                    : isToday
+                                      ? "flex size-9 items-center justify-center rounded-xl border border-blue-500 bg-blue-50 text-xs font-medium text-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
+                                      : "flex size-9 items-center justify-center rounded-xl bg-slate-100 text-xs font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400"
                             }
                           >
-                            {done ? (
+                            {entry?.skipped ? (
+                              "—"
+                            ) : entry?.value != null && completionType !== "check" ? (
+                              formatEntryValue(entry.value)
+                            ) : done ? (
                               <Check className="size-4" aria-hidden />
                             ) : (
                               format(parseISO(date), "d", { locale: ru })
@@ -414,7 +480,7 @@ export function MobileRoutineWorkspace({
                     <div className="rounded-2xl bg-slate-50 p-3 dark:bg-slate-950/55">
                       <p className="text-[10px] text-slate-400">Эта неделя</p>
                       <p className="mt-1 text-base font-semibold text-slate-950 dark:text-slate-100">
-                        {weeklyCompliance}%
+                        {targetPerWeek === 0 ? "Пауза" : `${weeklyCompliance}%`}
                       </p>
                     </div>
                     <div className="rounded-2xl bg-slate-50 p-3 dark:bg-slate-950/55">
