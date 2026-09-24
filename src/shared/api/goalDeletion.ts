@@ -15,184 +15,93 @@ export type DeleteGoalResult = {
   deletedProjectCount: number
 }
 
-/**
- * Клиентские удаления в несколько запросов не атомарны.
- * Укрепление в будущем: RPC/транзакция в Supabase.
- */
-export async function deleteGoalOnly(
-  userId: string,
-  goalId: string,
-): Promise<RepositoryResult<DeleteGoalResult>> {
-  if (!supabase) {
-    return repositoryFailure("Supabase не настроен.")
+type GoalDeletionRpcPayload = {
+  mode?: unknown
+  deletedGoalId?: unknown
+  affectedProjectIds?: unknown
+  deletedProjectCount?: unknown
+}
+
+function parseGoalDeletionResult(
+  value: unknown,
+  expectedMode: DeleteGoalMode,
+  expectedGoalId: string,
+): DeleteGoalResult | null {
+  if (!value || typeof value !== "object") return null
+  const raw = value as GoalDeletionRpcPayload
+  if (raw.mode !== expectedMode || raw.deletedGoalId !== expectedGoalId) {
+    return null
   }
 
-  try {
-    const { data: projectRows, error: listErr } = await supabase
-      .from("projects")
-      .select("id")
-      .eq("user_id", userId)
-      .eq("goal_id", goalId)
-
-    if (listErr) {
-      return repositoryFailure(
-        `Не удалось получить проекты цели: ${getRepositoryErrorMessage(listErr)}`,
+  const affectedProjectIds = Array.isArray(raw.affectedProjectIds)
+    ? raw.affectedProjectIds.filter(
+        (id): id is string => typeof id === "string" && id.length > 0,
       )
-    }
+    : []
 
-    const affectedProjectIds = (projectRows ?? []).map((r) => r.id as string)
+  const deletedProjectCount =
+    typeof raw.deletedProjectCount === "number" &&
+    Number.isFinite(raw.deletedProjectCount)
+      ? Math.max(0, Math.round(raw.deletedProjectCount))
+      : expectedMode === "with-projects"
+        ? affectedProjectIds.length
+        : 0
 
-    const { error: unlinkErr } = await supabase
-      .from("projects")
-      .update({ goal_id: null })
-      .eq("user_id", userId)
-      .eq("goal_id", goalId)
-
-    if (unlinkErr) {
-      return repositoryFailure(
-        `Не удалось отвязать проекты от цели: ${getRepositoryErrorMessage(unlinkErr)}`,
-      )
-    }
-
-    const { error: msErr } = await supabase
-      .from("milestones")
-      .delete()
-      .eq("user_id", userId)
-      .eq("goal_id", goalId)
-
-    if (msErr) {
-      return repositoryFailure(
-        `Не удалось удалить вехи цели: ${getRepositoryErrorMessage(msErr)}`,
-      )
-    }
-
-    const { error: goalErr } = await supabase
-      .from("goals")
-      .delete()
-      .eq("user_id", userId)
-      .eq("id", goalId)
-
-    if (goalErr) {
-      return repositoryFailure(
-        `Не удалось удалить цель: ${getRepositoryErrorMessage(goalErr)}`,
-      )
-    }
-
-    return repositorySuccess({
-      mode: "goal-only",
-      deletedGoalId: goalId,
-      affectedProjectIds,
-      deletedProjectCount: 0,
-    })
-  } catch (e) {
-    return repositoryFailure(getRepositoryErrorMessage(e))
+  return {
+    mode: expectedMode,
+    deletedGoalId: expectedGoalId,
+    affectedProjectIds,
+    deletedProjectCount,
   }
 }
 
-export async function deleteGoalWithProjects(
+async function deleteGoalAtomic(
   userId: string,
   goalId: string,
+  mode: DeleteGoalMode,
 ): Promise<RepositoryResult<DeleteGoalResult>> {
   if (!supabase) {
     return repositoryFailure("Supabase не настроен.")
   }
+  if (!userId.trim() || !goalId.trim()) {
+    return repositoryFailure("Не удалось удалить цель: отсутствует идентификатор.")
+  }
 
   try {
-    const { data: projectRows, error: listErr } = await supabase
-      .from("projects")
-      .select("id")
-      .eq("user_id", userId)
-      .eq("goal_id", goalId)
-
-    if (listErr) {
-      return repositoryFailure(
-        `Не удалось получить проекты цели: ${getRepositoryErrorMessage(listErr)}`,
-      )
-    }
-
-    const projectIds = (projectRows ?? []).map((r) => r.id as string)
-
-    if (projectIds.length > 0) {
-      const { error: tasksErr } = await supabase
-        .from("tasks")
-        .delete()
-        .eq("user_id", userId)
-        .in("project_id", projectIds)
-
-      if (tasksErr) {
-        return repositoryFailure(
-          `Не удалось удалить задачи: ${getRepositoryErrorMessage(tasksErr)}`,
-        )
-      }
-
-      const { error: groupsErr } = await supabase
-        .from("project_groups")
-        .delete()
-        .eq("user_id", userId)
-        .in("project_id", projectIds)
-
-      if (groupsErr) {
-        return repositoryFailure(
-          `Не удалось удалить группы задач: ${getRepositoryErrorMessage(groupsErr)}`,
-        )
-      }
-
-      const { error: msProjErr } = await supabase
-        .from("milestones")
-        .delete()
-        .eq("user_id", userId)
-        .in("project_id", projectIds)
-
-      if (msProjErr) {
-        return repositoryFailure(
-          `Не удалось удалить вехи проектов: ${getRepositoryErrorMessage(msProjErr)}`,
-        )
-      }
-
-      const { error: projErr } = await supabase
-        .from("projects")
-        .delete()
-        .eq("user_id", userId)
-        .in("id", projectIds)
-
-      if (projErr) {
-        return repositoryFailure(
-          `Не удалось удалить проекты: ${getRepositoryErrorMessage(projErr)}`,
-        )
-      }
-    }
-
-    const { error: msGoalErr } = await supabase
-      .from("milestones")
-      .delete()
-      .eq("user_id", userId)
-      .eq("goal_id", goalId)
-
-    if (msGoalErr) {
-      return repositoryFailure(
-        `Не удалось удалить вехи уровня цели: ${getRepositoryErrorMessage(msGoalErr)}`,
-      )
-    }
-
-    const { error: goalErr } = await supabase
-      .from("goals")
-      .delete()
-      .eq("user_id", userId)
-      .eq("id", goalId)
-
-    if (goalErr) {
-      return repositoryFailure(
-        `Не удалось удалить цель: ${getRepositoryErrorMessage(goalErr)}`,
-      )
-    }
-
-    return repositorySuccess({
-      mode: "with-projects",
-      deletedGoalId: goalId,
-      affectedProjectIds: projectIds,
-      deletedProjectCount: projectIds.length,
+    const { data, error } = await supabase.rpc("delete_goal_atomic", {
+      p_goal_id: goalId,
+      p_mode: mode,
     })
-  } catch (e) {
-    return repositoryFailure(getRepositoryErrorMessage(e))
+
+    if (error) {
+      return repositoryFailure(
+        `Не удалось удалить цель: ${getRepositoryErrorMessage(error)}`,
+      )
+    }
+
+    const parsed = parseGoalDeletionResult(data, mode, goalId)
+    if (!parsed) {
+      return repositoryFailure(
+        "Цель удалена некорректно: сервер вернул неожиданный ответ.",
+      )
+    }
+
+    return repositorySuccess(parsed)
+  } catch (error) {
+    return repositoryFailure(getRepositoryErrorMessage(error))
   }
+}
+
+export function deleteGoalOnly(
+  userId: string,
+  goalId: string,
+): Promise<RepositoryResult<DeleteGoalResult>> {
+  return deleteGoalAtomic(userId, goalId, "goal-only")
+}
+
+export function deleteGoalWithProjects(
+  userId: string,
+  goalId: string,
+): Promise<RepositoryResult<DeleteGoalResult>> {
+  return deleteGoalAtomic(userId, goalId, "with-projects")
 }
