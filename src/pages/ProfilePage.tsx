@@ -11,7 +11,6 @@ import {
   KeyRound,
   Loader2,
   LogOut,
-  Mail,
   ShieldCheck,
   UserRound,
 } from "lucide-react"
@@ -386,7 +385,6 @@ export default function ProfilePage() {
   return (
     <div
       className="mx-auto min-w-0 w-full max-w-5xl space-y-4 overflow-x-hidden sm:space-y-6 lg:space-y-8"
-      aria-labelledby="profile-page-title"
     >
       <div className="space-y-6 md:hidden">
         <header className="min-w-0">
@@ -444,7 +442,9 @@ export default function ProfilePage() {
                         ? "flex size-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-300"
                         : syncMeta.tone === "red"
                           ? "flex size-9 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-300"
-                          : "flex size-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300"
+                          : syncMeta.tone === "blue"
+                            ? "flex size-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300"
+                            : "flex size-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
                     }
                   >
                     {status === "saving" ? (
@@ -467,7 +467,15 @@ export default function ProfilePage() {
                     </p>
                   </div>
                 </div>
-                <span className="size-2 shrink-0 rounded-full bg-emerald-500" />
+                <span
+                  className={
+                    status === "error"
+                      ? "size-2 shrink-0 rounded-full bg-red-500"
+                      : status === "saving"
+                        ? "size-2 shrink-0 animate-pulse rounded-full bg-blue-500"
+                        : "size-2 shrink-0 rounded-full bg-emerald-500"
+                  }
+                />
               </div>
             )
           })()}
@@ -720,7 +728,7 @@ export default function ProfilePage() {
 
       <header className="min-w-0">
         <h1
-          id="profile-page-title"
+          id="profile-page-title-desktop"
           className="text-balance break-words text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl"
         >
           Профиль
