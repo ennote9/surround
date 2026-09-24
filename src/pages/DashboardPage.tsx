@@ -74,6 +74,14 @@ export default function DashboardPage() {
     [habits, scopedProjects, selectedGoalId, state.goals],
   )
 
+  const dashboardHabits = useMemo(
+    () =>
+      scopedHabits.filter(
+        (habit) => habit.settings?.showOnDashboard !== false,
+      ),
+    [scopedHabits],
+  )
+
   const [widgetsStored] = useLocalStorage(
     DASHBOARD_WIDGETS_STORAGE_KEY,
     DEFAULT_DASHBOARD_WIDGETS,
@@ -173,7 +181,7 @@ export default function DashboardPage() {
             ) : null}
             {showToday ? (
               <div className="min-w-0">
-                <TodayRoutinesCard habits={scopedHabits} todayISO={todayISO} />
+                <TodayRoutinesCard habits={dashboardHabits} todayISO={todayISO} />
               </div>
             ) : null}
           </div>
@@ -258,7 +266,7 @@ export default function DashboardPage() {
           <MobileDashboard
             scopedProjects={scopedProjects}
             dashboardProjects={dashboardProjects}
-            habits={scopedHabits}
+            habits={dashboardHabits}
             todayISO={todayISO}
             visibleStatIds={visibleStatIds}
             showOverall={showOverall}
