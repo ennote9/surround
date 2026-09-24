@@ -5,6 +5,7 @@ import { OverallProgressCard } from "@/features/dashboard/components/OverallProg
 import { ProjectSummaryCard } from "@/features/dashboard/components/ProjectSummaryCard"
 import { TodayRoutinesCard } from "@/features/dashboard/components/TodayRoutinesCard"
 import { MetricsGrid } from "@/features/dashboard/components/MetricsGrid"
+import { MobileDashboard } from "@/features/dashboard/components/MobileDashboard"
 import {
   DEFAULT_DASHBOARD_STAT_VISIBILITY,
   normalizeDashboardStatVisibility,
@@ -213,19 +214,13 @@ export default function DashboardPage() {
   )
 
   return (
-    <div className="mx-auto min-w-0 w-full max-w-5xl space-y-4 lg:space-y-5">
-      <header className="min-w-0">
-        <h1 className="text-balance break-words text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
-          Главная
-        </h1>
-      </header>
-
+    <div className="mx-auto min-w-0 w-full max-w-5xl">
       {!anyWidgetEnabled ? (
-        <div className="min-w-0 w-full max-w-full rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm sm:p-5">
-          <p className="break-words text-sm font-medium text-slate-950">
+        <div className="min-w-0 w-full max-w-full rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
+          <p className="break-words text-sm font-medium text-slate-950 dark:text-slate-100">
             Все плитки скрыты
           </p>
-          <p className="mx-auto mt-1 max-w-full text-pretty text-xs text-slate-600 sm:max-w-md">
+          <p className="mx-auto mt-1 max-w-full text-pretty text-xs text-slate-600 dark:text-slate-400 sm:max-w-md">
             Откройте настройки Главной, чтобы вернуть нужные блоки.
           </p>
           <Button
@@ -235,21 +230,59 @@ export default function DashboardPage() {
             <Link to="/settings">Настройки Главной</Link>
           </Button>
         </div>
-      ) : hasLeftColumn && hasStatsSection ? (
-        <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)] xl:gap-5">
-          <div className="min-w-0 space-y-4 lg:space-y-5">{dashboardLeftColumn}</div>
+      ) : (
+        <>
+          <MobileDashboard
+            selectedGoalTitle={selectedGoalTitle}
+            scopedProjects={scopedProjects}
+            dashboardProjects={dashboardProjects}
+            habits={habits}
+            todayISO={todayISO}
+            visibleStatIds={visibleStatIds}
+            showOverall={showOverall}
+            showToday={showToday}
+            showProjects={showProjects}
+            showMetrics={showMetrics}
+            overallProgress={overallProgress}
+            taskTotals={taskTotals}
+            onOpenProject={handleOpenProject}
+          />
 
-          <aside className="min-w-0">
-            <MetricsGrid projects={scopedProjects} visibleStatIds={visibleStatIds} />
-          </aside>
-        </div>
-      ) : hasLeftColumn ? (
-        <div className="min-w-0 space-y-4 lg:space-y-5">{dashboardLeftColumn}</div>
-      ) : hasStatsSection ? (
-        <aside className="min-w-0">
-          <MetricsGrid projects={scopedProjects} visibleStatIds={visibleStatIds} />
-        </aside>
-      ) : null}
+          <div className="hidden space-y-4 md:block lg:space-y-5">
+            <header className="min-w-0">
+              <h1 className="text-balance break-words text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-100 sm:text-3xl">
+                Главная
+              </h1>
+            </header>
+
+            {hasLeftColumn && hasStatsSection ? (
+              <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)] xl:gap-5">
+                <div className="min-w-0 space-y-4 lg:space-y-5">
+                  {dashboardLeftColumn}
+                </div>
+
+                <aside className="min-w-0">
+                  <MetricsGrid
+                    projects={scopedProjects}
+                    visibleStatIds={visibleStatIds}
+                  />
+                </aside>
+              </div>
+            ) : hasLeftColumn ? (
+              <div className="min-w-0 space-y-4 lg:space-y-5">
+                {dashboardLeftColumn}
+              </div>
+            ) : hasStatsSection ? (
+              <aside className="min-w-0">
+                <MetricsGrid
+                  projects={scopedProjects}
+                  visibleStatIds={visibleStatIds}
+                />
+              </aside>
+            ) : null}
+          </div>
+        </>
+      )}
     </div>
   )
 }
