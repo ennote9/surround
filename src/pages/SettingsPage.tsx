@@ -12,6 +12,7 @@ import {
   normalizeDashboardWidgets,
 } from "@/features/dashboard/dashboardWidgets"
 import { DataManagementCard } from "@/features/settings/components/DataManagementCard"
+import { MobileSettingsWorkspace } from "@/features/settings/components/MobileSettingsWorkspace"
 import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
 import { useAppState } from "@/store/useAppState"
 import {
@@ -101,8 +102,31 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="mx-auto min-w-0 w-full max-w-5xl space-y-4 sm:space-y-6 lg:space-y-8">
-      <div className="min-w-0">
+    <div className="mx-auto min-w-0 w-full max-w-5xl">
+      <MobileSettingsWorkspace
+        currentTheme={currentTheme}
+        widgets={widgets}
+        statVisibility={statVisibility}
+        projectGroupsCollapseMode={projectGroupsCollapseMode}
+        onThemeChange={(theme) =>
+          dispatch({
+            type: "UPDATE_SETTINGS",
+            payload: { patch: { theme } },
+          })
+        }
+        onChangeWidgets={setWidgets}
+        onChangeStatVisibility={setStatVisibilityStored}
+        onChangeProjectGroupsCollapseMode={(mode) =>
+          setProjectGroupsCollapseMode(
+            normalizeProjectGroupsCollapseMode(mode),
+          )
+        }
+        onResetDashboard={handleResetDashboard}
+        onResetCollapsedGroups={handleResetCollapsedGroups}
+      />
+
+      <div className="hidden space-y-6 md:block lg:space-y-8">
+        <div className="min-w-0">
         <h1 className="text-balance break-words text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
           Настройки
         </h1>
@@ -113,15 +137,15 @@ export default function SettingsPage() {
 
       <section className="min-w-0 space-y-3">
         <div className="min-w-0">
-          <h2 className="break-words text-lg font-semibold text-slate-950">
+          <h2 className="break-words text-lg font-semibold text-slate-950 dark:text-slate-100">
             Внешний вид
           </h2>
-          <p className="mt-1 text-pretty text-sm text-slate-600">
+          <p className="mt-1 text-pretty text-sm text-slate-600 dark:text-slate-400">
             Выберите тему интерфейса. Настройка сохраняется в аккаунте.
           </p>
         </div>
 
-        <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+        <div className="min-w-0 rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-4 shadow-sm sm:p-6">
           <div className="grid gap-3 sm:grid-cols-3">
             {THEME_OPTIONS.map(({ value, label, description, icon: Icon }) => {
               const selected = currentTheme === value
@@ -139,7 +163,7 @@ export default function SettingsPage() {
                   className={`relative min-w-0 rounded-2xl border p-4 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
                     selected
                       ? "border-blue-300 bg-blue-50 ring-1 ring-blue-200"
-                      : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                      : "border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 hover:border-slate-300 hover:bg-slate-50"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -156,8 +180,8 @@ export default function SettingsPage() {
                       </span>
                     ) : null}
                   </div>
-                  <p className="mt-4 font-semibold text-slate-950">{label}</p>
-                  <p className="mt-1 text-sm leading-5 text-slate-600">
+                  <p className="mt-4 font-semibold text-slate-950 dark:text-slate-100">{label}</p>
+                  <p className="mt-1 text-sm leading-5 text-slate-600 dark:text-slate-400">
                     {description}
                   </p>
                 </button>
@@ -169,8 +193,8 @@ export default function SettingsPage() {
 
       <section className="min-w-0 space-y-3">
         <div className="min-w-0">
-          <h2 className="break-words text-lg font-semibold text-slate-950">Главная</h2>
-          <p className="mt-1 text-pretty text-sm text-slate-600">
+          <h2 className="break-words text-lg font-semibold text-slate-950 dark:text-slate-100">Главная</h2>
+          <p className="mt-1 text-pretty text-sm text-slate-600 dark:text-slate-400">
             Выберите, какие блоки и статы показывать на Главной.
           </p>
         </div>
@@ -185,18 +209,18 @@ export default function SettingsPage() {
 
       <section className="min-w-0 space-y-3">
         <div className="min-w-0">
-          <h2 className="break-words text-lg font-semibold text-slate-950">Проекты</h2>
-          <p className="mt-1 text-pretty text-sm text-slate-600">
+          <h2 className="break-words text-lg font-semibold text-slate-950 dark:text-slate-100">Проекты</h2>
+          <p className="mt-1 text-pretty text-sm text-slate-600 dark:text-slate-400">
             Настройте поведение раскрытия групп задач при открытии проекта.
           </p>
         </div>
 
-        <div className="min-w-0 max-w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+        <div className="min-w-0 max-w-full rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-4 shadow-sm sm:p-6">
           <div className="min-w-0 space-y-2">
-            <h3 className="break-words text-base font-semibold text-slate-950">
+            <h3 className="break-words text-base font-semibold text-slate-950 dark:text-slate-100">
               Группы внутри проекта
             </h3>
-            <p className="text-pretty text-sm text-slate-600">
+            <p className="text-pretty text-sm text-slate-600 dark:text-slate-400">
               Выберите, как открывать группы задач при переходе между проектами.
             </p>
           </div>
@@ -216,7 +240,7 @@ export default function SettingsPage() {
                   normalizeProjectGroupsCollapseMode(e.target.value),
                 )
               }
-              className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 shadow-xs outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/30"
+              className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 shadow-xs outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/30"
             >
               {PROJECT_GROUPS_COLLAPSE_MODE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -225,7 +249,7 @@ export default function SettingsPage() {
               ))}
             </select>
             {selectedProjectGroupsCollapseOption ? (
-              <p className="text-pretty text-sm break-words text-slate-600">
+              <p className="text-pretty text-sm break-words text-slate-600 dark:text-slate-400">
                 {selectedProjectGroupsCollapseOption.description}
               </p>
             ) : null}
@@ -252,16 +276,17 @@ export default function SettingsPage() {
 
       <section className="min-w-0 space-y-3">
         <div className="min-w-0">
-          <h2 className="break-words text-lg font-semibold text-slate-950">
+          <h2 className="break-words text-lg font-semibold text-slate-950 dark:text-slate-100">
             Данные приложения
           </h2>
-          <p className="mt-1 text-pretty text-sm text-slate-600">
+          <p className="mt-1 text-pretty text-sm text-slate-600 dark:text-slate-400">
             Экспортируйте резервную копию, импортируйте seed JSON или очистите
             текущее состояние.
           </p>
         </div>
         <DataManagementCard />
       </section>
+      </div>
     </div>
   )
 }
