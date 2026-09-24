@@ -81,8 +81,6 @@ export default function AnalyticsPage() {
     <div className="mx-auto min-w-0 w-full max-w-6xl">
       <MobileAnalyticsDashboard
         selectedGoalTitle={selectedGoalTitle}
-        projects={scopedProjects}
-        habits={habits}
         currentProjects={analytics.currentProjects}
         portfolioProjects={scopedProjects}
         contextHabits={scopedHabits}
@@ -106,7 +104,7 @@ export default function AnalyticsPage() {
           <p className="mt-2 max-w-full text-pretty text-sm text-slate-600 dark:text-slate-400 sm:mt-3 sm:text-base">
             {selectedGoalId === ALL_GOALS_SCOPE
               ? "Аналитика по всем активным целям, проектам, задачам и привычкам."
-              : `Аналитика цели «${selectedGoalTitle}». Привычки пока учитываются глобально.`}
+              : `Аналитика цели «${selectedGoalTitle}». Учитываются связанные с ней проекты и привычки.`}
           </p>
         </header>
 
