@@ -3,6 +3,7 @@ import {
   useEffect,
   useMemo,
   useReducer,
+  useRef,
   useState,
   type ReactNode,
 } from "react"
@@ -111,6 +112,9 @@ export function AppStateProvider({
     initialState,
     getInitialState,
   )
+  const stateRef = useRef(state)
+  const saveQueueRef = useRef<Promise<void>>(Promise.resolve())
+  const pendingSaveCountRef = useRef(0)
   const [cloudSaveState, setCloudSaveState] = useState<CloudSaveState>({
     status: "idle",
     error: null,
@@ -121,6 +125,7 @@ export function AppStateProvider({
   }, [])
 
   const normalizeActionForCloud = useCallback((action: AppAction): AppAction => {
+    const currentState = stateRef.current
     const goalsEnabled =
       cloudSaveMode === "goals" ||
       cloudSaveMode === "goals-projects" ||
@@ -200,7 +205,7 @@ export function AppStateProvider({
     }
 
     if (action.type === "TOGGLE_TASK" && groupsTasksEnabled) {
-      const currentProject = state.projects.find((p) => p.id === action.payload.projectId)
+      const currentProject = currentState.projects.find((p) => p.id === action.payload.projectId)
       const currentGroup = currentProject?.groups.find((g) => g.id === action.payload.groupId)
       const currentTask = currentGroup?.tasks.find((t) => t.id === action.payload.taskId)
 
@@ -230,7 +235,7 @@ export function AppStateProvider({
     }
 
     if (action.type === "TOGGLE_HABIT_DATE" && habitsEnabled) {
-      const habit = state.habits.find((h) => h.id === action.payload.id)
+      const habit = currentState.habits.find((h) => h.id === action.payload.id)
       const current = habit?.dailyStatus[action.payload.date]
       return {
         ...action,
@@ -258,7 +263,7 @@ export function AppStateProvider({
     }
 
     if (action.type === "TOGGLE_MILESTONE" && milestonesEnabled) {
-      const milestone = state.milestones.find((m) => m.id === action.payload.id)
+      const milestone = currentState.milestones.find((m) => m.id === action.payload.id)
       return {
         ...action,
         payload: {
@@ -272,10 +277,17 @@ export function AppStateProvider({
     }
 
     return action
-  }, [cloudSaveMode, state.habits, state.milestones, state.projects])
+  }, [cloudSaveMode])
+
+  useEffect(() => {
+    stateRef.current = state
+  }, [state])
 
   const dispatch = useCallback((action: AppAction) => {
     const actionForDispatch = normalizeActionForCloud(action)
+    const previousState = stateRef.current
+    const nextState = appStateReducer(previousState, actionForDispatch)
+    stateRef.current = nextState
     baseDispatch(actionForDispatch)
 
     const isGoalAction =
@@ -364,36 +376,57 @@ export function AppStateProvider({
       return
     }
 
+    pendingSaveCountRef.current += 1
     setCloudSaveState({ status: "saving", error: null })
 
-    void (async () => {
-      // TODO(21.8.x): last-finish-wins for concurrent saves, queueing can be added later.
-      const result = shouldPersistSettings
-        ? await persistUserSettings(
-            userId,
-            appStateReducer(state, actionForDispatch).settings,
-          )
-        : shouldPersistGoal
-          ? await persistGoalAction(userId, actionForDispatch)
-          : shouldPersistProject
-            ? await persistProjectAction(userId, actionForDispatch)
-            : shouldPersistGroupTask
-              ? await persistGroupTaskAction(userId, actionForDispatch)
-              : shouldPersistHabit
-                ? await persistHabitAction(userId, actionForDispatch)
-                : await persistMilestoneAction(userId, actionForDispatch)
-      if (result.error) {
-        setCloudSaveState({ status: "error", error: result.error })
-        return
-      }
+    saveQueueRef.current = saveQueueRef.current
+      .catch(() => undefined)
+      .then(async () => {
+        try {
+          const result = shouldPersistSettings
+            ? await persistUserSettings(userId, nextState.settings)
+            : shouldPersistGoal
+              ? await persistGoalAction(userId, actionForDispatch)
+              : shouldPersistProject
+                ? await persistProjectAction(userId, actionForDispatch)
+                : shouldPersistGroupTask
+                  ? await persistGroupTaskAction(userId, actionForDispatch)
+                  : shouldPersistHabit
+                    ? await persistHabitAction(userId, actionForDispatch)
+                    : await persistMilestoneAction(userId, actionForDispatch)
 
-      setCloudSaveState({
-        status: "saved",
-        error: null,
-        savedAt: new Date().toISOString(),
+          pendingSaveCountRef.current = Math.max(
+            0,
+            pendingSaveCountRef.current - 1,
+          )
+
+          if (result.error) {
+            setCloudSaveState({ status: "error", error: result.error })
+            return
+          }
+
+          if (pendingSaveCountRef.current > 0) {
+            setCloudSaveState({ status: "saving", error: null })
+            return
+          }
+
+          setCloudSaveState({
+            status: "saved",
+            error: null,
+            savedAt: new Date().toISOString(),
+          })
+        } catch {
+          pendingSaveCountRef.current = Math.max(
+            0,
+            pendingSaveCountRef.current - 1,
+          )
+          setCloudSaveState({
+            status: "error",
+            error: "Не удалось сохранить изменения в облако.",
+          })
+        }
       })
-    })()
-  }, [cloudSaveMode, normalizeActionForCloud, state, userId])
+  }, [cloudSaveMode, normalizeActionForCloud, userId])
 
   useEffect(() => {
     if (typeof window === "undefined") return
