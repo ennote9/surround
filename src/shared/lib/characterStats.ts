@@ -1,5 +1,10 @@
-import type { CharacterStatType, Project } from "@/store/appState.types"
-import { getProjectTaskStats } from "@/store/selectors"
+import type { CharacterStatType, Habit, Project } from "@/store/appState.types"
+import { getCurrentWeekDates } from "@/shared/lib/dates"
+import {
+  getHabitWeeklyCompleted,
+  getHabitWeeklyTarget,
+  getProjectTaskStats,
+} from "@/store/selectors"
 
 export type CharacterStatConfig = {
   id: CharacterStatType
@@ -156,25 +161,41 @@ export function formatLinkedProjectsCount(n: number): string {
 export function getCharacterStatProgress(
   projects: Project[],
   statType: CharacterStatType,
+  habits: Habit[] = [],
+  weekDates: string[] = getCurrentWeekDates(),
 ): {
   total: number
   completed: number
   progress: number
   linkedProjects: number
+  linkedHabits: number
 } {
-  const linked = projects.filter((p) => p.statType === statType)
+  const linkedProjects = projects.filter((project) => project.statType === statType)
+  const linkedHabits = habits.filter(
+    (habit) =>
+      habit.settings?.statType === statType &&
+      habit.settings?.period?.paused !== true,
+  )
+
   let total = 0
   let completed = 0
-  for (const p of linked) {
-    const s = getProjectTaskStats(p)
-    total += s.total
-    completed += s.completed
+  for (const project of linkedProjects) {
+    const stats = getProjectTaskStats(project)
+    total += stats.total
+    completed += stats.completed
   }
+  for (const habit of linkedHabits) {
+    const target = getHabitWeeklyTarget(habit, weekDates)
+    total += target
+    completed += Math.min(getHabitWeeklyCompleted(habit, weekDates), target)
+  }
+
   const progress = total === 0 ? 0 : Math.round((completed / total) * 100)
   return {
     total,
     completed,
     progress,
-    linkedProjects: linked.length,
+    linkedProjects: linkedProjects.length,
+    linkedHabits: linkedHabits.length,
   }
 }
