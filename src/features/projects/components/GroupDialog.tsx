@@ -49,7 +49,7 @@ function GroupDialogFields({
           id="group-title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="border-slate-300"
+          className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
           placeholder="Например, Документы"
         />
       </div>
@@ -83,7 +83,7 @@ export function GroupDialog({
 }: GroupDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="border-slate-200 bg-white text-slate-950 sm:max-w-md">
+      <DialogContent className="border-slate-200 bg-white text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 sm:max-w-md">
         {open ? (
           <GroupDialogFields
             key={initialGroup?.id ?? "__add__"}
