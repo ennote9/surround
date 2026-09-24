@@ -9,7 +9,7 @@ import type {
   TaskGroup,
 } from "./appState.types"
 import type { AppAction } from "./actions"
-import { CANADA_GOAL_ID, initialAppState } from "./initialState"
+import { initialAppState } from "./initialState"
 
 function now(): string {
   return new Date().toISOString()
@@ -105,6 +105,11 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
               ? { ...p, goalId: undefined, updatedAt: t }
               : p,
           ),
+          habits: state.habits.map((habit) =>
+            habit.goalId === goalId
+              ? { ...habit, goalId: undefined, updatedAt: t }
+              : habit,
+          ),
           milestones: state.milestones.filter((m) => m.goalId !== goalId),
         }
       }
@@ -118,6 +123,18 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
         ...state,
         goals: state.goals.filter((g) => g.id !== goalId),
         projects: state.projects.filter((p) => !deleteProjectIds.has(p.id)),
+        habits: state.habits.map((habit) => {
+          const projectDeleted =
+            habit.projectId !== undefined && deleteProjectIds.has(habit.projectId)
+          const goalDeleted = habit.goalId === goalId
+          if (!projectDeleted && !goalDeleted) return habit
+          return {
+            ...habit,
+            ...(projectDeleted ? { projectId: undefined } : {}),
+            ...(goalDeleted ? { goalId: undefined } : {}),
+            updatedAt: t,
+          }
+        }),
         milestones: state.milestones.filter(
           (m) =>
             m.goalId !== goalId &&
@@ -130,11 +147,9 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
       const p = action.payload
       const rawGoal = p.goalId
       const goalId: string | undefined =
-        rawGoal === undefined
-          ? CANADA_GOAL_ID
-          : String(rawGoal).trim() === ""
-            ? undefined
-            : String(rawGoal).trim()
+        rawGoal === undefined || String(rawGoal).trim() === ""
+          ? undefined
+          : String(rawGoal).trim()
       const project: Project = {
         id: p.id ?? createId("project"),
         goalId,
@@ -168,6 +183,11 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
       return {
         ...state,
         projects: state.projects.filter((p) => p.id !== id),
+        habits: state.habits.map((habit) =>
+          habit.projectId === id
+            ? { ...habit, projectId: undefined, updatedAt: t }
+            : habit,
+        ),
         milestones: state.milestones.filter((m) => m.projectId !== id),
       }
     }
@@ -310,7 +330,10 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
                   task.id === taskId
                     ? {
                         ...task,
-                        completed: !task.completed,
+                        completed:
+                          typeof action.payload.completed === "boolean"
+                            ? action.payload.completed
+                            : !task.completed,
                         updatedAt: t,
                       }
                     : task,
