@@ -3,6 +3,11 @@ import { Link } from "react-router-dom"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
+import { getCurrentWeekDates } from "@/shared/lib/dates"
+import {
+  getHabitTargetPerWeek,
+  getHabitWeeklyCompleted,
+} from "@/store/selectors"
 import type { Habit } from "@/store/appState.types"
 
 export type TodayRoutinesCardProps = {
@@ -11,18 +16,35 @@ export type TodayRoutinesCardProps = {
 }
 
 export function TodayRoutinesCard({ habits, todayISO }: TodayRoutinesCardProps) {
-  const { totalHabits, completedToday, todayProgress } = useMemo(() => {
-    const total = habits.length
-    const completed = habits.filter(
-      (h) => h.dailyStatus[todayISO] === true,
-    ).length
-    const progress = total === 0 ? 0 : Math.round((completed / total) * 100)
-    return {
-      totalHabits: total,
-      completedToday: completed,
-      todayProgress: progress,
-    }
-  }, [habits, todayISO])
+  const { totalHabits, completedToday, weekCompleted, weekTarget, weekProgress } =
+    useMemo(() => {
+      const total = habits.length
+      const completedToday = habits.filter(
+        (habit) => habit.dailyStatus[todayISO] === true,
+      ).length
+      const weekDates = getCurrentWeekDates()
+      const weekTarget = habits.reduce(
+        (sum, habit) => sum + getHabitTargetPerWeek(habit),
+        0,
+      )
+      const weekCompleted = habits.reduce((sum, habit) => {
+        const target = getHabitTargetPerWeek(habit)
+        return (
+          sum +
+          Math.min(getHabitWeeklyCompleted(habit, weekDates), target)
+        )
+      }, 0)
+      const weekProgress =
+        weekTarget === 0 ? 0 : Math.round((weekCompleted / weekTarget) * 100)
+
+      return {
+        totalHabits: total,
+        completedToday,
+        weekCompleted,
+        weekTarget,
+        weekProgress,
+      }
+    }, [habits, todayISO])
 
   return (
     <Card
@@ -36,27 +58,27 @@ export function TodayRoutinesCard({ habits, todayISO }: TodayRoutinesCardProps) 
             <h3 className="min-w-0 text-sm leading-snug">
               <Link
                 to="/routine"
-                title="Сегодняшние рутины"
+                title="Ритм рутины"
                 className="block break-words font-semibold text-slate-950 transition-colors hover:text-blue-600 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 md:truncate"
               >
-                Сегодняшние рутины
+                Ритм рутины
               </Link>
             </h3>
           </div>
           <span className="shrink-0 text-lg font-semibold tabular-nums text-blue-600 md:text-xl">
-            {todayProgress}%
+            {weekProgress}%
           </span>
         </div>
 
         <Progress
-          value={todayProgress}
+          value={weekProgress}
           className="h-2 w-full min-w-0 shrink-0 bg-slate-200 [&>[data-slot=progress-indicator]]:bg-blue-600"
         />
 
         <p className="min-w-0 shrink-0 text-pretty text-xs leading-snug text-slate-600 md:truncate">
           {totalHabits === 0
             ? "Привычек пока нет"
-            : `Выполнено ${completedToday} из ${totalHabits} привычек`}
+            : `Неделя: ${weekCompleted}/${weekTarget} · отметок сегодня: ${completedToday}`}
         </p>
       </CardContent>
     </Card>
