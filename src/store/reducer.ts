@@ -354,7 +354,9 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
         goalId: action.payload.goalId,
         projectId: action.payload.projectId,
         schedule: action.payload.schedule,
+        settings: action.payload.settings,
         dailyStatus: {},
+        dailyEntries: {},
         createdAt: action.payload.createdAt ?? t,
         updatedAt: action.payload.updatedAt ?? t,
       }
@@ -378,6 +380,28 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
       }
     }
 
+    case "SET_HABIT_ENTRY": {
+      const { id, date, entry } = action.payload
+      return {
+        ...state,
+        habits: state.habits.map((habit) => {
+          if (habit.id !== id) return habit
+          return {
+            ...habit,
+            dailyEntries: {
+              ...(habit.dailyEntries ?? {}),
+              [date]: entry,
+            },
+            dailyStatus: {
+              ...habit.dailyStatus,
+              [date]: entry.completed,
+            },
+            updatedAt: t,
+          }
+        }),
+      }
+    }
+
     case "TOGGLE_HABIT_DATE": {
       const { id, date } = action.payload
       return {
@@ -392,6 +416,14 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
           return {
             ...h,
             dailyStatus: { ...h.dailyStatus, [date]: nextVal },
+            dailyEntries: {
+              ...(h.dailyEntries ?? {}),
+              [date]: {
+                ...(h.dailyEntries?.[date] ?? {}),
+                completed: nextVal,
+                skipped: false,
+              },
+            },
             updatedAt: t,
           }
         }),
