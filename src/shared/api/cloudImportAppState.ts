@@ -331,14 +331,24 @@ async function insertImportedCloudData(
 
   const logRows: HabitLogInsert[] = []
   for (const habit of state.habits) {
-    for (const [date, completed] of Object.entries(habit.dailyStatus)) {
+    const dates = new Set([
+      ...Object.keys(habit.dailyStatus),
+      ...Object.keys(habit.dailyEntries ?? {}),
+    ])
+    for (const date of dates) {
       if (!DATE_ONLY.test(date)) continue
+      const entry = habit.dailyEntries?.[date]
+      const completed =
+        entry?.completed ?? habit.dailyStatus[date]
       if (typeof completed !== "boolean") continue
       logRows.push({
         user_id: userId,
         habit_id: habit.id,
         date,
         completed,
+        value: entry?.value ?? null,
+        note: entry?.note ?? null,
+        skipped: entry?.skipped ?? false,
       })
     }
   }
