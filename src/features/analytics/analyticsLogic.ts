@@ -7,8 +7,8 @@ import type {
 import type { SelectedGoalScope } from "@/shared/lib/selectedGoal"
 import { ALL_GOALS_SCOPE } from "@/shared/lib/selectedGoal"
 import {
-  getHabitTargetPerWeek,
   getHabitWeeklyCompleted,
+  getHabitWeeklyTarget,
   getOverallProgress,
   getProjectTaskStats,
 } from "@/store/selectors"
@@ -82,7 +82,7 @@ export function getWeeklyHabitSummary(habits: Habit[], weekDates: string[]) {
   let completed = 0
 
   for (const habit of habits) {
-    const habitTarget = getHabitTargetPerWeek(habit)
+    const habitTarget = getHabitWeeklyTarget(habit, weekDates)
     const habitCompleted = getHabitWeeklyCompleted(habit, weekDates)
     target += habitTarget
     completed += Math.min(habitCompleted, habitTarget)
