@@ -110,13 +110,21 @@ export type AddHabitPayload = {
   id?: string
   name: string
   description?: string
+  goalId?: string
+  projectId?: string
+  schedule?: Habit["schedule"]
   createdAt?: string
   updatedAt?: string
 }
 
 export type UpdateHabitPayload = {
   id: string
-  patch: Partial<Pick<Habit, "name" | "description" | "dailyStatus">>
+  patch: Partial<
+    Pick<
+      Habit,
+      "name" | "description" | "goalId" | "projectId" | "schedule" | "dailyStatus"
+    >
+  >
 }
 
 export type DeleteHabitPayload = { id: string }
