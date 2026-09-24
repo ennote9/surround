@@ -164,6 +164,7 @@ export type HabitRow = {
   title: string
   description: string | null
   schedule: Record<string, unknown> | null
+  settings: Record<string, unknown>
   goal_id: string | null
   project_id: string | null
   created_at: string
@@ -176,6 +177,7 @@ export type HabitInsert = {
   title: string
   description: string | null
   schedule: Record<string, unknown> | null
+  settings: Record<string, unknown>
   goal_id: string | null
   project_id: string | null
 }
@@ -184,6 +186,7 @@ export type HabitUpdate = Partial<{
   title: string
   description: string | null
   schedule: Record<string, unknown> | null
+  settings: Record<string, unknown>
   goal_id: string | null
   project_id: string | null
 }>
@@ -194,6 +197,9 @@ export type HabitLogRow = {
   habit_id: string
   date: string
   completed: boolean
+  value: number | null
+  note: string | null
+  skipped: boolean
   created_at: string
   updated_at: string
 }
@@ -204,10 +210,16 @@ export type HabitLogInsert = {
   habit_id: string
   date: string
   completed: boolean
+  value?: number | null
+  note?: string | null
+  skipped?: boolean
 }
 
 export type HabitLogUpdate = Partial<{
   completed: boolean
+  value: number | null
+  note: string | null
+  skipped: boolean
 }>
 
 export type MilestoneRow = {
