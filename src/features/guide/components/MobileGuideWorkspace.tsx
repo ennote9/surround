@@ -3,7 +3,6 @@ import {
   BookOpen,
   CalendarCheck,
   Check,
-  CheckCircle2,
   ChevronDown,
   CircleUserRound,
   Flag,
@@ -126,6 +125,24 @@ const navItems = [
   ["workflow", "Ритм", CalendarCheck],
   ["rules", "Правила", Lightbulb],
 ] as const
+
+const workCycles = [
+  {
+    title: "Каждый день",
+    text: "Откройте Главную, выберите контекст цели, выполните текущие задачи и отметьте привычки.",
+    icon: ListChecks,
+  },
+  {
+    title: "Раз в неделю",
+    text: "Посмотрите Аналитику: текущий прогресс, ритм привычек, вехи и качество планирования.",
+    icon: CalendarCheck,
+  },
+  {
+    title: "Раз в месяц",
+    text: "Пересмотрите цели и портфель: что оставить «Сейчас», что перенести «Позже», что архивировать.",
+    icon: Sparkles,
+  },
+]
 
 export function MobileGuideWorkspace() {
   return (
@@ -390,13 +407,9 @@ export function MobileGuideWorkspace() {
         </div>
 
         <div className="grid gap-2.5">
-          {[
-            ["Каждый день", "Откройте Главную, выберите контекст цели, выполните текущие задачи и отметьте привычки.", ListChecks],
-            ["Раз в неделю", "Посмотрите Аналитику: текущий прогресс, ритм привычек, вехи и качество планирования.", CalendarCheck],
-            ["Раз в месяц", "Пересмотрите цели и портфель: что оставить «Сейчас», что перенести «Позже», что архивировать.", Sparkles],
-          ].map(([title, text, Icon]) => (
+          {workCycles.map(({ title, text, icon: Icon }) => (
             <div
-              key={title as string}
+              key={title}
               className="flex gap-3 rounded-[20px] border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
             >
               <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300">
