@@ -5,8 +5,8 @@ import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
 import { getCurrentWeekDates } from "@/shared/lib/dates"
 import {
-  getHabitTargetPerWeek,
   getHabitWeeklyCompleted,
+  getHabitWeeklyTarget,
 } from "@/store/selectors"
 import type { Habit } from "@/store/appState.types"
 
@@ -24,11 +24,11 @@ export function TodayRoutinesCard({ habits, todayISO }: TodayRoutinesCardProps) 
       ).length
       const weekDates = getCurrentWeekDates()
       const weekTarget = habits.reduce(
-        (sum, habit) => sum + getHabitTargetPerWeek(habit),
+        (sum, habit) => sum + getHabitWeeklyTarget(habit, weekDates),
         0,
       )
       const weekCompleted = habits.reduce((sum, habit) => {
-        const target = getHabitTargetPerWeek(habit)
+        const target = getHabitWeeklyTarget(habit, weekDates)
         return (
           sum +
           Math.min(getHabitWeeklyCompleted(habit, weekDates), target)
