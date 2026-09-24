@@ -160,7 +160,7 @@ export default function DashboardPage() {
     <>
       {hasSummarySection ? (
         <section className="min-w-0 space-y-2">
-          <h2 className="min-w-0 break-words text-base font-semibold text-slate-950">
+          <h2 className="min-w-0 break-words text-base font-semibold text-slate-950 dark:text-slate-100">
             Сводка
           </h2>
           <div
@@ -194,13 +194,13 @@ export default function DashboardPage() {
             Проекты
           </h2>
           {scopedProjects.length === 0 ? (
-            <div className="min-w-0 w-full max-w-full rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm sm:p-5">
-              <p className="break-words text-sm font-medium text-slate-950">
+            <div className="min-w-0 w-full max-w-full rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
+              <p className="break-words text-sm font-medium text-slate-950 dark:text-slate-100">
                 {selectedGoalId === ALL_GOALS_SCOPE
                   ? "Проектов пока нет"
                   : `В этой цели (${selectedGoalTitle}) пока нет проектов`}
               </p>
-              <p className="mx-auto mt-1 max-w-full text-pretty text-xs text-slate-600 sm:max-w-md">
+              <p className="mx-auto mt-1 max-w-full text-pretty text-xs text-slate-600 dark:text-slate-400 sm:max-w-md">
                 {selectedGoalId === ALL_GOALS_SCOPE
                   ? "Создайте проекты и задачи в разделе «Проекты», чтобы видеть прогресс на главной."
                   : "Создайте первый проект для выбранной цели, чтобы видеть прогресс на главной."}
@@ -213,11 +213,11 @@ export default function DashboardPage() {
               </Button>
             </div>
           ) : dashboardProjects.length === 0 ? (
-            <div className="min-w-0 w-full max-w-full rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm sm:p-5">
-              <p className="break-words text-sm font-medium text-slate-950">
+            <div className="min-w-0 w-full max-w-full rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
+              <p className="break-words text-sm font-medium text-slate-950 dark:text-slate-100">
                 Нет проектов для отображения на Главной
               </p>
-              <p className="mx-auto mt-1 max-w-full text-pretty text-xs text-slate-600 sm:max-w-md">
+              <p className="mx-auto mt-1 max-w-full text-pretty text-xs text-slate-600 dark:text-slate-400 sm:max-w-md">
                 Включите отображение плитки в настройках нужного проекта.
               </p>
               <Button
@@ -267,6 +267,7 @@ export default function DashboardPage() {
             scopedProjects={scopedProjects}
             dashboardProjects={dashboardProjects}
             habits={dashboardHabits}
+            statHabits={scopedHabits}
             todayISO={todayISO}
             visibleStatIds={visibleStatIds}
             showOverall={showOverall}
