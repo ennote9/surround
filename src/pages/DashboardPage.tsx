@@ -6,6 +6,7 @@ import { ProjectSummaryCard } from "@/features/dashboard/components/ProjectSumma
 import { TodayRoutinesCard } from "@/features/dashboard/components/TodayRoutinesCard"
 import { MetricsGrid } from "@/features/dashboard/components/MetricsGrid"
 import { MobileDashboard } from "@/features/dashboard/components/MobileDashboard"
+import { DashboardGoalSwitcher } from "@/features/dashboard/components/DashboardGoalSwitcher"
 import {
   DEFAULT_DASHBOARD_STAT_VISIBILITY,
   normalizeDashboardStatVisibility,
@@ -20,6 +21,7 @@ import { getTodayISO } from "@/shared/lib/dates"
 import {
   ALL_GOALS_SCOPE,
   getProjectGoalLabel,
+  getScopedHabitsForSelectedGoal,
   getScopedProjectsForSelectedGoal,
   getSelectedGoalTitle,
   normalizeSelectedGoalId,
@@ -59,6 +61,17 @@ export default function DashboardPage() {
   const dashboardProjects = useMemo(
     () => scopedProjects.filter((project) => project.showOnDashboard !== false),
     [scopedProjects],
+  )
+
+  const scopedHabits = useMemo(
+    () =>
+      getScopedHabitsForSelectedGoal(
+        habits,
+        scopedProjects,
+        selectedGoalId,
+        state.goals,
+      ),
+    [habits, scopedProjects, selectedGoalId, state.goals],
   )
 
   const [widgetsStored] = useLocalStorage(
@@ -160,7 +173,7 @@ export default function DashboardPage() {
             ) : null}
             {showToday ? (
               <div className="min-w-0">
-                <TodayRoutinesCard habits={habits} todayISO={todayISO} />
+                <TodayRoutinesCard habits={scopedHabits} todayISO={todayISO} />
               </div>
             ) : null}
           </div>
@@ -243,10 +256,9 @@ export default function DashboardPage() {
       ) : (
         <>
           <MobileDashboard
-            selectedGoalTitle={selectedGoalTitle}
             scopedProjects={scopedProjects}
             dashboardProjects={dashboardProjects}
-            habits={habits}
+            habits={scopedHabits}
             todayISO={todayISO}
             visibleStatIds={visibleStatIds}
             showOverall={showOverall}
@@ -259,10 +271,11 @@ export default function DashboardPage() {
           />
 
           <div className="hidden space-y-4 md:block lg:space-y-5">
-            <header className="min-w-0">
+            <header className="flex min-w-0 items-center justify-between gap-4">
               <h1 className="text-balance break-words text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-100 sm:text-3xl">
                 Главная
               </h1>
+              <DashboardGoalSwitcher className="max-w-[360px]" />
             </header>
 
             {hasLeftColumn && hasStatsSection ? (
