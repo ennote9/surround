@@ -6,7 +6,14 @@ import { ProjectTargetDatesCard } from "@/features/analytics/components/ProjectT
 import { ProjectProgressChart } from "@/features/analytics/components/ProjectProgressChart"
 import { TaskStatusChart } from "@/features/analytics/components/TaskStatusChart"
 import { UpcomingDeadlines } from "@/features/analytics/components/UpcomingDeadlines"
+import {
+  getAnalyticsSummary,
+  getMilestoneSummary,
+  getScopedHabits,
+  getScopedMilestones,
+} from "@/features/analytics/analyticsLogic"
 import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
+import { getCurrentWeekDates, getTodayISO } from "@/shared/lib/dates"
 import {
   ALL_GOALS_SCOPE,
   getScopedProjectsForSelectedGoal,
@@ -14,11 +21,6 @@ import {
   normalizeSelectedGoalId,
 } from "@/shared/lib/selectedGoal"
 import { SELECTED_GOAL_STORAGE_KEY } from "@/shared/lib/storageKeys"
-import {
-  getHabitTotalCompliance,
-  getOverallProgress,
-  getProjectTaskStats,
-} from "@/store/selectors"
 import { useAppState } from "@/store/useAppState"
 
 export default function AnalyticsPage() {
@@ -36,27 +38,44 @@ export default function AnalyticsPage() {
     [projects, selectedGoalId, state.goals],
   )
 
-  const overallProgress = getOverallProgress(scopedProjects)
+  const scopedHabits = useMemo(
+    () =>
+      getScopedHabits(
+        habits,
+        scopedProjects,
+        selectedGoalId,
+      ),
+    [habits, scopedProjects, selectedGoalId],
+  )
 
-  const taskAgg = useMemo(() => {
-    return scopedProjects.reduce(
-      (acc, p) => {
-        const s = getProjectTaskStats(p)
-        return {
-          total: acc.total + s.total,
-          completed: acc.completed + s.completed,
-          pending: acc.pending + s.pending,
-        }
-      },
-      { total: 0, completed: 0, pending: 0 },
-    )
-  }, [scopedProjects])
+  const weekDates = useMemo(() => getCurrentWeekDates(), [])
+  const todayISO = getTodayISO()
 
-  const averageHabitCompliance = useMemo(() => {
-    if (habits.length === 0) return 0
-    const sum = habits.reduce((acc, h) => acc + getHabitTotalCompliance(h), 0)
-    return Math.round(sum / habits.length)
-  }, [habits])
+  const analytics = useMemo(
+    () =>
+      getAnalyticsSummary(
+        scopedProjects,
+        scopedHabits,
+        weekDates,
+        todayISO,
+      ),
+    [scopedProjects, scopedHabits, weekDates, todayISO],
+  )
+
+  const scopedMilestones = useMemo(
+    () =>
+      getScopedMilestones(
+        state.milestones,
+        state.goals,
+        scopedProjects,
+        selectedGoalId,
+      ),
+    [state.milestones, state.goals, scopedProjects, selectedGoalId],
+  )
+  const milestoneSummary = useMemo(
+    () => getMilestoneSummary(scopedMilestones),
+    [scopedMilestones],
+  )
 
   return (
     <div className="mx-auto min-w-0 w-full max-w-6xl">
@@ -64,11 +83,19 @@ export default function AnalyticsPage() {
         selectedGoalTitle={selectedGoalTitle}
         projects={scopedProjects}
         habits={habits}
-        overallProgress={overallProgress}
-        completedTasks={taskAgg.completed}
-        pendingTasks={taskAgg.pending}
-        totalTasks={taskAgg.total}
-        averageHabitCompliance={averageHabitCompliance}
+        currentProjects={analytics.currentProjects}
+        portfolioProjects={scopedProjects}
+        contextHabits={scopedHabits}
+        currentProgress={analytics.currentProgress}
+        portfolioProgress={analytics.portfolioProgress}
+        currentTasks={analytics.currentTasks}
+        portfolioTasks={analytics.portfolioTasks}
+        phaseCounts={analytics.phases}
+        weeklyHabitSummary={analytics.habits}
+        planningSummary={analytics.planning}
+        milestoneSummary={milestoneSummary}
+        milestones={scopedMilestones}
+        weekDates={weekDates}
       />
 
       <div className="hidden space-y-6 md:block lg:space-y-8">
@@ -84,25 +111,25 @@ export default function AnalyticsPage() {
         </header>
 
         <AnalyticsSummaryCards
-          totalProjects={scopedProjects.length}
-          totalTasks={taskAgg.total}
-          completedTasks={taskAgg.completed}
-          pendingTasks={taskAgg.pending}
-          overallProgress={overallProgress}
-          averageHabitCompliance={averageHabitCompliance}
+          totalProjects={analytics.currentProjects.length}
+          totalTasks={analytics.currentTasks.total}
+          completedTasks={analytics.currentTasks.completed}
+          pendingTasks={analytics.currentTasks.pending}
+          overallProgress={analytics.currentProgress}
+          averageHabitCompliance={analytics.habits.progress}
         />
 
         <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2 xl:gap-4">
           <ProjectProgressChart projects={scopedProjects} />
           <TaskStatusChart
-            completed={taskAgg.completed}
-            pending={taskAgg.pending}
+            completed={analytics.currentTasks.completed}
+            pending={analytics.currentTasks.pending}
           />
         </div>
 
         <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2 xl:gap-4">
-          <HabitComplianceChart habits={habits} />
-          <UpcomingDeadlines projects={scopedProjects} />
+          <HabitComplianceChart habits={scopedHabits} />
+          <UpcomingDeadlines projects={analytics.currentProjects} />
         </div>
 
         <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2 xl:gap-4">
