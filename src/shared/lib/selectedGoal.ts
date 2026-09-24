@@ -1,4 +1,4 @@
-import type { Goal, Project } from "@/store/appState.types"
+import type { Goal, Habit, Project } from "@/store/appState.types"
 
 export const ALL_GOALS_SCOPE = "all" as const
 
@@ -105,4 +105,39 @@ export function getScopedProjectsForSelectedGoal(
   return projects.filter(
     (project) => (project.goalId?.trim() ?? "") === sid,
   )
+}
+
+
+/**
+ * Привычки в контексте выбранной цели:
+ * - привязанные к проекту — только если проект входит в текущий scope;
+ * - привязанные напрямую к цели — по выбранной цели;
+ * - глобальные — только в режиме «Все активные цели».
+ */
+export function getScopedHabitsForSelectedGoal(
+  habits: Habit[],
+  scopedProjects: Project[],
+  selectedGoalId: SelectedGoalScope,
+  goals: Goal[],
+): Habit[] {
+  const projectIds = new Set(scopedProjects.map((project) => project.id))
+  const activeGoalIds = new Set(
+    goals.filter((goal) => goal.status === "active").map((goal) => goal.id),
+  )
+
+  return habits.filter((habit) => {
+    const projectId = habit.projectId?.trim()
+    if (projectId) {
+      return projectIds.has(projectId)
+    }
+
+    const goalId = habit.goalId?.trim()
+    if (goalId) {
+      return selectedGoalId === ALL_GOALS_SCOPE
+        ? activeGoalIds.has(goalId)
+        : goalId === selectedGoalId
+    }
+
+    return selectedGoalId === ALL_GOALS_SCOPE
+  })
 }
