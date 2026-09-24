@@ -14,7 +14,10 @@ import { persistProjectAction } from "@/shared/api/cloudProjectActionPersistence
 import { persistUserSettings } from "@/shared/api/cloudSettingsPersistence"
 import type { CloudSaveState } from "@/shared/api/cloudSaveStatus"
 import type { AppAction } from "./actions"
-import { APP_STATE_STORAGE_KEY } from "@/shared/lib/storageKeys"
+import {
+  APP_STATE_STORAGE_KEY,
+  THEME_PREFERENCE_STORAGE_KEY,
+} from "@/shared/lib/storageKeys"
 import type { AppState } from "./appState.types"
 import { AppStateContext } from "./appStateContext"
 import { initialAppState } from "./initialState"
@@ -39,6 +42,22 @@ function writePersistedState(state: AppState): void {
     window.localStorage.setItem(APP_STATE_STORAGE_KEY, JSON.stringify(state))
   } catch {
     // ignore
+  }
+}
+
+function applyDocumentTheme(preference: AppState["settings"]["theme"]): void {
+  if (typeof window === "undefined") return
+
+  const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches
+  const useDark = preference === "dark" || (preference === "system" && systemDark)
+
+  document.documentElement.classList.toggle("dark", useDark)
+  document.documentElement.style.colorScheme = useDark ? "dark" : "light"
+
+  try {
+    window.localStorage.setItem(THEME_PREFERENCE_STORAGE_KEY, preference)
+  } catch {
+    // ignore storage errors; cloud settings remain the source of truth
   }
 }
 
@@ -374,6 +393,22 @@ export function AppStateProvider({
       })
     })()
   }, [cloudSaveMode, normalizeActionForCloud, state, userId])
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+
+    const preference = state.settings.theme ?? "light"
+    const media = window.matchMedia("(prefers-color-scheme: dark)")
+    const handleSystemThemeChange = () => {
+      if (preference === "system") {
+        applyDocumentTheme(preference)
+      }
+    }
+
+    applyDocumentTheme(preference)
+    media.addEventListener("change", handleSystemThemeChange)
+    return () => media.removeEventListener("change", handleSystemThemeChange)
+  }, [state.settings.theme])
 
   useEffect(() => {
     if (persistenceMode !== "localStorage") {
