@@ -12,26 +12,17 @@ export async function clearCloudAppData(
   if (!supabase) {
     return repositoryFailure("Supabase не настроен.")
   }
+  if (!userId.trim()) {
+    return repositoryFailure("Не удалось очистить данные: отсутствует пользователь.")
+  }
 
   try {
-    const tablesInOrder = [
-      "habit_logs",
-      "tasks",
-      "project_groups",
-      "milestones",
-      "projects",
-      "habits",
-      "goals",
-      "user_settings",
-    ] as const
+    const { error } = await supabase.rpc("clear_app_data_atomic")
 
-    for (const table of tablesInOrder) {
-      const { error } = await supabase.from(table).delete().eq("user_id", userId)
-      if (error) {
-        return repositoryFailure(
-          `Не удалось очистить ${table}: ${getRepositoryErrorMessage(error)}`,
-        )
-      }
+    if (error) {
+      return repositoryFailure(
+        `Не удалось очистить данные: ${getRepositoryErrorMessage(error)}`,
+      )
     }
 
     return repositorySuccess(null)
