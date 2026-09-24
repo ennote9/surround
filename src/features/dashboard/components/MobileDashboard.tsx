@@ -443,7 +443,9 @@ export function MobileDashboard({
       }))
       .sort((a, b) => {
         const linkedDiff =
-          b.progressData.linkedProjects - a.progressData.linkedProjects
+          b.progressData.linkedProjects +
+          b.progressData.linkedHabits -
+          (a.progressData.linkedProjects + a.progressData.linkedHabits)
         if (linkedDiff !== 0) return linkedDiff
         return b.progressData.progress - a.progressData.progress
       })
@@ -661,14 +663,15 @@ export function MobileDashboard({
                 const level = getCharacterStatLevel(progressData.progress)
                 const totalTasks = progressData.total
                 const completedTasks = progressData.completed
-                const hasLinkedProjects = progressData.linkedProjects > 0
+                const hasLinkedSources =
+                  progressData.linkedProjects + progressData.linkedHabits > 0
 
                 return (
                   <Link
                     key={stat.id}
                     to="/analytics"
                     className={
-                      hasLinkedProjects
+                      hasLinkedSources
                         ? "group min-w-0 rounded-[22px] border border-blue-200/80 bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-3.5 shadow-sm transition-transform active:scale-[0.99] dark:border-blue-500/20 dark:from-blue-500/10 dark:via-slate-900 dark:to-indigo-500/10"
                         : "group min-w-0 rounded-[22px] border border-slate-200 bg-white p-3.5 shadow-sm transition-transform active:scale-[0.99] dark:border-slate-800 dark:bg-slate-900"
                     }
@@ -676,7 +679,7 @@ export function MobileDashboard({
                     <div className="flex items-start justify-between gap-2">
                       <span
                         className={
-                          hasLinkedProjects
+                          hasLinkedSources
                             ? "flex size-10 shrink-0 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-sm shadow-blue-600/20"
                             : "flex size-10 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
                         }
@@ -686,7 +689,7 @@ export function MobileDashboard({
 
                       <span
                         className={
-                          hasLinkedProjects
+                          hasLinkedSources
                             ? "rounded-full bg-blue-100 px-2 py-1 text-[10px] font-semibold text-blue-700 dark:bg-blue-500/15 dark:text-blue-300"
                             : "rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400"
                         }
@@ -702,7 +705,7 @@ export function MobileDashboard({
                     <div className="mt-2 flex items-end justify-between gap-2">
                       <span
                         className={
-                          hasLinkedProjects
+                          hasLinkedSources
                             ? "text-2xl font-semibold tracking-tight text-blue-600 dark:text-blue-300"
                             : "text-2xl font-semibold tracking-tight text-slate-400 dark:text-slate-500"
                         }
@@ -717,7 +720,7 @@ export function MobileDashboard({
                     <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
                       <div
                         className={
-                          hasLinkedProjects
+                          hasLinkedSources
                             ? "h-full rounded-full bg-blue-600 transition-[width] duration-500"
                             : "h-full rounded-full bg-slate-300 transition-[width] duration-500 dark:bg-slate-700"
                         }
@@ -726,18 +729,21 @@ export function MobileDashboard({
                     </div>
 
                     <div className="mt-3 border-t border-slate-100 pt-2.5 dark:border-slate-800">
-                      {hasLinkedProjects ? (
+                      {hasLinkedSources ? (
                         <>
                           <p className="text-[11px] font-medium text-slate-700 dark:text-slate-300">
                             {progressData.linkedProjects} {progressData.linkedProjects === 1 ? "проект" : "проектов"}
+                            {progressData.linkedHabits > 0
+                              ? ` · ${progressData.linkedHabits} привычк${progressData.linkedHabits === 1 ? "а" : "и"}`
+                              : ""}
                           </p>
                           <p className="mt-0.5 truncate text-[10px] text-slate-400 dark:text-slate-500">
-                            {completedTasks}/{totalTasks} задач выполнено
+                            {completedTasks}/{totalTasks} единиц прогресса
                           </p>
                         </>
                       ) : (
                         <p className="text-[10px] leading-4 text-slate-400 dark:text-slate-500">
-                          Нет привязанных проектов
+                          Нет связанных проектов и привычек
                         </p>
                       )}
                     </div>
