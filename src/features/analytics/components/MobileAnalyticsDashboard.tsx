@@ -14,8 +14,8 @@ import {
   Route,
 } from "lucide-react"
 import {
-  getHabitTargetPerWeek,
   getHabitWeeklyCompleted,
+  getHabitWeeklyTarget,
   getHabitWeeklyCompliance,
   getProjectProgress,
   getProjectTaskStats,
@@ -219,10 +219,10 @@ export function MobileAnalyticsDashboard({
       contextHabits
         .map((habit) => ({
           habit,
-          target: getHabitTargetPerWeek(habit),
+          target: getHabitWeeklyTarget(habit, weekDates),
           completed: Math.min(
             getHabitWeeklyCompleted(habit, weekDates),
-            getHabitTargetPerWeek(habit),
+            getHabitWeeklyTarget(habit, weekDates),
           ),
           compliance: getHabitWeeklyCompliance(habit, weekDates),
         }))
