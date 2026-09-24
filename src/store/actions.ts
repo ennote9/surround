@@ -113,6 +113,7 @@ export type AddHabitPayload = {
   goalId?: string
   projectId?: string
   schedule?: Habit["schedule"]
+  settings?: Habit["settings"]
   createdAt?: string
   updatedAt?: string
 }
@@ -122,12 +123,25 @@ export type UpdateHabitPayload = {
   patch: Partial<
     Pick<
       Habit,
-      "name" | "description" | "goalId" | "projectId" | "schedule" | "dailyStatus"
+      | "name"
+      | "description"
+      | "goalId"
+      | "projectId"
+      | "schedule"
+      | "settings"
+      | "dailyStatus"
+      | "dailyEntries"
     >
   >
 }
 
 export type DeleteHabitPayload = { id: string }
+
+export type SetHabitEntryPayload = {
+  id: string
+  date: string
+  entry: NonNullable<Habit["dailyEntries"]>[string]
+}
 
 export type ToggleHabitDatePayload = {
   id: string
@@ -184,6 +198,7 @@ export type AppAction =
   | { type: "ADD_HABIT"; payload: AddHabitPayload }
   | { type: "UPDATE_HABIT"; payload: UpdateHabitPayload }
   | { type: "DELETE_HABIT"; payload: DeleteHabitPayload }
+  | { type: "SET_HABIT_ENTRY"; payload: SetHabitEntryPayload }
   | { type: "TOGGLE_HABIT_DATE"; payload: ToggleHabitDatePayload }
   | { type: "ADD_MILESTONE"; payload: AddMilestonePayload }
   | { type: "UPDATE_MILESTONE"; payload: UpdateMilestonePayload }
