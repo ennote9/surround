@@ -4,11 +4,13 @@ import { addWeeks } from "date-fns"
 import { startOfWeek } from "date-fns"
 import { DeleteHabitDialog } from "@/features/habits/components/DeleteHabitDialog"
 import { HabitDialog, type HabitFormValues } from "@/features/habits/components/HabitDialog"
+import { HabitLogDialog } from "@/features/habits/components/HabitLogDialog"
 import { HabitTable } from "@/features/habits/components/HabitTable"
 import { HabitWeekControls } from "@/features/habits/components/HabitWeekControls"
 import { MobileRoutineWorkspace } from "@/features/habits/components/MobileRoutineWorkspace"
 import { Button } from "@/components/ui/button"
 import { getWeekISODatesFromMonday } from "@/shared/lib/dates"
+import { getHabitCompletionType } from "@/store/selectors"
 import type { Habit } from "@/store/appState.types"
 import { useAppState } from "@/store/useAppState"
 
@@ -29,6 +31,10 @@ export default function RoutinePage() {
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null)
 
   const [deletingHabit, setDeletingHabit] = useState<Habit | null>(null)
+  const [loggingHabit, setLoggingHabit] = useState<{
+    habit: Habit
+    date: string
+  } | null>(null)
 
   const openAddHabit = () => {
     setEditingHabit(null)
@@ -54,7 +60,8 @@ export default function RoutinePage() {
             description: values.description,
             projectId: values.projectId,
             goalId: undefined,
-            schedule: { targetPerWeek: values.targetPerWeek },
+            schedule: values.schedule,
+            settings: values.settings,
           },
         },
       })
@@ -66,7 +73,8 @@ export default function RoutinePage() {
           name: values.name,
           description: values.description,
           projectId: values.projectId,
-          schedule: { targetPerWeek: values.targetPerWeek },
+          schedule: values.schedule,
+          settings: values.settings,
         },
       })
       toast.success("Привычка создана")
@@ -78,6 +86,18 @@ export default function RoutinePage() {
     dispatch({ type: "DELETE_HABIT", payload: { id: deletingHabit.id } })
     toast.success("Привычка удалена")
     setDeletingHabit(null)
+  }
+
+  const handleHabitDateAction = (habitId: string, date: string) => {
+    const habit = habits.find((item) => item.id === habitId)
+    if (!habit) return
+
+    if (getHabitCompletionType(habit) === "check") {
+      dispatch({ type: "TOGGLE_HABIT_DATE", payload: { id: habitId, date } })
+      return
+    }
+
+    setLoggingHabit({ habit, date })
   }
 
   return (
@@ -95,9 +115,7 @@ export default function RoutinePage() {
           setWeekStartDate((d) => startOfWeek(addWeeks(d, 1), { weekStartsOn: 1 }))
         }
         onAddHabit={openAddHabit}
-        onToggleHabitDate={(habitId, date) =>
-          dispatch({ type: "TOGGLE_HABIT_DATE", payload: { id: habitId, date } })
-        }
+        onToggleHabitDate={handleHabitDateAction}
         onEditHabit={openEditHabit}
         onDeleteHabit={(habitId) => {
           const h = habits.find((x) => x.id === habitId)
@@ -158,9 +176,7 @@ export default function RoutinePage() {
           <HabitTable
             habits={habits}
             weekDates={weekDates}
-            onToggleHabitDate={(habitId, date) =>
-              dispatch({ type: "TOGGLE_HABIT_DATE", payload: { id: habitId, date } })
-            }
+            onToggleHabitDate={handleHabitDateAction}
             onEditHabit={openEditHabit}
             onDeleteHabit={(habitId) => {
               const h = habits.find((x) => x.id === habitId)
@@ -176,6 +192,28 @@ export default function RoutinePage() {
         initialHabit={editingHabit ?? undefined}
         projects={state.projects}
         onSubmit={handleHabitSubmit}
+      />
+
+      <HabitLogDialog
+        open={loggingHabit !== null}
+        onOpenChange={(open) => {
+          if (!open) setLoggingHabit(null)
+        }}
+        habit={loggingHabit?.habit ?? null}
+        date={loggingHabit?.date ?? null}
+        onSave={(entry) => {
+          if (!loggingHabit) return
+          dispatch({
+            type: "SET_HABIT_ENTRY",
+            payload: {
+              id: loggingHabit.habit.id,
+              date: loggingHabit.date,
+              entry,
+            },
+          })
+          toast.success(entry.skipped ? "Пропуск сохранён" : "Результат сохранён")
+          setLoggingHabit(null)
+        }}
       />
 
       <DeleteHabitDialog
