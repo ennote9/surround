@@ -109,6 +109,18 @@ function mapPhaseFromDb(value: unknown): Project["phase"] {
   return "active"
 }
 
+function parseHabitScheduleFromDb(value: unknown): Habit["schedule"] {
+  if (!value || typeof value !== "object") {
+    return undefined
+  }
+  const raw = (value as Record<string, unknown>).targetPerWeek
+  const targetPerWeek =
+    typeof raw === "number" && Number.isFinite(raw)
+      ? Math.max(1, Math.min(7, Math.round(raw)))
+      : undefined
+  return targetPerWeek ? { targetPerWeek } : undefined
+}
+
 // --- Goals ---
 
 export function goalRowToGoal(row: GoalRow): Goal {
@@ -316,6 +328,9 @@ export function habitRowToHabit(
     id: row.id,
     name: row.title,
     description: row.description ?? undefined,
+    goalId: row.goal_id ?? undefined,
+    projectId: row.project_id ?? undefined,
+    schedule: parseHabitScheduleFromDb(row.schedule),
     dailyStatus: buildDailyStatusFromHabitLogRows(logs),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -328,9 +343,11 @@ export function habitToHabitInsert(habit: Habit, userId: string): HabitInsert {
     user_id: userId,
     title: habit.name,
     description: habit.description ?? null,
-    schedule: null,
-    goal_id: null,
-    project_id: null,
+    schedule: habit.schedule
+      ? { targetPerWeek: habit.schedule.targetPerWeek }
+      : null,
+    goal_id: habit.projectId ? null : (habit.goalId ?? null),
+    project_id: habit.projectId ?? null,
   }
 }
 
@@ -338,6 +355,18 @@ export function habitToHabitUpdate(patch: Partial<Habit>): HabitUpdate {
   const o: HabitUpdate = {}
   if ("name" in patch && patch.name !== undefined) o.title = patch.name
   if ("description" in patch) o.description = patch.description ?? null
+  if ("schedule" in patch) {
+    o.schedule = patch.schedule
+      ? { targetPerWeek: patch.schedule.targetPerWeek }
+      : null
+  }
+  if ("projectId" in patch) {
+    o.project_id = patch.projectId ?? null
+    if (patch.projectId) o.goal_id = null
+  }
+  if ("goalId" in patch) {
+    o.goal_id = patch.projectId ? null : (patch.goalId ?? null)
+  }
   return o
 }
 
