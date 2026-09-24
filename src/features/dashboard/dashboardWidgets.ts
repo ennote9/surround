@@ -14,14 +14,14 @@ export type DashboardWidgetConfig = {
 export const DEFAULT_DASHBOARD_WIDGETS: DashboardWidgetConfig[] = [
   {
     id: "overallProgress",
-    title: "Общий прогресс",
-    description: "Сводный процент выполнения задач.",
+    title: "Текущий прогресс",
+    description: "Прогресс по проектам фазы «Сейчас».",
     enabled: true,
   },
   {
     id: "todayRoutines",
-    title: "Сегодняшние рутины",
-    description: "Привычки, которые нужно отметить сегодня.",
+    title: "Ритм недели",
+    description: "Выполнение недельной нормы привычек.",
     enabled: true,
   },
   {
