@@ -434,7 +434,12 @@ export function MobileDashboard({
     return selected
       .map((stat) => ({
         stat,
-        progressData: getCharacterStatProgress(scopedProjects, stat.id),
+        progressData: getCharacterStatProgress(
+          scopedProjects,
+          stat.id,
+          habits,
+          weekDays,
+        ),
       }))
       .sort((a, b) => {
         const linkedDiff =
@@ -443,7 +448,7 @@ export function MobileDashboard({
         return b.progressData.progress - a.progressData.progress
       })
       .slice(0, 6)
-  }, [visibleStatIds, scopedProjects])
+  }, [visibleStatIds, scopedProjects, habits, weekDays])
 
   const heroProgress = showOverall ? overallProgress : weeklyRoutineStats.progress
   const heroTitle = showOverall ? "Текущий прогресс" : "Ритм недели"
