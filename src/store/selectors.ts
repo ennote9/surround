@@ -60,19 +60,104 @@ export function getTodayTasks(projects: Project[]): TodayTaskRow[] {
   return rows
 }
 
+export function getHabitTargetPerWeek(habit: Habit): number {
+  const raw = habit.schedule?.targetPerWeek
+  if (typeof raw !== "number" || !Number.isFinite(raw)) {
+    return 7
+  }
+  return Math.max(1, Math.min(7, Math.round(raw)))
+}
+
+export function getHabitWeeklyCompleted(
+  habit: Habit,
+  weekDates: string[],
+): number {
+  return weekDates.filter((date) => habit.dailyStatus[date] === true).length
+}
+
 export function getHabitWeeklyCompliance(
   habit: Habit,
   weekDates: string[],
 ): number {
-  const done = weekDates.filter((d) => habit.dailyStatus[d] === true).length
-  return Math.round((done / 7) * 100)
+  const target = getHabitTargetPerWeek(habit)
+  const completed = getHabitWeeklyCompleted(habit, weekDates)
+  return pct(Math.min(completed, target), target)
 }
 
+function dateOnlyFromDate(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const day = String(date.getDate()).padStart(2, "0")
+  return `${year}-${month}-${day}`
+}
+
+function mondayOf(date: Date): Date {
+  const result = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  const weekday = (result.getDay() + 6) % 7
+  result.setDate(result.getDate() - weekday)
+  return result
+}
+
+function addDays(date: Date, days: number): Date {
+  const result = new Date(date)
+  result.setDate(result.getDate() + days)
+  return result
+}
+
+/**
+ * Schedule-aware compliance from habit creation through today.
+ * Missing days are treated as not completed; untouched dates no longer disappear
+ * from the denominator. Partial first/current weeks are prorated by elapsed days.
+ */
 export function getHabitTotalCompliance(habit: Habit): number {
-  const dates = Object.keys(habit.dailyStatus)
-  if (dates.length === 0) return 0
-  const trueCount = dates.filter((d) => habit.dailyStatus[d] === true).length
-  return pct(trueCount, dates.length)
+  const created = new Date(habit.createdAt)
+  if (Number.isNaN(created.getTime())) return 0
+
+  const today = new Date()
+  const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+  const createdDate = new Date(
+    created.getFullYear(),
+    created.getMonth(),
+    created.getDate(),
+  )
+  if (createdDate > todayDate) return 0
+
+  const weeklyTarget = getHabitTargetPerWeek(habit)
+  let expectedTotal = 0
+  let completedTotal = 0
+
+  for (
+    let weekStart = mondayOf(createdDate);
+    weekStart <= todayDate;
+    weekStart = addDays(weekStart, 7)
+  ) {
+    const weekEnd = addDays(weekStart, 6)
+    const activeStart = createdDate > weekStart ? createdDate : weekStart
+    const activeEnd = todayDate < weekEnd ? todayDate : weekEnd
+    const activeDays =
+      Math.floor((activeEnd.getTime() - activeStart.getTime()) / 86400000) + 1
+
+    if (activeDays <= 0) continue
+
+    const expected = Math.max(
+      1,
+      Math.min(
+        weeklyTarget,
+        Math.ceil((weeklyTarget * activeDays) / 7),
+      ),
+    )
+    let completed = 0
+    for (let day = new Date(activeStart); day <= activeEnd; day = addDays(day, 1)) {
+      if (habit.dailyStatus[dateOnlyFromDate(day)] === true) {
+        completed += 1
+      }
+    }
+
+    expectedTotal += expected
+    completedTotal += Math.min(completed, expected)
+  }
+
+  return pct(completedTotal, expectedTotal)
 }
 
 export function getProjectTaskStats(project: Project): {
