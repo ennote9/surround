@@ -1,5 +1,6 @@
 import { useMemo } from "react"
 import { toast } from "sonner"
+import { Check, Monitor, Moon, Sun } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DashboardSettingsCard } from "@/features/dashboard/components/DashboardSettingsCard"
 import {
@@ -12,6 +13,7 @@ import {
 } from "@/features/dashboard/dashboardWidgets"
 import { DataManagementCard } from "@/features/settings/components/DataManagementCard"
 import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
+import { useAppState } from "@/store/useAppState"
 import {
   DEFAULT_PROJECT_GROUPS_COLLAPSE_MODE,
   normalizeProjectGroupsCollapseMode,
@@ -25,7 +27,30 @@ import {
   PROJECT_GROUPS_COLLAPSE_MODE_STORAGE_KEY,
 } from "@/shared/lib/storageKeys"
 
+const THEME_OPTIONS = [
+  {
+    value: "light" as const,
+    label: "Светлая",
+    description: "Всегда использовать светлое оформление.",
+    icon: Sun,
+  },
+  {
+    value: "dark" as const,
+    label: "Тёмная",
+    description: "Всегда использовать тёмное оформление.",
+    icon: Moon,
+  },
+  {
+    value: "system" as const,
+    label: "Как в системе",
+    description: "Автоматически следовать теме устройства.",
+    icon: Monitor,
+  },
+]
+
 export default function SettingsPage() {
+  const { state, dispatch } = useAppState()
+  const currentTheme = state.settings.theme ?? "light"
   const [widgetsStored, setWidgets] = useLocalStorage(
     DASHBOARD_WIDGETS_STORAGE_KEY,
     DEFAULT_DASHBOARD_WIDGETS,
@@ -85,6 +110,62 @@ export default function SettingsPage() {
           Управление отображением, данными и поведением приложения.
         </p>
       </div>
+
+      <section className="min-w-0 space-y-3">
+        <div className="min-w-0">
+          <h2 className="break-words text-lg font-semibold text-slate-950">
+            Внешний вид
+          </h2>
+          <p className="mt-1 text-pretty text-sm text-slate-600">
+            Выберите тему интерфейса. Настройка сохраняется в аккаунте.
+          </p>
+        </div>
+
+        <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+          <div className="grid gap-3 sm:grid-cols-3">
+            {THEME_OPTIONS.map(({ value, label, description, icon: Icon }) => {
+              const selected = currentTheme === value
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() =>
+                    dispatch({
+                      type: "UPDATE_SETTINGS",
+                      payload: { patch: { theme: value } },
+                    })
+                  }
+                  className={`relative min-w-0 rounded-2xl border p-4 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+                    selected
+                      ? "border-blue-300 bg-blue-50 ring-1 ring-blue-200"
+                      : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${
+                      selected
+                        ? "bg-blue-100 text-blue-700"
+                        : "bg-slate-100 text-slate-700"
+                    }`}>
+                      <Icon className="size-5" aria-hidden />
+                    </div>
+                    {selected ? (
+                      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white">
+                        <Check className="size-4" aria-hidden />
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="mt-4 font-semibold text-slate-950">{label}</p>
+                  <p className="mt-1 text-sm leading-5 text-slate-600">
+                    {description}
+                  </p>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      </section>
 
       <section className="min-w-0 space-y-3">
         <div className="min-w-0">
