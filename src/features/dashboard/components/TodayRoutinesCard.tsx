@@ -7,6 +7,7 @@ import { getCurrentWeekDates } from "@/shared/lib/dates"
 import {
   getHabitWeeklyCompleted,
   getHabitWeeklyTarget,
+  isHabitScheduledOnDate,
 } from "@/store/selectors"
 import type { Habit } from "@/store/appState.types"
 
@@ -18,8 +19,11 @@ export type TodayRoutinesCardProps = {
 export function TodayRoutinesCard({ habits, todayISO }: TodayRoutinesCardProps) {
   const { totalHabits, completedToday, weekCompleted, weekTarget, weekProgress } =
     useMemo(() => {
-      const total = habits.length
-      const completedToday = habits.filter(
+      const todayHabits = habits.filter((habit) =>
+        isHabitScheduledOnDate(habit, todayISO),
+      )
+      const total = todayHabits.length
+      const completedToday = todayHabits.filter(
         (habit) => habit.dailyStatus[todayISO] === true,
       ).length
       const weekDates = getCurrentWeekDates()
@@ -49,7 +53,7 @@ export function TodayRoutinesCard({ habits, todayISO }: TodayRoutinesCardProps) 
   return (
     <Card
       className={cn(
-        "min-h-[116px] min-w-0 gap-0 overflow-hidden rounded-2xl border border-slate-200 bg-white py-0 text-slate-950 shadow-sm ring-0 md:h-[116px]",
+        "min-h-[116px] min-w-0 gap-0 overflow-hidden rounded-2xl border border-slate-200 bg-white py-0 text-slate-950 shadow-sm ring-0 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 md:h-[116px]",
       )}
     >
       <CardContent className="flex min-h-[116px] flex-1 flex-col justify-between gap-2 p-4 md:min-h-0 md:h-full">
@@ -59,7 +63,7 @@ export function TodayRoutinesCard({ habits, todayISO }: TodayRoutinesCardProps) 
               <Link
                 to="/routine"
                 title="Ритм рутины"
-                className="block break-words font-semibold text-slate-950 transition-colors hover:text-blue-600 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 md:truncate"
+                className="block break-words font-semibold text-slate-950 transition-colors dark:text-slate-100 hover:text-blue-600 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 md:truncate"
               >
                 Ритм рутины
               </Link>
@@ -72,13 +76,13 @@ export function TodayRoutinesCard({ habits, todayISO }: TodayRoutinesCardProps) 
 
         <Progress
           value={weekProgress}
-          className="h-2 w-full min-w-0 shrink-0 bg-slate-200 [&>[data-slot=progress-indicator]]:bg-blue-600"
+          className="h-2 w-full min-w-0 shrink-0 bg-slate-200 dark:bg-slate-800 [&>[data-slot=progress-indicator]]:bg-blue-600"
         />
 
-        <p className="min-w-0 shrink-0 text-pretty text-xs leading-snug text-slate-600 md:truncate">
+        <p className="min-w-0 shrink-0 text-pretty text-xs leading-snug text-slate-600 dark:text-slate-400 md:truncate">
           {totalHabits === 0
             ? "Привычек пока нет"
-            : `Неделя: ${weekCompleted}/${weekTarget} · отметок сегодня: ${completedToday}`}
+            : `Неделя: ${weekCompleted}/${weekTarget} · сегодня: ${completedToday}/${totalHabits}`}
         </p>
       </CardContent>
     </Card>
