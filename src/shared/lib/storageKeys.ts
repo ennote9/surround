@@ -10,3 +10,6 @@ export const PROJECT_GROUPS_COLLAPSE_MODE_STORAGE_KEY =
   "canada-progress-os-project-groups-collapse-mode"
 export const COLLAPSED_PROJECT_GROUPS_STORAGE_KEY =
   "canada-progress-os-collapsed-project-groups"
+
+export const THEME_PREFERENCE_STORAGE_KEY =
+  "life-progress-os-theme-preference"
