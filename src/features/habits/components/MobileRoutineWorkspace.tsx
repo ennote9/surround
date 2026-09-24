@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import type { Habit } from "@/store/appState.types"
 import {
+  getHabitTargetPerWeek,
   getHabitTotalCompliance,
   getHabitWeeklyCompliance,
 } from "@/store/selectors"
@@ -124,12 +125,17 @@ export function MobileRoutineWorkspace({
   const viewingCurrentWeek = weekDates[0] === currentWeekStartISO
 
   const weeklyStats = useMemo(() => {
-    const possible = habits.length * 7
-    const completed = habits.reduce(
-      (sum, habit) =>
-        sum + weekDates.filter((date) => habit.dailyStatus[date] === true).length,
+    const possible = habits.reduce(
+      (sum, habit) => sum + getHabitTargetPerWeek(habit),
       0,
     )
+    const completed = habits.reduce((sum, habit) => {
+      const target = getHabitTargetPerWeek(habit)
+      const done = weekDates.filter(
+        (date) => habit.dailyStatus[date] === true,
+      ).length
+      return sum + Math.min(done, target)
+    }, 0)
     return {
       completed,
       possible,
@@ -292,6 +298,7 @@ export function MobileRoutineWorkspace({
             {habits.map((habit) => {
               const weeklyCompliance = getHabitWeeklyCompliance(habit, weekDates)
               const totalCompliance = getHabitTotalCompliance(habit)
+              const targetPerWeek = getHabitTargetPerWeek(habit)
 
               return (
                 <article
@@ -344,6 +351,21 @@ export function MobileRoutineWorkspace({
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
+                  </div>
+
+                  <div className="mt-3 flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                    <span className="rounded-full bg-slate-100 px-2 py-1 dark:bg-slate-800">
+                      Норма: {targetPerWeek}/нед.
+                    </span>
+                    {habit.projectId ? (
+                      <span className="truncate rounded-full bg-blue-50 px-2 py-1 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">
+                        Привязана к проекту
+                      </span>
+                    ) : (
+                      <span className="rounded-full bg-slate-100 px-2 py-1 dark:bg-slate-800">
+                        Глобальная
+                      </span>
+                    )}
                   </div>
 
                   <div className="mt-4 grid grid-cols-7 gap-1.5">
