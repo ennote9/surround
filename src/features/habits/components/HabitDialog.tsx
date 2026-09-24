@@ -170,19 +170,28 @@ function HabitDialogFields({
   )
 
   const setType = (type: HabitCompletionType) => {
+    if (type === completionType) return
+
     setCompletionType(type)
     setError(null)
+
     if (type === "duration") {
-      if (!targetValue) setTargetValue("30")
-      if (!minimumValue) setMinimumValue("15")
+      setTargetValue("30")
+      setMinimumValue("15")
       setUnit("мин")
-    } else if (type === "check") {
+      return
+    }
+
+    if (type === "quantity") {
       setTargetValue("")
       setMinimumValue("")
       setUnit("")
-    } else if (unit === "мин") {
-      setUnit("")
+      return
     }
+
+    setTargetValue("")
+    setMinimumValue("")
+    setUnit("")
   }
 
   const toggleWeekday = (day: number) => {
