@@ -298,6 +298,7 @@ export function AppStateProvider({
       actionForDispatch.type === "ADD_HABIT" ||
       actionForDispatch.type === "UPDATE_HABIT" ||
       actionForDispatch.type === "DELETE_HABIT" ||
+      actionForDispatch.type === "SET_HABIT_ENTRY" ||
       actionForDispatch.type === "TOGGLE_HABIT_DATE"
     const isMilestoneAction =
       actionForDispatch.type === "ADD_MILESTONE" ||
