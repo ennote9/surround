@@ -86,8 +86,16 @@ export default function DashboardPage() {
     [statVisibility],
   )
 
-  const overallProgress = getOverallProgress(scopedProjects)
-  const taskTotals = scopedProjects.reduce(
+  const currentProjects = useMemo(
+    () =>
+      scopedProjects.filter(
+        (project) => project.phase === undefined || project.phase === "active",
+      ),
+    [scopedProjects],
+  )
+
+  const overallProgress = getOverallProgress(currentProjects)
+  const taskTotals = currentProjects.reduce(
     (acc, p) => {
       const s = getProjectTaskStats(p)
       return {
@@ -106,7 +114,9 @@ export default function DashboardPage() {
   const showMetrics = isWidgetEnabled(widgets, "metrics")
   const anyWidgetEnabled = widgets.some((w) => w.enabled)
   const overallProgressTitle =
-    selectedGoalId === ALL_GOALS_SCOPE ? "Прогресс активных целей" : "Прогресс цели"
+    selectedGoalId === ALL_GOALS_SCOPE
+      ? "Текущий прогресс активных целей"
+      : "Текущий прогресс цели"
 
   const hasSummarySection = showOverall || showToday
   const hasProjectsSection = showProjects
