@@ -1,4 +1,5 @@
 import { supabase } from "@/shared/lib/supabase"
+import type { HabitEntry } from "@/store/appState.types"
 import type { HabitLogRow, HabitLogInsert } from "../database.types"
 import {
   getRepositoryErrorMessage,
@@ -11,7 +12,7 @@ export async function upsertHabitLog(
   userId: string,
   habitId: string,
   date: string,
-  completed: boolean,
+  entry: HabitEntry,
 ): Promise<RepositoryResult<boolean>> {
   if (!supabase) {
     return repositoryFailure("Supabase не настроен.")
@@ -21,7 +22,10 @@ export async function upsertHabitLog(
     user_id: userId,
     habit_id: habitId,
     date,
-    completed,
+    completed: entry.completed,
+    value: entry.value ?? null,
+    note: entry.note ?? null,
+    skipped: entry.skipped ?? false,
   }
 
   const { error } = await supabase.from("habit_logs").upsert(row, {
