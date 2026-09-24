@@ -27,6 +27,9 @@ function sanitizeAddHabitPayload(
     id: payload.id ?? "",
     name,
     description: payload.description?.trim() || undefined,
+    goalId: payload.projectId ? undefined : payload.goalId,
+    projectId: payload.projectId,
+    schedule: payload.schedule,
     dailyStatus: {},
     createdAt: payload.createdAt ?? now,
     updatedAt: payload.updatedAt ?? now,
@@ -45,6 +48,15 @@ function sanitizeUpdateHabitPatch(
   }
   if ("description" in patch) {
     next.description = patch.description?.trim() || undefined
+  }
+  if ("schedule" in patch) {
+    next.schedule = patch.schedule
+  }
+  if ("projectId" in patch) {
+    next.projectId = patch.projectId
+  }
+  if ("goalId" in patch) {
+    next.goalId = patch.projectId ? undefined : patch.goalId
   }
   return next
 }
