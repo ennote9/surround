@@ -160,10 +160,6 @@ export function MobileBottomNavigation() {
     return () => window.removeEventListener("keydown", onKeyDown)
   }, [moreOpen, closeMore])
 
-  useEffect(() => {
-    closeMore()
-  }, [pathname, closeMore])
-
   const moreActive = isMoreRouteActive(pathname)
 
   return (
@@ -228,6 +224,7 @@ export function MobileBottomNavigation() {
             title={title}
             aria-label={title}
             className={({ isActive }) => mainItemClassName(isActive)}
+            onClick={closeMore}
           >
             <Icon className="size-6 shrink-0" aria-hidden />
             <span className="sr-only">{title}</span>
