@@ -3,7 +3,7 @@ import { toast } from "sonner"
 import { addWeeks } from "date-fns"
 import { startOfWeek } from "date-fns"
 import { DeleteHabitDialog } from "@/features/habits/components/DeleteHabitDialog"
-import { HabitDialog } from "@/features/habits/components/HabitDialog"
+import { HabitDialog, type HabitFormValues } from "@/features/habits/components/HabitDialog"
 import { HabitTable } from "@/features/habits/components/HabitTable"
 import { HabitWeekControls } from "@/features/habits/components/HabitWeekControls"
 import { MobileRoutineWorkspace } from "@/features/habits/components/MobileRoutineWorkspace"
@@ -43,20 +43,31 @@ export default function RoutinePage() {
     }
   }
 
-  const handleHabitSubmit = (values: { name: string; description?: string }) => {
+  const handleHabitSubmit = (values: HabitFormValues) => {
     if (editingHabit) {
       dispatch({
         type: "UPDATE_HABIT",
         payload: {
           id: editingHabit.id,
-          patch: { name: values.name, description: values.description },
+          patch: {
+            name: values.name,
+            description: values.description,
+            projectId: values.projectId,
+            goalId: undefined,
+            schedule: { targetPerWeek: values.targetPerWeek },
+          },
         },
       })
       toast.success("Привычка обновлена")
     } else {
       dispatch({
         type: "ADD_HABIT",
-        payload: { name: values.name, description: values.description },
+        payload: {
+          name: values.name,
+          description: values.description,
+          projectId: values.projectId,
+          schedule: { targetPerWeek: values.targetPerWeek },
+        },
       })
       toast.success("Привычка создана")
     }
@@ -163,6 +174,7 @@ export default function RoutinePage() {
         open={habitDialogOpen}
         onOpenChange={setHabitDialogOpen}
         initialHabit={editingHabit ?? undefined}
+        projects={state.projects}
         onSubmit={handleHabitSubmit}
       />
 
