@@ -12,6 +12,7 @@ import {
   Target,
 } from "lucide-react"
 import { CharacterStatIcon } from "@/shared/components/CharacterStatIcon"
+import { DashboardGoalSwitcher } from "@/features/dashboard/components/DashboardGoalSwitcher"
 import {
   CHARACTER_STATS,
   getCharacterStatLevel,
@@ -460,9 +461,7 @@ export function MobileDashboard({
             Главная
           </h1>
         </div>
-        <span className="max-w-[46%] truncate rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
-          {selectedGoalTitle}
-        </span>
+        <DashboardGoalSwitcher className="max-w-[48%]" />
       </header>
 
       {showOverall || showToday ? (
