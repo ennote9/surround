@@ -44,19 +44,19 @@ export function DeleteGoalDialog({
       <DialogContent
         showCloseButton={!busy}
         className={cn(
-          "flex max-h-[90vh] w-full max-w-[calc(100vw-1.5rem)] flex-col gap-0 overflow-hidden border-slate-200 bg-white p-0 text-slate-950 sm:max-w-lg",
+          "flex max-h-[90vh] w-full max-w-[calc(100vw-1.5rem)] flex-col gap-0 overflow-hidden border-slate-200 bg-white p-0 text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 sm:max-w-lg",
         )}
       >
         {goal ? (
           <>
-            <DialogHeader className="shrink-0 space-y-2 border-b border-slate-100 px-5 py-4 text-left">
-              <DialogTitle className="text-lg text-slate-950">
+            <DialogHeader className="shrink-0 space-y-2 border-b border-slate-100 px-5 py-4 text-left dark:border-slate-800">
+              <DialogTitle className="text-lg text-slate-950 dark:text-slate-100">
                 Удалить цель «{goal.title}»?
               </DialogTitle>
-              <DialogDescription className="text-left text-slate-600">
+              <DialogDescription className="text-left text-slate-600 dark:text-slate-400">
                 Выберите, что сделать с проектами внутри этой цели.
               </DialogDescription>
-              <p className="text-sm font-medium text-slate-800">
+              <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
                 {projectCount > 0 ? (
                   <>Проектов внутри цели: {projectCount}</>
                 ) : (
@@ -69,18 +69,18 @@ export function DeleteGoalDialog({
               {error ? (
                 <p
                   role="alert"
-                  className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800"
+                  className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300"
                 >
                   {error}
                 </p>
               ) : null}
 
               <div className="flex flex-col gap-4">
-                <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
-                  <h3 className="text-base font-semibold text-slate-950">
+                <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 dark:border-slate-700 dark:bg-slate-950/60">
+                  <h3 className="text-base font-semibold text-slate-950 dark:text-slate-100">
                     Удалить только цель
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                     Проекты, группы и задачи останутся, но будут отвязаны от этой
                     цели. Вехи, привязанные только к цели, будут удалены.
                   </p>
@@ -95,11 +95,11 @@ export function DeleteGoalDialog({
                   </Button>
                 </div>
 
-                <div className="rounded-xl border border-red-200 bg-red-50/40 p-4">
-                  <h3 className="text-base font-semibold text-slate-950">
+                <div className="rounded-xl border border-red-200 bg-red-50/40 p-4 dark:border-red-900/70 dark:bg-red-950/25">
+                  <h3 className="text-base font-semibold text-slate-950 dark:text-slate-100">
                     Удалить вместе с проектами и задачами
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                     {projectCount === 0 ? (
                       <>
                         В этой цели нет проектов. Будут удалены цель и связанные
@@ -124,11 +124,11 @@ export function DeleteGoalDialog({
               </div>
             </div>
 
-            <DialogFooter className="shrink-0 flex-col gap-2 border-t border-slate-200 bg-slate-50/90 px-5 py-3 sm:flex-row sm:justify-end">
+            <DialogFooter className="shrink-0 flex-col gap-2 border-t border-slate-200 bg-slate-50/90 px-5 py-3 dark:border-slate-800 dark:bg-slate-950 sm:flex-row sm:justify-end">
               <Button
                 type="button"
                 variant="outline"
-                className="h-10 min-h-10 w-full border-slate-300 sm:w-auto"
+                className="h-10 min-h-10 w-full border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 sm:w-auto"
                 disabled={busy}
                 onClick={() => onOpenChange(false)}
               >
