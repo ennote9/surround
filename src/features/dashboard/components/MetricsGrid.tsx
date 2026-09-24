@@ -7,10 +7,11 @@ import {
   getCharacterStatLevel,
   getCharacterStatProgress,
 } from "@/features/dashboard/characterStats"
-import type { CharacterStatType, Project } from "@/store/appState.types"
+import type { CharacterStatType, Habit, Project } from "@/store/appState.types"
 
 type MetricsGridProps = {
   projects: Project[]
+  habits?: Habit[]
   visibleStatIds?: CharacterStatType[]
 }
 
@@ -19,7 +20,7 @@ function compactProjectsText(linkedProjects: number): string {
   return formatLinkedProjectsCount(linkedProjects)
 }
 
-export function MetricsGrid({ projects, visibleStatIds }: MetricsGridProps) {
+export function MetricsGrid({ projects, habits = [], visibleStatIds }: MetricsGridProps) {
   const statsToRender =
     visibleStatIds === undefined
       ? CHARACTER_STATS
@@ -44,7 +45,7 @@ export function MetricsGrid({ projects, visibleStatIds }: MetricsGridProps) {
         <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-3">
           {statsToRender.map((stat) => {
             const { total, completed, progress, linkedProjects } =
-              getCharacterStatProgress(projects, stat.id)
+              getCharacterStatProgress(projects, stat.id, habits)
             const level = getCharacterStatLevel(progress)
 
             const tasksText =
