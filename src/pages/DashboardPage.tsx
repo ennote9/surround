@@ -287,6 +287,7 @@ export default function DashboardPage() {
                 <aside className="min-w-0">
                   <MetricsGrid
                     projects={scopedProjects}
+                    habits={scopedHabits}
                     visibleStatIds={visibleStatIds}
                   />
                 </aside>
@@ -299,6 +300,7 @@ export default function DashboardPage() {
               <aside className="min-w-0">
                 <MetricsGrid
                   projects={scopedProjects}
+                  habits={scopedHabits}
                   visibleStatIds={visibleStatIds}
                 />
               </aside>
