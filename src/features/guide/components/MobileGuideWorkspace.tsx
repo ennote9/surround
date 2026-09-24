@@ -129,6 +129,24 @@ const navItems = [
   ["rules", "Правила", Lightbulb],
 ] as const
 
+const habitTrackingTypes = [
+  {
+    title: "Галочка",
+    text: "Сделал / не сделал",
+    icon: Check,
+  },
+  {
+    title: "Время",
+    text: "Фактические минуты",
+    icon: Clock3,
+  },
+  {
+    title: "Количество",
+    text: "Шаги, страницы и др.",
+    icon: Hash,
+  },
+]
+
 const workCycles = [
   {
     title: "Каждый день",
@@ -367,13 +385,9 @@ export function MobileGuideWorkspace() {
         </div>
 
         <div className="grid grid-cols-3 gap-2">
-          {[
-            ["Галочка", "Сделал / не сделал", Check],
-            ["Время", "Фактические минуты", Clock3],
-            ["Количество", "Шаги, страницы и др.", Hash],
-          ].map(([title, text, Icon]) => (
+          {habitTrackingTypes.map(({ title, text, icon: Icon }) => (
             <div
-              key={title as string}
+              key={title}
               className="rounded-[20px] border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900"
             >
               <span className="flex size-8 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300">
