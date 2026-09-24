@@ -93,20 +93,6 @@ function collectIdMaps(appState: AppState): {
   for (const h of appState.habits) {
     createImportId(h.id, habitIdMap)
   }
-  for (const habit of appState.habits) {
-    const projectId = habit.projectId?.trim()
-    const goalId = habit.goalId?.trim()
-    if (projectId && !projectIds.has(projectId)) {
-      return `Привычка «${habit.name}» ссылается на несуществующий проект (${habit.projectId}).`
-    }
-    if (goalId && !goalIds.has(goalId)) {
-      return `Привычка «${habit.name}» ссылается на несуществующую цель (${habit.goalId}).`
-    }
-    if (projectId && goalId) {
-      return `Привычка «${habit.name}» не должна быть одновременно привязана к проекту и цели.`
-    }
-  }
-
   for (const m of appState.milestones) {
     createImportId(m.id, milestoneIdMap)
   }
@@ -173,10 +159,22 @@ export function normalizeImportedAppStateIds(appState: AppState): AppState {
     }
   })
 
-  const habits: Habit[] = appState.habits.map((h) => ({
-    ...h,
-    id: habitIdMap.get(h.id.trim())!,
-  }))
+  const habits: Habit[] = appState.habits.map((h) => {
+    const rawProjectId = h.projectId?.trim()
+    const rawGoalId = h.goalId?.trim()
+    const newProjectId = rawProjectId
+      ? projectIdMap.get(rawProjectId)
+      : undefined
+    const newGoalId =
+      !newProjectId && rawGoalId ? goalIdMap.get(rawGoalId) : undefined
+
+    return {
+      ...h,
+      id: habitIdMap.get(h.id.trim())!,
+      projectId: newProjectId,
+      goalId: newProjectId ? undefined : newGoalId,
+    }
+  })
 
   const milestones: Milestone[] = appState.milestones.map((m) => {
     const newId = milestoneIdMap.get(m.id.trim())!
@@ -212,6 +210,21 @@ function validateImportableState(appState: AppState): string | null {
     const goalId = p.goalId?.trim()
     if (goalId && !goalIds.has(goalId)) {
       return `Проект «${p.title}» ссылается на несуществующую цель (${p.goalId}).`
+    }
+  }
+
+  for (const habit of appState.habits) {
+    const projectId = habit.projectId?.trim()
+    const goalId = habit.goalId?.trim()
+
+    if (projectId && goalId) {
+      return `Привычка «${habit.name}» не должна быть одновременно привязана к проекту и цели.`
+    }
+    if (projectId && !projectIds.has(projectId)) {
+      return `Привычка «${habit.name}» ссылается на несуществующий проект (${habit.projectId}).`
+    }
+    if (goalId && !goalIds.has(goalId)) {
+      return `Привычка «${habit.name}» ссылается на несуществующую цель (${habit.goalId}).`
     }
   }
 
