@@ -1,6 +1,6 @@
 /**
- * Replace-import AppState в Supabase (без merge, без localStorage).
- * TODO(21.x): при необходимости атомарности заменить на RPC/транзакцию.
+ * Replace-import AppState в Supabase без merge.
+ * Вся замена выполняется одной транзакционной RPC-операцией.
  */
 import { supabase } from "@/shared/lib/supabase"
 import type { AppState, Goal, Habit, Milestone, Project } from "@/store/appState.types"
@@ -12,15 +12,12 @@ import {
   projectToProjectInsert,
   taskToTaskInsert,
 } from "./database.mappers"
-import type { HabitLogInsert, TaskInsert } from "./database.types"
 import {
   getRepositoryErrorMessage,
   repositoryFailure,
   repositorySuccess,
   type RepositoryResult,
 } from "./repositoryResult"
-import { clearCloudAppData } from "./cloudClearAppData"
-import { upsertUserSettings } from "./repositories/userSettingsRepository"
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
@@ -78,23 +75,17 @@ function collectIdMaps(appState: AppState): {
   const habitIdMap = new Map<string, string>()
   const milestoneIdMap = new Map<string, string>()
 
-  for (const g of appState.goals) {
-    createImportId(g.id, goalIdMap)
-  }
-  for (const p of appState.projects) {
-    createImportId(p.id, projectIdMap)
-    for (const gr of p.groups) {
-      createImportId(gr.id, groupIdMap)
-      for (const t of gr.tasks) {
-        createImportId(t.id, taskIdMap)
-      }
+  for (const goal of appState.goals) createImportId(goal.id, goalIdMap)
+  for (const project of appState.projects) {
+    createImportId(project.id, projectIdMap)
+    for (const group of project.groups) {
+      createImportId(group.id, groupIdMap)
+      for (const task of group.tasks) createImportId(task.id, taskIdMap)
     }
   }
-  for (const h of appState.habits) {
-    createImportId(h.id, habitIdMap)
-  }
-  for (const m of appState.milestones) {
-    createImportId(m.id, milestoneIdMap)
+  for (const habit of appState.habits) createImportId(habit.id, habitIdMap)
+  for (const milestone of appState.milestones) {
+    createImportId(milestone.id, milestoneIdMap)
   }
 
   return {
@@ -107,9 +98,6 @@ function collectIdMaps(appState: AppState): {
   }
 }
 
-/**
- * Возвращает копию AppState с UUID id и согласованными ссылками goal/project/group/task/habit/milestone.
- */
 export function normalizeImportedAppStateIds(appState: AppState): AppState {
   const {
     goalIdMap,
@@ -120,75 +108,70 @@ export function normalizeImportedAppStateIds(appState: AppState): AppState {
     milestoneIdMap,
   } = collectIdMaps(appState)
 
-  const goals: Goal[] = appState.goals.map((g) => ({
-    ...g,
-    id: goalIdMap.get(g.id.trim())!,
+  const goals: Goal[] = appState.goals.map((goal) => ({
+    ...goal,
+    id: goalIdMap.get(goal.id.trim())!,
   }))
 
-  const projects: Project[] = appState.projects.map((p) => {
-    const newProjectId = projectIdMap.get(p.id.trim())!
-    const rawGoal = p.goalId?.trim()
-    const mappedGoal =
-      rawGoal !== undefined && rawGoal !== ""
-        ? goalIdMap.get(rawGoal)
-        : undefined
-    const newGoalId = mappedGoal
+  const projects: Project[] = appState.projects.map((project) => {
+    const projectId = projectIdMap.get(project.id.trim())!
+    const rawGoalId = project.goalId?.trim()
+    const goalId = rawGoalId ? goalIdMap.get(rawGoalId) : undefined
 
-    const groups = p.groups.map((gr, groupIndex) => {
-      const newGroupId = groupIdMap.get(gr.id.trim())!
-      const tasks = gr.tasks.map((t) => ({
-        ...t,
-        id: taskIdMap.get(t.id.trim())!,
-        projectId: newProjectId,
-        groupId: newGroupId,
+    const groups = project.groups.map((group, groupIndex) => {
+      const groupId = groupIdMap.get(group.id.trim())!
+      const tasks = group.tasks.map((task) => ({
+        ...task,
+        id: taskIdMap.get(task.id.trim())!,
+        projectId,
+        groupId,
       }))
       return {
-        ...gr,
-        id: newGroupId,
-        projectId: newProjectId,
-        order: gr.order ?? groupIndex,
+        ...group,
+        id: groupId,
+        projectId,
+        order: group.order ?? groupIndex,
         tasks,
       }
     })
 
     return {
-      ...p,
-      id: newProjectId,
-      goalId: newGoalId,
+      ...project,
+      id: projectId,
+      goalId,
       groups,
     }
   })
 
-  const habits: Habit[] = appState.habits.map((h) => {
-    const rawProjectId = h.projectId?.trim()
-    const rawGoalId = h.goalId?.trim()
-    const newProjectId = rawProjectId
-      ? projectIdMap.get(rawProjectId)
-      : undefined
-    const newGoalId =
-      !newProjectId && rawGoalId ? goalIdMap.get(rawGoalId) : undefined
+  const habits: Habit[] = appState.habits.map((habit) => {
+    const rawProjectId = habit.projectId?.trim()
+    const rawGoalId = habit.goalId?.trim()
+    const projectId = rawProjectId ? projectIdMap.get(rawProjectId) : undefined
+    const goalId =
+      !projectId && rawGoalId ? goalIdMap.get(rawGoalId) : undefined
 
     return {
-      ...h,
-      id: habitIdMap.get(h.id.trim())!,
-      projectId: newProjectId,
-      goalId: newProjectId ? undefined : newGoalId,
+      ...habit,
+      id: habitIdMap.get(habit.id.trim())!,
+      projectId,
+      goalId: projectId ? undefined : goalId,
     }
   })
 
-  const milestones: Milestone[] = appState.milestones.map((m) => {
-    const newId = milestoneIdMap.get(m.id.trim())!
-    const rawProjectId = m.projectId?.trim()
-    const rawGoalId = m.goalId?.trim()
-    const newProjectId = rawProjectId ? projectIdMap.get(rawProjectId) : undefined
-    const newGoalId =
-      !newProjectId && rawGoalId ? goalIdMap.get(rawGoalId) : undefined
+  const milestones: Milestone[] = appState.milestones.map((milestone) => {
+    const projectId = milestone.projectId?.trim()
+      ? projectIdMap.get(milestone.projectId.trim())
+      : undefined
+    const goalId =
+      !projectId && milestone.goalId?.trim()
+        ? goalIdMap.get(milestone.goalId.trim())
+        : undefined
 
     return {
-      ...m,
-      id: newId,
-      projectId: newProjectId,
-      goalId: newProjectId ? undefined : newGoalId,
+      ...milestone,
+      id: milestoneIdMap.get(milestone.id.trim())!,
+      projectId,
+      goalId: projectId ? undefined : goalId,
     }
   })
 
@@ -203,13 +186,13 @@ export function normalizeImportedAppStateIds(appState: AppState): AppState {
 }
 
 function validateImportableState(appState: AppState): string | null {
-  const goalIds = new Set(appState.goals.map((g) => g.id.trim()))
-  const projectIds = new Set(appState.projects.map((p) => p.id.trim()))
+  const goalIds = new Set(appState.goals.map((goal) => goal.id.trim()))
+  const projectIds = new Set(appState.projects.map((project) => project.id.trim()))
 
-  for (const p of appState.projects) {
-    const goalId = p.goalId?.trim()
+  for (const project of appState.projects) {
+    const goalId = project.goalId?.trim()
     if (goalId && !goalIds.has(goalId)) {
-      return `Проект «${p.title}» ссылается на несуществующую цель (${p.goalId}).`
+      return `Проект «${project.title}» ссылается на несуществующую цель (${project.goalId}).`
     }
   }
 
@@ -228,121 +211,71 @@ function validateImportableState(appState: AppState): string | null {
     }
   }
 
-  for (const m of appState.milestones) {
-    const projectId = m.projectId?.trim()
-    const goalId = m.goalId?.trim()
+  for (const milestone of appState.milestones) {
+    const projectId = milestone.projectId?.trim()
+    const goalId = milestone.goalId?.trim()
     const hasProject = Boolean(projectId)
     const hasGoal = Boolean(goalId)
 
     if (hasProject === hasGoal) {
-      return `Веха «${m.title}» должна быть привязана ровно к одному объекту: проекту или цели.`
+      return `Веха «${milestone.title}» должна быть привязана ровно к одному объекту: проекту или цели.`
     }
     if (projectId && !projectIds.has(projectId)) {
-      return `Веха «${m.title}» ссылается на несуществующий проект (${m.projectId}).`
+      return `Веха «${milestone.title}» ссылается на несуществующий проект (${milestone.projectId}).`
     }
     if (goalId && !goalIds.has(goalId)) {
-      return `Веха «${m.title}» ссылается на несуществующую цель (${m.goalId}).`
+      return `Веха «${milestone.title}» ссылается на несуществующую цель (${milestone.goalId}).`
     }
   }
+
   return null
 }
 
-async function insertImportedCloudData(
-  userId: string,
-  state: AppState,
-): Promise<RepositoryResult<null>> {
-  if (!supabase) {
-    return repositoryFailure("Supabase не настроен.")
-  }
+function buildAtomicImportPayload(userId: string, state: AppState) {
+  const groups: Record<string, unknown>[] = []
+  const tasks: Record<string, unknown>[] = []
+  const habitLogs: Record<string, unknown>[] = []
 
-  const settingsRes = await upsertUserSettings(userId, {
-    ...state.settings,
-  } as Record<string, unknown>)
-  if (settingsRes.error) {
-    return repositoryFailure(settingsRes.error)
-  }
-
-  if (state.goals.length > 0) {
-    const rows = state.goals.map((g) => goalToGoalInsert(g, userId))
-    const { error } = await supabase.from("goals").insert(rows)
-    if (error) {
-      return repositoryFailure(
-        `Не удалось вставить цели: ${getRepositoryErrorMessage(error)}`,
+  for (const project of state.projects) {
+    for (let groupIndex = 0; groupIndex < project.groups.length; groupIndex += 1) {
+      const group = project.groups[groupIndex]
+      groups.push(
+        projectGroupToProjectGroupInsert(
+          userId,
+          project.id,
+          group.title,
+          group.order ?? groupIndex,
+          group.id,
+        ) as unknown as Record<string, unknown>,
       )
-    }
-  }
 
-  for (const p of state.projects) {
-    const insert = projectToProjectInsert(p, userId)
-    const { error } = await supabase.from("projects").insert(insert)
-    if (error) {
-      return repositoryFailure(
-        `Не удалось вставить проект «${p.title}»: ${getRepositoryErrorMessage(error)}`,
-      )
-    }
-  }
-
-  for (const p of state.projects) {
-    for (let gi = 0; gi < p.groups.length; gi += 1) {
-      const gr = p.groups[gi]
-      const row = projectGroupToProjectGroupInsert(
-        userId,
-        p.id,
-        gr.title,
-        gr.order ?? gi,
-        gr.id,
-      )
-      const { error } = await supabase.from("project_groups").insert(row)
-      if (error) {
-        return repositoryFailure(
-          `Не удалось вставить группу «${gr.title}»: ${getRepositoryErrorMessage(error)}`,
+      for (let taskIndex = 0; taskIndex < group.tasks.length; taskIndex += 1) {
+        tasks.push(
+          taskToTaskInsert(
+            group.tasks[taskIndex],
+            userId,
+            project.id,
+            group.id,
+            taskIndex,
+          ) as unknown as Record<string, unknown>,
         )
       }
     }
   }
 
-  const taskRows: TaskInsert[] = []
-  for (const p of state.projects) {
-    for (const gr of p.groups) {
-      for (let ti = 0; ti < gr.tasks.length; ti += 1) {
-        const t = gr.tasks[ti]
-        taskRows.push(taskToTaskInsert(t, userId, p.id, gr.id, ti))
-      }
-    }
-  }
-  if (taskRows.length > 0) {
-    const { error } = await supabase.from("tasks").insert(taskRows)
-    if (error) {
-      return repositoryFailure(
-        `Не удалось вставить задачи: ${getRepositoryErrorMessage(error)}`,
-      )
-    }
-  }
-
-  if (state.habits.length > 0) {
-    const habitRows = state.habits.map((h) => habitToHabitInsert(h, userId))
-    const { error } = await supabase.from("habits").insert(habitRows)
-    if (error) {
-      return repositoryFailure(
-        `Не удалось вставить привычки: ${getRepositoryErrorMessage(error)}`,
-      )
-    }
-  }
-
-  const logRows: HabitLogInsert[] = []
   for (const habit of state.habits) {
     const dates = new Set([
       ...Object.keys(habit.dailyStatus),
       ...Object.keys(habit.dailyEntries ?? {}),
     ])
+
     for (const date of dates) {
       if (!DATE_ONLY.test(date)) continue
       const entry = habit.dailyEntries?.[date]
-      const completed =
-        entry?.completed ?? habit.dailyStatus[date]
+      const completed = entry?.completed ?? habit.dailyStatus[date]
       if (typeof completed !== "boolean") continue
-      logRows.push({
-        user_id: userId,
+
+      habitLogs.push({
         habit_id: habit.id,
         date,
         completed,
@@ -352,49 +285,65 @@ async function insertImportedCloudData(
       })
     }
   }
-  if (logRows.length > 0) {
-    const { error } = await supabase.from("habit_logs").insert(logRows)
-    if (error) {
-      return repositoryFailure(
-        `Не удалось вставить журнал привычек: ${getRepositoryErrorMessage(error)}`,
-      )
-    }
-  }
 
-  if (state.milestones.length > 0) {
-    const milestoneRows = state.milestones.map((m) =>
-      milestoneToMilestoneInsert(m, userId),
-    )
-    const { error } = await supabase.from("milestones").insert(milestoneRows)
-    if (error) {
-      return repositoryFailure(
-        `Не удалось вставить вехи: ${getRepositoryErrorMessage(error)}`,
-      )
-    }
+  return {
+    settings: state.settings,
+    goals: state.goals.map(
+      (goal) => goalToGoalInsert(goal, userId) as unknown as Record<string, unknown>,
+    ),
+    projects: state.projects.map(
+      (project) =>
+        projectToProjectInsert(project, userId) as unknown as Record<string, unknown>,
+    ),
+    groups,
+    tasks,
+    habits: state.habits.map(
+      (habit) =>
+        habitToHabitInsert(habit, userId) as unknown as Record<string, unknown>,
+    ),
+    habit_logs: habitLogs,
+    milestones: state.milestones.map(
+      (milestone) =>
+        milestoneToMilestoneInsert(
+          milestone,
+          userId,
+        ) as unknown as Record<string, unknown>,
+    ),
   }
-
-  return repositorySuccess(null)
 }
 
 export async function importAppStateIntoCloud(
   userId: string,
   appState: AppState,
 ): Promise<RepositoryResult<AppState>> {
+  if (!supabase) {
+    return repositoryFailure("Supabase не настроен.")
+  }
+  if (!userId.trim()) {
+    return repositoryFailure("Не удалось импортировать данные: отсутствует пользователь.")
+  }
+
   const validationError = validateImportableState(appState)
   if (validationError !== null) {
     return repositoryFailure(validationError)
   }
+
   const normalized = normalizeImportedAppStateIds(appState)
+  const payload = buildAtomicImportPayload(userId, normalized)
 
-  const del = await clearCloudAppData(userId)
-  if (del.error) {
-    return repositoryFailure(del.error)
+  try {
+    const { error } = await supabase.rpc("replace_app_state_atomic", {
+      p_payload: payload,
+    })
+
+    if (error) {
+      return repositoryFailure(
+        `Не удалось импортировать данные: ${getRepositoryErrorMessage(error)}`,
+      )
+    }
+
+    return repositorySuccess(normalized)
+  } catch (error) {
+    return repositoryFailure(getRepositoryErrorMessage(error))
   }
-
-  const ins = await insertImportedCloudData(userId, normalized)
-  if (ins.error) {
-    return repositoryFailure(ins.error)
-  }
-
-  return repositorySuccess(normalized)
 }
