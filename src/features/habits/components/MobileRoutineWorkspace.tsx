@@ -29,7 +29,6 @@ import {
 type MobileRoutineWorkspaceProps = {
   habits: Habit[]
   weekDates: string[]
-  weekStartDate: Date
   onPreviousWeek: () => void
   onCurrentWeek: () => void
   onNextWeek: () => void
@@ -106,7 +105,6 @@ function formatWeekRange(weekDates: string[]): string {
 export function MobileRoutineWorkspace({
   habits,
   weekDates,
-  weekStartDate,
   onPreviousWeek,
   onCurrentWeek,
   onNextWeek,
