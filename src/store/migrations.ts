@@ -7,7 +7,7 @@ import type {
   GoalStatus,
   Project,
 } from "./appState.types"
-import { CANADA_GOAL_ID, initialAppState } from "./initialState"
+import { initialAppState } from "./initialState"
 
 const DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 
@@ -140,13 +140,15 @@ function sanitizeGoalStatus(value: unknown): GoalStatus {
   return "active"
 }
 
-function createCanadaGoal(timestamp?: string): Goal {
+const LEGACY_IMPORTED_GOAL_ID = "goal-legacy-import"
+
+function createLegacyImportedGoal(timestamp?: string): Goal {
   const now = timestamp ?? new Date().toISOString()
   return {
-    id: CANADA_GOAL_ID,
-    title: "Канада",
+    id: LEGACY_IMPORTED_GOAL_ID,
+    title: "Импортированная цель",
     description:
-      "Подготовка к иммиграции в Канаду через английский, Android-разработку, образование, документы, финансы и Express Entry / PNP.",
+      "Автоматически создана при импорте старой резервной копии без системы целей.",
     status: "active",
     showOnDashboard: true,
     createdAt: now,
@@ -191,7 +193,11 @@ function sanitizeGoal(raw: unknown): Goal | null {
   }
 }
 
-function sanitizeGoals(rawGoals: unknown, fallbackTimestamp?: string): Goal[] {
+function sanitizeGoals(
+  rawGoals: unknown,
+  version: 1 | 2,
+  fallbackTimestamp?: string,
+): Goal[] {
   const goalsRaw = Array.isArray(rawGoals) ? rawGoals : []
   const deduped: Goal[] = []
   const seen = new Set<string>()
@@ -203,8 +209,8 @@ function sanitizeGoals(rawGoals: unknown, fallbackTimestamp?: string): Goal[] {
     deduped.push(goal)
   }
 
-  if (!seen.has(CANADA_GOAL_ID)) {
-    deduped.unshift(createCanadaGoal(fallbackTimestamp))
+  if (version === 1 && deduped.length === 0) {
+    deduped.push(createLegacyImportedGoal(fallbackTimestamp))
   }
 
   return deduped
@@ -213,15 +219,15 @@ function sanitizeGoals(rawGoals: unknown, fallbackTimestamp?: string): Goal[] {
 function sanitizeProjectGoalId(
   project: Project,
   validGoalIds: Set<string>,
-  fallbackGoalId: string,
+  fallbackGoalId?: string,
 ): Project {
   const currentGoalId = project.goalId
   if (
     typeof currentGoalId === "string" &&
     currentGoalId.trim() &&
-    validGoalIds.has(currentGoalId)
+    validGoalIds.has(currentGoalId.trim())
   ) {
-    return project
+    return { ...project, goalId: currentGoalId.trim() }
   }
 
   return { ...project, goalId: fallbackGoalId }
@@ -242,7 +248,7 @@ function sanitizeProjectStripLegacyVisual(project: Project): Project {
 function sanitizeProjects(
   projects: Project[],
   validGoalIds: Set<string>,
-  fallbackGoalId: string,
+  fallbackGoalId?: string,
 ): Project[] {
   return projects.map((p) =>
     sanitizeProjectGoalId(
@@ -272,11 +278,11 @@ export function migrateAppState(raw: unknown): AppState {
   }
   const fallbackTimestamp =
     base.projects.find((p) => typeof p.createdAt === "string")?.createdAt
-  const goals = sanitizeGoals(base.goals, fallbackTimestamp)
+  const version = raw.version as 1 | 2
+  const goals = sanitizeGoals(base.goals, version, fallbackTimestamp)
   const validGoalIds = new Set(goals.map((goal) => goal.id))
-  const fallbackGoalId = validGoalIds.has(CANADA_GOAL_ID)
-    ? CANADA_GOAL_ID
-    : goals[0]?.id ?? CANADA_GOAL_ID
+  const fallbackGoalId =
+    version === 1 ? goals[0]?.id : undefined
 
   return {
     version: 2,
