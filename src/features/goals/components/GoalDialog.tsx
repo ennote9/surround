@@ -77,7 +77,7 @@ function GoalDialogFields({
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             className="border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-            placeholder="Например, Переезд в Канаду"
+            placeholder="Например, Подготовиться к забегу на 10 км"
           />
         </div>
 
