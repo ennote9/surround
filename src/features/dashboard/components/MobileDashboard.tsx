@@ -26,9 +26,9 @@ import type {
   Project,
 } from "@/store/appState.types"
 import {
-  getHabitTargetPerWeek,
   getHabitWeeklyCompleted,
   getHabitWeeklyCompliance,
+  getHabitWeeklyTarget,
   getProjectProgress,
   getProjectTaskStats,
 } from "@/store/selectors"
@@ -88,7 +88,7 @@ function getRoutineWeekStats(habits: Habit[], days: string[]) {
   let completed = 0
 
   for (const habit of habits) {
-    const target = getHabitTargetPerWeek(habit)
+    const target = getHabitWeeklyTarget(habit, days)
     const done = getHabitWeeklyCompleted(habit, days)
     expected += target
     completed += Math.min(done, target)
@@ -291,7 +291,7 @@ function RoutineCard({
 }) {
   const doneToday = habit.dailyStatus[todayISO] === true
   const createdDate = habit.createdAt.slice(0, 10)
-  const targetPerWeek = getHabitTargetPerWeek(habit)
+  const targetPerWeek = getHabitWeeklyTarget(habit, weekDays)
   const completedWeek = Math.min(
     getHabitWeeklyCompleted(habit, weekDays),
     targetPerWeek,
