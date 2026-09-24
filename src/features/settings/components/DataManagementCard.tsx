@@ -45,7 +45,7 @@ function createEmptyCloudAppState(): AppState {
   }
 }
 
-export function DataManagementCard() {
+export function DataManagementCard({ compact = false }: { compact?: boolean }) {
   const { state, dispatch } = useAppState()
   const { user } = useAuth()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -225,22 +225,34 @@ export function DataManagementCard() {
 
   return (
     <>
-      <div className="min-w-0 max-w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-        <h3 className="break-words text-lg font-semibold tracking-tight text-slate-950">
-          Данные приложения
-        </h3>
-        <p className="mt-2 text-pretty text-sm text-slate-600">
-          Экспортируйте резервную копию или импортируйте сохранённое состояние.
-        </p>
-        <p className="mt-2 text-pretty text-xs leading-relaxed break-words text-slate-500">
-          Очистка и сброс работают в облаке Supabase: удаляются/заменяются данные
-          аккаунта. Локальные UI-предпочтения в localStorage не очищаются.
-        </p>
-        <div className="mt-6 grid grid-cols-1 gap-2 sm:flex sm:flex-row sm:flex-wrap sm:gap-3">
+      <div
+        className={
+          compact
+            ? "min-w-0 max-w-full overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
+            : "min-w-0 max-w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6"
+        }
+      >
+        <div className={compact ? "px-4 pb-2 pt-4" : ""}>
+          <h3 className={compact ? "text-sm font-semibold text-slate-950 dark:text-slate-100" : "break-words text-lg font-semibold tracking-tight text-slate-950 dark:text-slate-100"}>
+            Данные приложения
+          </h3>
+          <p className={compact ? "mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400" : "mt-2 text-pretty text-sm text-slate-600 dark:text-slate-400"}>
+            Экспортируйте резервную копию или импортируйте сохранённое состояние.
+          </p>
+          {!compact ? (
+            <p className="mt-2 text-pretty text-xs leading-relaxed break-words text-slate-500 dark:text-slate-400">
+              Очистка и сброс работают в облаке Supabase: удаляются/заменяются данные
+              аккаунта. Локальные UI-предпочтения в localStorage не очищаются.
+            </p>
+          ) : null}
+        </div>
+        <div className={compact ? "grid grid-cols-2 gap-2 p-3" : "mt-6 grid grid-cols-1 gap-2 sm:flex sm:flex-row sm:flex-wrap sm:gap-3"}>
           <Button
             type="button"
             variant="outline"
-            className="min-h-10 w-full border-slate-200 bg-white text-slate-950 hover:bg-slate-50 sm:w-auto sm:min-h-9"
+            className={compact
+              ? "min-h-11 w-full rounded-xl border-slate-200 bg-slate-50 text-slate-950 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950/55 dark:text-slate-100 dark:hover:bg-slate-800"
+              : "min-h-10 w-full border-slate-200 bg-white text-slate-950 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 sm:w-auto sm:min-h-9"}
             onClick={handleExportJson}
           >
             Экспорт JSON
@@ -248,7 +260,9 @@ export function DataManagementCard() {
           <Button
             type="button"
             variant="outline"
-            className="min-h-10 w-full border-slate-200 bg-white text-slate-950 hover:bg-slate-50 sm:w-auto sm:min-h-9"
+            className={compact
+              ? "min-h-11 w-full rounded-xl border-slate-200 bg-slate-50 text-slate-950 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950/55 dark:text-slate-100 dark:hover:bg-slate-800"
+              : "min-h-10 w-full border-slate-200 bg-white text-slate-950 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 sm:w-auto sm:min-h-9"}
             aria-label="Импортировать JSON из файла"
             disabled={importing || clearing || resetting}
             onClick={handleImportClick}
@@ -258,7 +272,9 @@ export function DataManagementCard() {
           <Button
             type="button"
             variant="outline"
-            className="min-h-10 w-full border-red-200 text-red-700 hover:bg-red-50 sm:w-auto sm:min-h-9"
+            className={compact
+              ? "min-h-11 w-full rounded-xl border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/25 dark:text-red-300 dark:hover:bg-red-950/40"
+              : "min-h-10 w-full border-red-200 text-red-700 hover:bg-red-50 dark:border-red-900/60 dark:text-red-300 dark:hover:bg-red-950/30 sm:w-auto sm:min-h-9"}
             disabled={importing || clearing || resetting}
             onClick={() => setClearOpen(true)}
           >
@@ -267,7 +283,9 @@ export function DataManagementCard() {
           <Button
             type="button"
             variant="outline"
-            className="min-h-10 w-full border-red-200 text-red-700 hover:bg-red-50 sm:w-auto sm:min-h-9"
+            className={compact
+              ? "min-h-11 w-full rounded-xl border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/25 dark:text-red-300 dark:hover:bg-red-950/40"
+              : "min-h-10 w-full border-red-200 text-red-700 hover:bg-red-50 dark:border-red-900/60 dark:text-red-300 dark:hover:bg-red-950/30 sm:w-auto sm:min-h-9"}
             disabled={importing || clearing || resetting}
             onClick={() => setResetOpen(true)}
           >
@@ -285,18 +303,18 @@ export function DataManagementCard() {
       </div>
 
       <AlertDialog open={clearOpen} onOpenChange={setClearOpen}>
-        <AlertDialogContent className="max-w-[calc(100vw-1.5rem)] border-slate-200 bg-white text-slate-950 sm:max-w-md">
+        <AlertDialogContent className="max-w-[calc(100vw-1.5rem)] border-slate-200 bg-white text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 sm:max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle className="break-words text-slate-950">
+            <AlertDialogTitle className="break-words text-slate-950 dark:text-slate-100">
               Очистить текущие данные?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-pretty break-words text-slate-600">
+            <AlertDialogDescription className="text-pretty break-words text-slate-600 dark:text-slate-400">
               Это удалит в облаке цели, проекты, группы, задачи, привычки, вехи и
               настройки приложения. Профиль и аккаунт не удаляются.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="[&_button]:min-h-10 sm:[&_button]:min-h-9">
-            <AlertDialogCancel className="border-slate-200" disabled={clearing}>
+            <AlertDialogCancel className="border-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" disabled={clearing}>
               Отмена
             </AlertDialogCancel>
             <Button
@@ -317,16 +335,16 @@ export function DataManagementCard() {
       <AlertDialog open={resetOpen} onOpenChange={setResetOpen}>
         <AlertDialogContent className="max-w-[calc(100vw-1.5rem)] border-slate-200 bg-white text-slate-950 sm:max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle className="break-words text-slate-950">
+            <AlertDialogTitle className="break-words text-slate-950 dark:text-slate-100">
               Сбросить все данные?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-pretty break-words text-slate-600">
+            <AlertDialogDescription className="text-pretty break-words text-slate-600 dark:text-slate-400">
               Текущие облачные данные будут заменены стартовым набором приложения.
               Это действие нельзя отменить.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="[&_button]:min-h-10 sm:[&_button]:min-h-9">
-            <AlertDialogCancel className="border-slate-200" disabled={resetting}>
+            <AlertDialogCancel className="border-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" disabled={resetting}>
               Отмена
             </AlertDialogCancel>
             <Button
