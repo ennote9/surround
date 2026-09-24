@@ -380,8 +380,6 @@ export function MobileDashboard({
   const completedHabits = habits.filter(
     (habit) => habit.dailyStatus[todayISO] === true,
   ).length
-  const habitsProgress =
-    habits.length === 0 ? 0 : Math.round((completedHabits / habits.length) * 100)
   const pendingCount = Math.max(0, taskTotals.total - taskTotals.completed)
 
   const activeProjects = dashboardProjects.filter(
@@ -397,6 +395,7 @@ export function MobileDashboard({
   const overdueTasks = useMemo(() => {
     let count = 0
     for (const project of scopedProjects) {
+      if (project.phase !== undefined && project.phase !== "active") continue
       for (const group of project.groups) {
         for (const task of group.tasks) {
           if (
@@ -447,8 +446,8 @@ export function MobileDashboard({
       .slice(0, 6)
   }, [visibleStatIds, scopedProjects])
 
-  const heroProgress = showOverall ? overallProgress : habitsProgress
-  const heroTitle = showOverall ? "Общий прогресс" : "Рутины сегодня"
+  const heroProgress = showOverall ? overallProgress : weeklyRoutineStats.progress
+  const heroTitle = showOverall ? "Текущий прогресс" : "Ритм недели"
 
   return (
     <div className="min-w-0 space-y-6 pb-2 md:hidden">
@@ -483,7 +482,7 @@ export function MobileDashboard({
                     ? `Выполнено ${taskTotals.completed} из ${taskTotals.total} задач.`
                     : "Все текущие задачи закрыты."
                   : habits.length > 0
-                    ? `${completedHabits} из ${habits.length} привычек выполнено сегодня.`
+                    ? `${weeklyRoutineStats.completed} из ${weeklyRoutineStats.expected} недельной нормы выполнено.`
                     : "Добавь первую привычку в Рутине."}
               </p>
             </div>
@@ -501,9 +500,9 @@ export function MobileDashboard({
             ) : null}
             {showToday ? (
               <div className="rounded-2xl bg-white/10 p-3 ring-1 ring-white/12 backdrop-blur-sm">
-                <p className="text-xs text-blue-100">Сегодняшние рутины</p>
+                <p className="text-xs text-blue-100">Ритм недели</p>
                 <p className="mt-1 text-lg font-semibold tabular-nums">
-                  {completedHabits}/{habits.length}
+                  {weeklyRoutineStats.completed}/{weeklyRoutineStats.expected}
                 </p>
               </div>
             ) : null}
