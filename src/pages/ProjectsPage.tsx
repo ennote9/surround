@@ -7,6 +7,7 @@ import {
   type ProjectFormValues,
 } from "@/features/projects/components/ProjectDialog"
 import { ProjectList } from "@/features/projects/components/ProjectList"
+import { MobileProjectsWorkspace } from "@/features/projects/components/MobileProjectsWorkspace"
 import { ProjectView } from "@/features/projects/components/ProjectView"
 import {
   TaskDialog,
@@ -269,99 +270,164 @@ export default function ProjectsPage() {
   }
 
   return (
-    <div className="mx-auto min-w-0 w-full max-w-6xl space-y-4 sm:space-y-6">
-      <header className="min-w-0">
-        <h1 className="text-balance break-words text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
-          Проекты и задачи
-        </h1>
-        <p className="mt-2 text-pretty text-sm text-slate-600 sm:mt-3 sm:text-base">
-          Управление проектами, группами задач, дедлайнами и прогрессом.
-        </p>
-      </header>
+    <div className="mx-auto min-w-0 w-full max-w-6xl">
+      <MobileProjectsWorkspace
+        projects={scopedProjects}
+        goals={state.goals}
+        selectedProject={selectedProject}
+        selectedProjectId={selectedProjectId}
+        selectedGoalTitle={getSelectedGoalTitle(selectedGoalId, state.goals)}
+        onSelectProject={setSelectedProjectId}
+        onAddProject={openAddProject}
+        onEditProject={openEditProject}
+        onDeleteProject={(project) =>
+          setDeleteTarget({
+            kind: "project",
+            id: project.id,
+            name: project.title,
+          })
+        }
+        onAddGroup={openAddGroup}
+        onEditGroup={(projectId, groupId) => {
+          const project = scopedProjects.find((item) => item.id === projectId)
+          const group = project?.groups.find((item) => item.id === groupId)
+          if (group) openEditGroup(projectId, group)
+        }}
+        onDeleteGroup={(projectId, groupId) => {
+          const project = scopedProjects.find((item) => item.id === projectId)
+          const group = project?.groups.find((item) => item.id === groupId)
+          if (group) {
+            setDeleteTarget({
+              kind: "group",
+              projectId,
+              groupId,
+              name: group.title,
+            })
+          }
+        }}
+        onAddTask={openAddTask}
+        onEditTask={(projectId, groupId, taskId) => {
+          const project = scopedProjects.find((item) => item.id === projectId)
+          const group = project?.groups.find((item) => item.id === groupId)
+          const task = group?.tasks.find((item) => item.id === taskId)
+          if (task) openEditTask(projectId, groupId, task)
+        }}
+        onDeleteTask={(projectId, groupId, taskId) => {
+          const project = scopedProjects.find((item) => item.id === projectId)
+          const group = project?.groups.find((item) => item.id === groupId)
+          const task = group?.tasks.find((item) => item.id === taskId)
+          if (task) {
+            setDeleteTarget({
+              kind: "task",
+              projectId,
+              groupId,
+              taskId,
+              name: task.title,
+            })
+          }
+        }}
+        onToggleTask={(projectId, groupId, taskId) => {
+          dispatch({
+            type: "TOGGLE_TASK",
+            payload: { projectId, groupId, taskId },
+          })
+        }}
+      />
 
-      <div className="grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,320px)_1fr] lg:gap-6">
-        <ProjectList
-          projects={scopedProjects}
-          goals={state.goals}
-          selectedProjectId={selectedProjectId}
-          onSelectProject={setSelectedProjectId}
-          onAddProject={openAddProject}
-        />
+      <div className="hidden space-y-6 md:block">
+        <header className="min-w-0">
+          <h1 className="text-balance break-words text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-100 sm:text-3xl">
+            Проекты и задачи
+          </h1>
+          <p className="mt-2 text-pretty text-sm text-slate-600 dark:text-slate-400 sm:mt-3 sm:text-base">
+            Управление проектами, группами задач, дедлайнами и прогрессом.
+          </p>
+        </header>
 
-        <div className="min-w-0 pb-1 lg:pb-0">
-          {scopedProjects.length > 0 && selectedProject ? (
-            <ProjectView
-              project={selectedProject}
-              goalContextLabel={getProjectGoalLabel(
-                selectedProject,
-                state.goals,
-              )}
-              onEditProject={() => openEditProject(selectedProject)}
-              onDeleteProject={() =>
-                setDeleteTarget({
-                  kind: "project",
-                  id: selectedProject.id,
-                  name: selectedProject.title,
-                })
-              }
-              onAddGroup={() => openAddGroup(selectedProject.id)}
-              onEditGroup={(groupId) => {
-                const g = selectedProject.groups.find((x) => x.id === groupId)
-                if (g) openEditGroup(selectedProject.id, g)
-              }}
-              onDeleteGroup={(groupId) => {
-                const g = selectedProject.groups.find((x) => x.id === groupId)
-                if (g)
+        <div className="grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,320px)_1fr] lg:gap-6">
+          <ProjectList
+            projects={scopedProjects}
+            goals={state.goals}
+            selectedProjectId={selectedProjectId}
+            onSelectProject={setSelectedProjectId}
+            onAddProject={openAddProject}
+          />
+
+          <div className="min-w-0 pb-1 lg:pb-0">
+            {scopedProjects.length > 0 && selectedProject ? (
+              <ProjectView
+                project={selectedProject}
+                goalContextLabel={getProjectGoalLabel(
+                  selectedProject,
+                  state.goals,
+                )}
+                onEditProject={() => openEditProject(selectedProject)}
+                onDeleteProject={() =>
                   setDeleteTarget({
-                    kind: "group",
-                    projectId: selectedProject.id,
-                    groupId,
-                    name: g.title,
+                    kind: "project",
+                    id: selectedProject.id,
+                    name: selectedProject.title,
                   })
-              }}
-              onAddTask={(groupId) => openAddTask(selectedProject.id, groupId)}
-              onEditTask={(groupId, taskId) => {
-                const g = selectedProject.groups.find((x) => x.id === groupId)
-                const t = g?.tasks.find((x) => x.id === taskId)
-                if (t) openEditTask(selectedProject.id, groupId, t)
-              }}
-              onDeleteTask={(groupId, taskId) => {
-                const g = selectedProject.groups.find((x) => x.id === groupId)
-                const t = g?.tasks.find((x) => x.id === taskId)
-                if (t)
-                  setDeleteTarget({
-                    kind: "task",
-                    projectId: selectedProject.id,
-                    groupId,
-                    taskId,
-                    name: t.title,
+                }
+                onAddGroup={() => openAddGroup(selectedProject.id)}
+                onEditGroup={(groupId) => {
+                  const g = selectedProject.groups.find((x) => x.id === groupId)
+                  if (g) openEditGroup(selectedProject.id, g)
+                }}
+                onDeleteGroup={(groupId) => {
+                  const g = selectedProject.groups.find((x) => x.id === groupId)
+                  if (g)
+                    setDeleteTarget({
+                      kind: "group",
+                      projectId: selectedProject.id,
+                      groupId,
+                      name: g.title,
+                    })
+                }}
+                onAddTask={(groupId) => openAddTask(selectedProject.id, groupId)}
+                onEditTask={(groupId, taskId) => {
+                  const g = selectedProject.groups.find((x) => x.id === groupId)
+                  const t = g?.tasks.find((x) => x.id === taskId)
+                  if (t) openEditTask(selectedProject.id, groupId, t)
+                }}
+                onDeleteTask={(groupId, taskId) => {
+                  const g = selectedProject.groups.find((x) => x.id === groupId)
+                  const t = g?.tasks.find((x) => x.id === taskId)
+                  if (t)
+                    setDeleteTarget({
+                      kind: "task",
+                      projectId: selectedProject.id,
+                      groupId,
+                      taskId,
+                      name: t.title,
+                    })
+                }}
+                onToggleTask={(groupId, taskId) => {
+                  dispatch({
+                    type: "TOGGLE_TASK",
+                    payload: {
+                      projectId: selectedProject.id,
+                      groupId,
+                      taskId,
+                    },
                   })
-              }}
-              onToggleTask={(groupId, taskId) => {
-                dispatch({
-                  type: "TOGGLE_TASK",
-                  payload: {
-                    projectId: selectedProject.id,
-                    groupId,
-                    taskId,
-                  },
-                })
-              }}
-            />
-          ) : (
-            <div className="min-w-0 max-w-full rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-10">
-              <p className="break-words font-medium text-slate-950">
-                {selectedGoalId === ALL_GOALS_SCOPE
-                  ? "Проектов пока нет"
-                  : `В цели «${getSelectedGoalTitle(selectedGoalId, state.goals)}» пока нет проектов`}
-              </p>
-              <p className="mx-auto mt-2 max-w-full text-pretty text-sm text-slate-600 sm:max-w-md">
-                {selectedGoalId === ALL_GOALS_SCOPE
-                  ? "Создайте первый проект в списке слева, чтобы планировать задачи и дедлайны."
-                  : "Создайте первый проект для выбранной цели."}
-              </p>
-            </div>
-          )}
+                }}
+              />
+            ) : (
+              <div className="min-w-0 max-w-full rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-10">
+                <p className="break-words font-medium text-slate-950 dark:text-slate-100">
+                  {selectedGoalId === ALL_GOALS_SCOPE
+                    ? "Проектов пока нет"
+                    : `В цели «${getSelectedGoalTitle(selectedGoalId, state.goals)}» пока нет проектов`}
+                </p>
+                <p className="mx-auto mt-2 max-w-full text-pretty text-sm text-slate-600 dark:text-slate-400 sm:max-w-md">
+                  {selectedGoalId === ALL_GOALS_SCOPE
+                    ? "Создайте первый проект в списке слева, чтобы планировать задачи и дедлайны."
+                    : "Создайте первый проект для выбранной цели."}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
