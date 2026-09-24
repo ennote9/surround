@@ -63,8 +63,8 @@ function GoalDialogFields({
 
   return (
     <>
-      <DialogHeader className="shrink-0 border-b border-slate-100 px-5 py-4">
-        <DialogTitle className="text-lg text-slate-950">
+      <DialogHeader className="shrink-0 border-b border-slate-100 px-5 py-4 dark:border-slate-800">
+        <DialogTitle className="text-lg text-slate-950 dark:text-slate-100">
           {isEdit ? "Редактировать цель" : "Новая цель"}
         </DialogTitle>
       </DialogHeader>
@@ -76,7 +76,7 @@ function GoalDialogFields({
             id="goal-title"
             value={title}
             onChange={(event) => setTitle(event.target.value)}
-            className="border-slate-300"
+            className="border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
             placeholder="Например, Переезд в Канаду"
           />
         </div>
@@ -87,7 +87,7 @@ function GoalDialogFields({
             id="goal-description"
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            className="border-slate-300"
+            className="border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
             rows={3}
           />
         </div>
@@ -100,7 +100,7 @@ function GoalDialogFields({
               type="date"
               value={targetDate}
               onChange={(event) => setTargetDate(event.target.value)}
-              className="border-slate-300"
+              className="border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
             />
           </div>
 
@@ -110,7 +110,7 @@ function GoalDialogFields({
               id="goal-status"
               value={status}
               onChange={(event) => setStatus(event.target.value as GoalStatus)}
-              className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 shadow-xs outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/30"
+              className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 shadow-xs outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/30 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
             >
               <option value="active">Сейчас</option>
               <option value="later">Позже</option>
@@ -119,17 +119,17 @@ function GoalDialogFields({
           </div>
         </div>
 
-        <div className="flex gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <div className="flex gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950/70">
           <Checkbox
             id="goal-show-on-dashboard"
             checked={showOnDashboard}
             onCheckedChange={(value) => setShowOnDashboard(value === true)}
-            className="mt-0.5 border-slate-400 data-checked:border-blue-600 data-checked:bg-blue-600"
+            className="mt-0.5 border-slate-400 data-checked:border-blue-600 data-checked:bg-blue-600 dark:border-slate-500"
           />
           <div className="min-w-0 flex-1">
             <Label
               htmlFor="goal-show-on-dashboard"
-              className="cursor-pointer text-sm font-medium leading-snug text-slate-950"
+              className="cursor-pointer text-sm font-medium leading-snug text-slate-950 dark:text-slate-100"
             >
               Показывать на Главной
             </Label>
@@ -137,11 +137,11 @@ function GoalDialogFields({
         </div>
       </div>
 
-      <DialogFooter className="shrink-0 gap-2 border-t border-slate-200 bg-slate-50/90 px-5 py-3 sm:flex-row sm:justify-end">
+      <DialogFooter className="shrink-0 gap-2 border-t border-slate-200 bg-slate-50/90 px-5 py-3 dark:border-slate-800 dark:bg-slate-950 sm:flex-row sm:justify-end">
         <Button
           type="button"
           variant="outline"
-          className="border-slate-300"
+          className="border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
           onClick={() => onOpenChange(false)}
         >
           Отмена
@@ -164,7 +164,7 @@ export function GoalDialog({ open, onOpenChange, goal, onSubmit }: GoalDialogPro
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton
-        className="flex w-full max-w-[calc(100vw-2rem)] flex-col gap-0 overflow-hidden border-slate-200 bg-white p-0 text-slate-950 sm:max-w-xl"
+        className="flex w-full max-w-[calc(100vw-2rem)] flex-col gap-0 overflow-hidden border-slate-200 bg-white p-0 text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 sm:max-w-xl"
       >
         {open ? (
           <GoalDialogFields
