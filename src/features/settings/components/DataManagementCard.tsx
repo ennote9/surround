@@ -23,7 +23,7 @@ import { initialAppState } from "@/store/initialState"
 import { tryParseImportedAppState } from "@/store/migrations"
 import { useAppState } from "@/store/useAppState"
 
-const BACKUP_FILENAME = "canada-progress-os-backup.json"
+const BACKUP_FILENAME = "life-progress-os-backup.json"
 
 const CLOUD_IMPORT_CONFIRM =
   "Импорт заменит текущие облачные данные аккаунта. Это действие нельзя отменить. Рекомендуется заранее экспортировать backup. Продолжить?"
@@ -32,7 +32,7 @@ const CLOUD_CLEAR_CONFIRM =
   "Это удалит все текущие облачные данные аккаунта: цели, проекты, задачи, привычки, вехи и настройки приложения. Рекомендуется сначала экспортировать backup. Продолжить?"
 
 const CLOUD_RESET_CONFIRM =
-  "Это заменит текущие облачные данные стартовым набором. Рекомендуется сначала экспортировать backup. Продолжить?"
+  "Это заменит текущие облачные данные пустым состоянием и восстановит настройки по умолчанию. Рекомендуется сначала экспортировать backup. Продолжить?"
 
 function createEmptyCloudAppState(): AppState {
   return {
@@ -333,14 +333,14 @@ export function DataManagementCard({ compact = false }: { compact?: boolean }) {
       </AlertDialog>
 
       <AlertDialog open={resetOpen} onOpenChange={setResetOpen}>
-        <AlertDialogContent className="max-w-[calc(100vw-1.5rem)] border-slate-200 bg-white text-slate-950 sm:max-w-md">
+        <AlertDialogContent className="max-w-[calc(100vw-1.5rem)] border-slate-200 bg-white text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 sm:max-w-md">
           <AlertDialogHeader>
             <AlertDialogTitle className="break-words text-slate-950 dark:text-slate-100">
               Сбросить все данные?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-pretty break-words text-slate-600 dark:text-slate-400">
-              Текущие облачные данные будут заменены стартовым набором приложения.
-              Это действие нельзя отменить.
+              Текущие облачные данные будут очищены, а настройки приложения
+              восстановлены по умолчанию. Это действие нельзя отменить.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="[&_button]:min-h-10 sm:[&_button]:min-h-9">
