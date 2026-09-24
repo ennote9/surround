@@ -53,8 +53,12 @@ export function getScopedHabits(
   habits: Habit[],
   scopedProjects: Project[],
   selectedGoalId: SelectedGoalScope,
+  goals: Goal[],
 ): Habit[] {
   const projectIds = new Set(scopedProjects.map((project) => project.id))
+  const activeGoalIds = new Set(
+    goals.filter((goal) => goal.status === "active").map((goal) => goal.id),
+  )
 
   return habits.filter((habit) => {
     if (habit.projectId) {
@@ -63,7 +67,7 @@ export function getScopedHabits(
 
     if (habit.goalId) {
       return selectedGoalId === ALL_GOALS_SCOPE
-        ? scopedProjects.some((project) => project.goalId === habit.goalId)
+        ? activeGoalIds.has(habit.goalId)
         : habit.goalId === selectedGoalId
     }
 
