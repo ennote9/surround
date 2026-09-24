@@ -20,24 +20,24 @@ export function AnalyticsSummaryCards({
 
   const items = [
     {
-      label: "Общий прогресс",
+      label: "Текущий прогресс",
       value: `${overallProgress}%`,
-      hint: "По всем задачам",
+      hint: "Только проекты «Сейчас»",
     },
     {
-      label: "Выполнено задач",
+      label: "Текущие задачи",
       value: taskLine,
       hint: pendingTasks > 0 ? `В ожидании: ${pendingTasks}` : "Все задачи закрыты",
     },
     {
-      label: "Активных проектов",
+      label: "Проектов «Сейчас»",
       value: String(totalProjects),
-      hint: "Всего в списке",
+      hint: "В текущем фокусе",
     },
     {
-      label: "Средний compliance",
+      label: "Ритм недели",
       value: `${averageHabitCompliance}%`,
-      hint: "По привычкам",
+      hint: "По недельной норме привычек",
     },
   ] as const
 
