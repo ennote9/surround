@@ -10,6 +10,7 @@ import {
   Settings,
   Target,
   User,
+  X,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -29,6 +30,33 @@ const mainItems: MainItem[] = [
   { to: "/routine", title: "Рутина", icon: CalendarCheck },
 ]
 
+const moreItems = [
+  {
+    to: "/analytics",
+    label: "Аналитика",
+    caption: "Прогресс и состояние",
+    icon: BarChart3,
+  },
+  {
+    to: "/guide",
+    label: "Справочник",
+    caption: "Как всё устроено",
+    icon: BookOpen,
+  },
+  {
+    to: "/settings",
+    label: "Настройки",
+    caption: "Интерфейс и данные",
+    icon: Settings,
+  },
+  {
+    to: "/profile",
+    label: "Профиль",
+    caption: "Аккаунт и безопасность",
+    icon: User,
+  },
+] as const
+
 function isMoreRouteActive(pathname: string): boolean {
   return (
     pathname.startsWith("/analytics") ||
@@ -41,49 +69,69 @@ function isMoreRouteActive(pathname: string): boolean {
 
 function mainItemClassName(isActive: boolean) {
   return cn(
-    "flex min-h-12 min-w-0 flex-1 basis-0 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950",
+    "flex min-h-12 min-w-0 flex-1 basis-0 items-center justify-center rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950",
     isActive
       ? "bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300"
       : "text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-200",
   )
 }
 
-function MoreMenuLink({
+function MoreMenuTile({
   to,
   label,
+  caption,
   icon: Icon,
-  active,
   onClick,
 }: {
   to: string
   label: string
+  caption: string
   icon: typeof Home
-  active: boolean
   onClick: () => void
 }) {
   return (
-    <li role="none">
+    <li role="none" className="min-w-0">
       <NavLink
         role="menuitem"
         to={to}
+        onClick={onClick}
         className={({ isActive }) =>
           cn(
-            "flex min-h-11 items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium",
+            "group flex min-h-[104px] min-w-0 flex-col justify-between rounded-[20px] border p-3.5 text-left transition-all duration-200",
             isActive
-              ? "bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300"
-              : "text-slate-800 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800",
+              ? "border-blue-500/40 bg-blue-50 text-blue-800 ring-1 ring-blue-500/15 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200"
+              : "border-slate-200 bg-slate-50/80 text-slate-800 hover:border-slate-300 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-950/55 dark:text-slate-200 dark:hover:border-slate-700 dark:hover:bg-slate-800/70",
           )
         }
-        onClick={onClick}
       >
-        <Icon
-          className={cn(
-            "size-5 shrink-0",
-            active ? "text-blue-600 dark:text-blue-300" : "text-slate-600 dark:text-slate-400",
-          )}
-          aria-hidden
-        />
-        {label}
+        {({ isActive }) => (
+          <>
+            <span
+              className={cn(
+                "flex size-9 items-center justify-center rounded-xl transition-colors",
+                isActive
+                  ? "bg-blue-600 text-white shadow-sm shadow-blue-600/20"
+                  : "bg-white text-slate-500 shadow-sm dark:bg-slate-800 dark:text-slate-400",
+              )}
+            >
+              <Icon className="size-[18px]" aria-hidden />
+            </span>
+
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold">{label}</p>
+              <p
+                className={cn(
+                  "mt-0.5 truncate text-[10px]",
+                  isActive
+                    ? "text-blue-600/80 dark:text-blue-300/75"
+                    : "text-slate-400",
+                )}
+              >
+                {caption}
+              </p>
+            </div>
+          </>
+        )}
       </NavLink>
     </li>
   )
@@ -98,19 +146,23 @@ export function MobileBottomNavigation() {
   }, [])
 
   const toggleMore = useCallback(() => {
-    setMoreOpen((o) => !o)
+    setMoreOpen((open) => !open)
   }, [])
 
   useEffect(() => {
     if (!moreOpen) return
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        closeMore()
-      }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeMore()
     }
+
     window.addEventListener("keydown", onKeyDown)
     return () => window.removeEventListener("keydown", onKeyDown)
   }, [moreOpen, closeMore])
+
+  useEffect(() => {
+    closeMore()
+  }, [pathname, closeMore])
 
   const moreActive = isMoreRouteActive(pathname)
 
@@ -120,46 +172,45 @@ export function MobileBottomNavigation() {
         <>
           <button
             type="button"
-            className="pointer-events-auto fixed inset-0 z-[10] bg-slate-900/30 dark:bg-black/55"
-            aria-hidden
-            tabIndex={-1}
+            className="pointer-events-auto fixed inset-0 z-[10] bg-slate-950/25 backdrop-blur-[1px] data-open:animate-in data-open:fade-in-0 dark:bg-black/55"
+            aria-label="Закрыть дополнительное меню"
             onClick={closeMore}
           />
+
           <nav
             id={MORE_MENU_ID}
             role="menu"
             aria-label="Дополнительные разделы"
-            className="pointer-events-auto absolute bottom-full left-2 right-2 z-[20] mb-2 max-h-[50vh] overflow-y-auto overscroll-contain rounded-2xl border border-slate-200 bg-white p-2 shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:shadow-2xl"
+            className="pointer-events-auto absolute bottom-full left-3 right-3 z-[20] mb-3 overflow-hidden rounded-[28px] border border-slate-200 bg-white/96 p-3 shadow-2xl shadow-slate-950/10 backdrop-blur-xl animate-in fade-in-0 slide-in-from-bottom-3 duration-200 dark:border-slate-700 dark:bg-slate-900/96 dark:shadow-black/35"
           >
-            <ul className="flex flex-col gap-0.5">
-              <MoreMenuLink
-                to="/analytics"
-                label="Аналитика"
-                icon={BarChart3}
-                active={pathname.startsWith("/analytics")}
+            <div className="mb-3 flex items-center justify-between gap-3 px-1">
+              <div>
+                <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-slate-400">
+                  Навигация
+                </p>
+                <p className="mt-0.5 text-sm font-semibold text-slate-950 dark:text-slate-100">
+                  Ещё
+                </p>
+              </div>
+
+              <button
+                type="button"
                 onClick={closeMore}
-              />
-              <MoreMenuLink
-                to="/guide"
-                label="Справочник"
-                icon={BookOpen}
-                active={pathname.startsWith("/guide")}
-                onClick={closeMore}
-              />
-              <MoreMenuLink
-                to="/settings"
-                label="Настройки"
-                icon={Settings}
-                active={pathname.startsWith("/settings")}
-                onClick={closeMore}
-              />
-              <MoreMenuLink
-                to="/profile"
-                label="Аккаунт"
-                icon={User}
-                active={pathname.startsWith("/profile")}
-                onClick={closeMore}
-              />
+                className="flex size-8 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
+                aria-label="Закрыть меню"
+              >
+                <X className="size-4" aria-hidden />
+              </button>
+            </div>
+
+            <ul className="grid grid-cols-2 gap-2">
+              {moreItems.map((item) => (
+                <MoreMenuTile
+                  key={item.to}
+                  {...item}
+                  onClick={closeMore}
+                />
+              ))}
             </ul>
           </nav>
         </>
@@ -185,20 +236,31 @@ export function MobileBottomNavigation() {
 
         <button
           type="button"
-          title="Ещё"
-          aria-label="Ещё"
+          title={moreOpen ? "Закрыть" : "Ещё"}
+          aria-label={moreOpen ? "Закрыть меню" : "Ещё"}
           aria-expanded={moreOpen}
           aria-controls={moreOpen ? MORE_MENU_ID : undefined}
           onClick={toggleMore}
           className={cn(
-            "flex min-h-12 min-w-0 flex-1 basis-0 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950",
+            "flex min-h-12 min-w-0 flex-1 basis-0 items-center justify-center rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950",
             moreActive || moreOpen
               ? "bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300"
               : "text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-200",
           )}
         >
-          <Menu className="size-6 shrink-0" aria-hidden />
-          <span className="sr-only">Ещё</span>
+          <span
+            className={cn(
+              "flex items-center justify-center transition-transform duration-200",
+              moreOpen && "rotate-90",
+            )}
+          >
+            {moreOpen ? (
+              <X className="size-6 shrink-0" aria-hidden />
+            ) : (
+              <Menu className="size-6 shrink-0" aria-hidden />
+            )}
+          </span>
+          <span className="sr-only">{moreOpen ? "Закрыть меню" : "Ещё"}</span>
         </button>
       </nav>
     </div>
