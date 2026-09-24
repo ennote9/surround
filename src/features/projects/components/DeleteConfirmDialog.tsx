@@ -27,15 +27,15 @@ export function DeleteConfirmDialog({
 }: DeleteConfirmDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="border-slate-200 bg-white sm:max-w-md">
+      <AlertDialogContent className="border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900 sm:max-w-md">
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-slate-950">{title}</AlertDialogTitle>
-          <AlertDialogDescription className="text-slate-600">
+          <AlertDialogTitle className="text-slate-950 dark:text-slate-100">{title}</AlertDialogTitle>
+          <AlertDialogDescription className="text-slate-600 dark:text-slate-400">
             {description}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="border-t border-slate-200 bg-white">
-          <AlertDialogCancel className="border-slate-300 text-slate-700">
+        <AlertDialogFooter className="border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+          <AlertDialogCancel className="border-slate-300 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
             Отмена
           </AlertDialogCancel>
           <AlertDialogAction
