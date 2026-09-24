@@ -44,8 +44,9 @@ export default function AnalyticsPage() {
         habits,
         scopedProjects,
         selectedGoalId,
+        state.goals,
       ),
-    [habits, scopedProjects, selectedGoalId],
+    [habits, scopedProjects, selectedGoalId, state.goals],
   )
 
   const weekDates = useMemo(() => getCurrentWeekDates(), [])
