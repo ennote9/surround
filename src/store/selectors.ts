@@ -60,7 +60,19 @@ export function getTodayTasks(projects: Project[]): TodayTaskRow[] {
   return rows
 }
 
+export function getHabitScheduleMode(habit: Habit) {
+  return habit.schedule?.mode ?? "times-per-week"
+}
+
 export function getHabitTargetPerWeek(habit: Habit): number {
+  const mode = getHabitScheduleMode(habit)
+  if (mode === "daily") return 7
+  if (mode === "specific-days") {
+    const days = habit.schedule?.daysOfWeek
+    if (Array.isArray(days) && days.length > 0) {
+      return Math.max(1, Math.min(7, new Set(days).size))
+    }
+  }
   const raw = habit.schedule?.targetPerWeek
   if (typeof raw !== "number" || !Number.isFinite(raw)) {
     return 7
@@ -68,27 +80,88 @@ export function getHabitTargetPerWeek(habit: Habit): number {
   return Math.max(1, Math.min(7, Math.round(raw)))
 }
 
+function dateOnlyFromDate(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const day = String(date.getDate()).padStart(2, "0")
+  return `${year}-${month}-${day}`
+}
+
+function parseDateOnly(value: string): Date | null {
+  const [year, month, day] = value.split("-").map(Number)
+  if (!year || !month || !day) return null
+  const date = new Date(year, month - 1, day)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
+function isoWeekday(dateOnly: string): number {
+  const date = parseDateOnly(dateOnly)
+  if (!date) return 1
+  const day = date.getDay()
+  return day === 0 ? 7 : day
+}
+
+export function isHabitActiveOnDate(habit: Habit, date: string): boolean {
+  if (habit.settings?.period?.paused) return false
+  const startDate = habit.settings?.period?.startDate
+  const endDate = habit.settings?.period?.endDate
+  const createdDate = habit.createdAt.slice(0, 10)
+
+  if (createdDate && date < createdDate) return false
+  if (startDate && date < startDate) return false
+  if (endDate && date > endDate) return false
+  return true
+}
+
+export function isHabitScheduledOnDate(habit: Habit, date: string): boolean {
+  if (!isHabitActiveOnDate(habit, date)) return false
+  const mode = getHabitScheduleMode(habit)
+  if (mode === "daily") return true
+  if (mode === "specific-days") {
+    const days = habit.schedule?.daysOfWeek ?? []
+    return days.includes(isoWeekday(date))
+  }
+  return true
+}
+
+export function getHabitWeeklyTarget(
+  habit: Habit,
+  weekDates: string[],
+): number {
+  if (habit.settings?.period?.paused) return 0
+  const activeDates = weekDates.filter((date) => isHabitActiveOnDate(habit, date))
+  if (activeDates.length === 0) return 0
+
+  const mode = getHabitScheduleMode(habit)
+  if (mode === "daily") return activeDates.length
+  if (mode === "specific-days") {
+    return activeDates.filter((date) => isHabitScheduledOnDate(habit, date)).length
+  }
+  return Math.min(getHabitTargetPerWeek(habit), activeDates.length)
+}
+
 export function getHabitWeeklyCompleted(
   habit: Habit,
   weekDates: string[],
 ): number {
-  return weekDates.filter((date) => habit.dailyStatus[date] === true).length
+  const mode = getHabitScheduleMode(habit)
+  return weekDates.filter((date) => {
+    if (!isHabitActiveOnDate(habit, date)) return false
+    if (mode === "specific-days" || mode === "daily") {
+      if (!isHabitScheduledOnDate(habit, date)) return false
+    }
+    return habit.dailyStatus[date] === true
+  }).length
 }
 
 export function getHabitWeeklyCompliance(
   habit: Habit,
   weekDates: string[],
 ): number {
-  const target = getHabitTargetPerWeek(habit)
+  const target = getHabitWeeklyTarget(habit, weekDates)
+  if (target === 0) return 0
   const completed = getHabitWeeklyCompleted(habit, weekDates)
   return pct(Math.min(completed, target), target)
-}
-
-function dateOnlyFromDate(date: Date): string {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, "0")
-  const day = String(date.getDate()).padStart(2, "0")
-  return `${year}-${month}-${day}`
 }
 
 function mondayOf(date: Date): Date {
@@ -104,60 +177,103 @@ function addDays(date: Date, days: number): Date {
   return result
 }
 
+function expectedForElapsedWeek(
+  habit: Habit,
+  elapsedDates: string[],
+): number {
+  if (elapsedDates.length === 0) return 0
+  const mode = getHabitScheduleMode(habit)
+  const activeDates = elapsedDates.filter((date) => isHabitActiveOnDate(habit, date))
+  if (mode === "daily") return activeDates.length
+  if (mode === "specific-days") {
+    return activeDates.filter((date) => isHabitScheduledOnDate(habit, date)).length
+  }
+  const weeklyTarget = getHabitTargetPerWeek(habit)
+  return Math.min(
+    weeklyTarget,
+    Math.ceil((weeklyTarget * activeDates.length) / 7),
+  )
+}
+
 /**
- * Schedule-aware compliance from habit creation through today.
- * Missing days are treated as not completed; untouched dates no longer disappear
- * from the denominator. Partial first/current weeks are prorated by elapsed days.
+ * Schedule-aware compliance from habit creation/start through today.
+ * Current partial week is prorated for "times-per-week", while fixed weekdays
+ * count only days that have already occurred.
  */
 export function getHabitTotalCompliance(habit: Habit): number {
+  if (habit.settings?.period?.paused) return 0
+
   const created = new Date(habit.createdAt)
   if (Number.isNaN(created.getTime())) return 0
 
   const today = new Date()
   const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+  const periodStart = habit.settings?.period?.startDate
+    ? parseDateOnly(habit.settings.period.startDate)
+    : null
   const createdDate = new Date(
     created.getFullYear(),
     created.getMonth(),
     created.getDate(),
   )
-  if (createdDate > todayDate) return 0
+  const effectiveStart =
+    periodStart && periodStart > createdDate ? periodStart : createdDate
+  const periodEnd = habit.settings?.period?.endDate
+    ? parseDateOnly(habit.settings.period.endDate)
+    : null
+  const effectiveEnd =
+    periodEnd && periodEnd < todayDate ? periodEnd : todayDate
 
-  const weeklyTarget = getHabitTargetPerWeek(habit)
+  if (!effectiveStart || effectiveStart > effectiveEnd) return 0
+
   let expectedTotal = 0
   let completedTotal = 0
 
   for (
-    let weekStart = mondayOf(createdDate);
-    weekStart <= todayDate;
+    let weekStart = mondayOf(effectiveStart);
+    weekStart <= effectiveEnd;
     weekStart = addDays(weekStart, 7)
   ) {
     const weekEnd = addDays(weekStart, 6)
-    const activeStart = createdDate > weekStart ? createdDate : weekStart
-    const activeEnd = todayDate < weekEnd ? todayDate : weekEnd
-    const activeDays =
-      Math.floor((activeEnd.getTime() - activeStart.getTime()) / 86400000) + 1
-
-    if (activeDays <= 0) continue
-
-    const expected = Math.max(
-      1,
-      Math.min(
-        weeklyTarget,
-        Math.ceil((weeklyTarget * activeDays) / 7),
-      ),
-    )
-    let completed = 0
+    const activeStart = effectiveStart > weekStart ? effectiveStart : weekStart
+    const activeEnd = effectiveEnd < weekEnd ? effectiveEnd : weekEnd
+    const dates: string[] = []
     for (let day = new Date(activeStart); day <= activeEnd; day = addDays(day, 1)) {
-      if (habit.dailyStatus[dateOnlyFromDate(day)] === true) {
-        completed += 1
-      }
+      dates.push(dateOnlyFromDate(day))
     }
 
+    const expected = expectedForElapsedWeek(habit, dates)
+    const completed = getHabitWeeklyCompleted(habit, dates)
     expectedTotal += expected
     completedTotal += Math.min(completed, expected)
   }
 
   return pct(completedTotal, expectedTotal)
+}
+
+export function getHabitCompletionType(habit: Habit) {
+  return habit.settings?.target?.type ?? "check"
+}
+
+export function getHabitTargetValue(habit: Habit): number | undefined {
+  const value = habit.settings?.target?.targetValue
+  return typeof value === "number" && Number.isFinite(value) && value > 0
+    ? value
+    : undefined
+}
+
+export function getHabitMinimumValue(habit: Habit): number | undefined {
+  const minimum = habit.settings?.target?.minimumValue
+  const target = getHabitTargetValue(habit)
+  if (typeof minimum === "number" && Number.isFinite(minimum) && minimum > 0) {
+    return minimum
+  }
+  return target
+}
+
+export function getHabitUnit(habit: Habit): string {
+  if (getHabitCompletionType(habit) === "duration") return "мин"
+  return habit.settings?.target?.unit?.trim() || "ед."
 }
 
 export function getProjectTaskStats(project: Project): {
