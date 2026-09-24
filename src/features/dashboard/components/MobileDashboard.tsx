@@ -649,42 +649,90 @@ export function MobileDashboard({
               </div>
             </div>
           ) : (
-            <div className="space-y-2.5">
+            <div className="grid grid-cols-2 gap-2.5">
               {statsToShow.map(({ stat, progressData }) => {
                 const level = getCharacterStatLevel(progressData.progress)
                 const totalTasks = progressData.total
                 const completedTasks = progressData.completed
+                const hasLinkedProjects = progressData.linkedProjects > 0
 
                 return (
                   <Link
                     key={stat.id}
                     to="/analytics"
-                    className="flex items-center gap-3 rounded-[20px] border border-slate-200 bg-white p-3.5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+                    className={
+                      hasLinkedProjects
+                        ? "group min-w-0 rounded-[22px] border border-blue-200/80 bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-3.5 shadow-sm transition-transform active:scale-[0.99] dark:border-blue-500/20 dark:from-blue-500/10 dark:via-slate-900 dark:to-indigo-500/10"
+                        : "group min-w-0 rounded-[22px] border border-slate-200 bg-white p-3.5 shadow-sm transition-transform active:scale-[0.99] dark:border-slate-800 dark:bg-slate-900"
+                    }
                   >
-                    <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300">
-                      <CharacterStatIcon statType={stat.id} className="size-5" />
-                    </span>
+                    <div className="flex items-start justify-between gap-2">
+                      <span
+                        className={
+                          hasLinkedProjects
+                            ? "flex size-10 shrink-0 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-sm shadow-blue-600/20"
+                            : "flex size-10 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                        }
+                      >
+                        <CharacterStatIcon statType={stat.id} className="size-5" />
+                      </span>
 
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="truncate text-sm font-semibold text-slate-950 dark:text-slate-100">
-                          {stat.title}
+                      <span
+                        className={
+                          hasLinkedProjects
+                            ? "rounded-full bg-blue-100 px-2 py-1 text-[10px] font-semibold text-blue-700 dark:bg-blue-500/15 dark:text-blue-300"
+                            : "rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                        }
+                      >
+                        Lv. {level}
+                      </span>
+                    </div>
+
+                    <p className="mt-3 truncate text-sm font-semibold text-slate-950 dark:text-slate-100">
+                      {stat.title}
+                    </p>
+
+                    <div className="mt-2 flex items-end justify-between gap-2">
+                      <span
+                        className={
+                          hasLinkedProjects
+                            ? "text-2xl font-semibold tracking-tight text-blue-600 dark:text-blue-300"
+                            : "text-2xl font-semibold tracking-tight text-slate-400 dark:text-slate-500"
+                        }
+                      >
+                        {progressData.progress}%
+                      </span>
+                      <span className="pb-0.5 text-[10px] text-slate-400 dark:text-slate-500">
+                        прогресс
+                      </span>
+                    </div>
+
+                    <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                      <div
+                        className={
+                          hasLinkedProjects
+                            ? "h-full rounded-full bg-blue-600 transition-[width] duration-500"
+                            : "h-full rounded-full bg-slate-300 transition-[width] duration-500 dark:bg-slate-700"
+                        }
+                        style={{ width: `${progressData.progress}%` }}
+                      />
+                    </div>
+
+                    <div className="mt-3 border-t border-slate-100 pt-2.5 dark:border-slate-800">
+                      {hasLinkedProjects ? (
+                        <>
+                          <p className="text-[11px] font-medium text-slate-700 dark:text-slate-300">
+                            {progressData.linkedProjects} {progressData.linkedProjects === 1 ? "проект" : "проектов"}
+                          </p>
+                          <p className="mt-0.5 truncate text-[10px] text-slate-400 dark:text-slate-500">
+                            {completedTasks}/{totalTasks} задач выполнено
+                          </p>
+                        </>
+                      ) : (
+                        <p className="text-[10px] leading-4 text-slate-400 dark:text-slate-500">
+                          Нет привязанных проектов
                         </p>
-                        <span className="shrink-0 text-xs font-semibold text-blue-600 dark:text-blue-400">
-                          {progressData.progress}%
-                        </span>
-                      </div>
-
-                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-                        <div
-                          className="h-full rounded-full bg-blue-600"
-                          style={{ width: `${progressData.progress}%` }}
-                        />
-                      </div>
-
-                      <p className="mt-1.5 truncate text-[11px] text-slate-500 dark:text-slate-400">
-                        Lv. {level} · {progressData.linkedProjects} проектов · {completedTasks}/{totalTasks} задач
-                      </p>
+                      )}
                     </div>
                   </Link>
                 )
