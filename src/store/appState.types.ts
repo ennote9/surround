@@ -80,9 +80,64 @@ export type Project = {
   updatedAt: string
 }
 
+export type HabitCompletionType = "check" | "duration" | "quantity"
+
+export type HabitScheduleMode =
+  | "times-per-week"
+  | "specific-days"
+  | "daily"
+
+export type HabitTimePreference =
+  | "any"
+  | "morning"
+  | "day"
+  | "evening"
+  | "window"
+
 export type HabitSchedule = {
-  /** Сколько раз привычку нужно выполнить за календарную неделю. */
+  /** Старые данные без mode интерпретируются как times-per-week. */
+  mode?: HabitScheduleMode
+  /** Недельная норма. Для specific-days синхронизируется с daysOfWeek.length. */
   targetPerWeek: number
+  /** ISO weekday: 1 = Пн ... 7 = Вс. */
+  daysOfWeek?: number[]
+}
+
+export type HabitTarget = {
+  type: HabitCompletionType
+  /** Основная цель за одно выполнение: минуты, шаги, страницы и т.п. */
+  targetValue?: number
+  /** Минимум, после которого день считается выполненным. */
+  minimumValue?: number
+  /** Пользовательская единица для quantity. Для duration обычно "мин". */
+  unit?: string
+}
+
+export type HabitTiming = {
+  preference: HabitTimePreference
+  startTime?: string
+  endTime?: string
+}
+
+export type HabitPeriod = {
+  startDate?: string
+  endDate?: string
+  paused?: boolean
+}
+
+export type HabitSettings = {
+  target?: HabitTarget
+  timing?: HabitTiming
+  period?: HabitPeriod
+  statType?: CharacterStatType
+  showOnDashboard?: boolean
+}
+
+export type HabitEntry = {
+  completed: boolean
+  value?: number
+  note?: string
+  skipped?: boolean
 }
 
 export type Habit = {
@@ -94,7 +149,11 @@ export type Habit = {
   /** Опциональная связь с проектом; через проект привычка наследует контекст цели. */
   projectId?: string
   schedule?: HabitSchedule
+  settings?: HabitSettings
+  /** Совместимость со старой логикой и быстрыми boolean-check привычками. */
   dailyStatus: Record<string, boolean>
+  /** Расширенный журнал: значение, заметка, пропуск. */
+  dailyEntries?: Record<string, HabitEntry>
   createdAt: string
   updatedAt: string
 }
