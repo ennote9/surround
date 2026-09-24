@@ -68,7 +68,7 @@ function TaskDialogFields({
             id="task-title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="border-slate-300"
+            className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
           />
         </div>
         <div className="grid gap-2">
@@ -78,7 +78,7 @@ function TaskDialogFields({
             type="date"
             value={deadline}
             onChange={(e) => setDeadline(e.target.value)}
-            className="border-slate-300"
+            className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
           />
         </div>
         <div className="grid gap-2">
@@ -89,7 +89,7 @@ function TaskDialogFields({
             onChange={(e) =>
               setPriority((e.target.value || "") as TaskPriority | "")
             }
-            className="h-9 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950"
+            className="h-9 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
           >
             <option value="">Не задан</option>
             <option value="low">Низкий</option>
@@ -103,7 +103,7 @@ function TaskDialogFields({
             id="task-notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="border-slate-300"
+            className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
             rows={3}
           />
         </div>
@@ -112,7 +112,7 @@ function TaskDialogFields({
         <Button
           type="button"
           variant="outline"
-          className="border-slate-300"
+          className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
           onClick={() => onOpenChange(false)}
         >
           Отмена
@@ -138,7 +138,7 @@ export function TaskDialog({
 }: TaskDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto border-slate-200 bg-white text-slate-950 sm:max-w-md">
+      <DialogContent className="max-h-[90vh] overflow-y-auto border-slate-200 bg-white text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 sm:max-w-md">
         {open ? (
           <TaskDialogFields
             key={initialTask?.id ?? "__add__"}
