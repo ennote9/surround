@@ -445,7 +445,7 @@ export function MobileDashboard({
   const heroTitle = showOverall ? "Общий прогресс" : "Рутины сегодня"
 
   return (
-    <div className="min-w-0 space-y-5 pb-2 md:hidden">
+    <div className="min-w-0 space-y-6 pb-2 md:hidden">
       <header className="flex min-w-0 items-end justify-between gap-3">
         <div className="min-w-0">
           <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
@@ -505,7 +505,7 @@ export function MobileDashboard({
         </section>
       ) : null}
 
-      <section className="space-y-2.5">
+      <section className="space-y-3.5">
         <div className="flex items-center gap-2">
           <Flame className="size-4 text-blue-600 dark:text-blue-400" aria-hidden />
           <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -536,7 +536,7 @@ export function MobileDashboard({
       </section>
 
       {showProjects ? (
-        <section className="space-y-2.5">
+        <section className="space-y-3.5">
           <div className="flex items-end justify-between gap-3">
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-400">
@@ -573,7 +573,7 @@ export function MobileDashboard({
       ) : null}
 
       {showToday ? (
-        <section className="space-y-2.5">
+        <section className="space-y-3.5">
           <div className="flex items-end justify-between gap-3">
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-400">
@@ -614,7 +614,7 @@ export function MobileDashboard({
       ) : null}
 
       {showMetrics ? (
-        <section className="space-y-2.5">
+        <section className="space-y-3.5">
           <div className="flex items-end justify-between gap-3">
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-400">
