@@ -29,6 +29,8 @@ import {
   getHabitWeeklyCompleted,
   getHabitWeeklyCompliance,
   getHabitWeeklyTarget,
+  isHabitActiveOnDate,
+  isHabitScheduledOnDate,
   getProjectProgress,
   getProjectTaskStats,
 } from "@/store/selectors"
@@ -37,6 +39,7 @@ type MobileDashboardProps = {
   scopedProjects: Project[]
   dashboardProjects: Project[]
   habits: Habit[]
+  statHabits: Habit[]
   todayISO: string
   visibleStatIds: CharacterStatType[]
   showOverall: boolean
@@ -366,6 +369,7 @@ export function MobileDashboard({
   scopedProjects,
   dashboardProjects,
   habits,
+  statHabits,
   todayISO,
   visibleStatIds,
   showOverall,
@@ -376,7 +380,10 @@ export function MobileDashboard({
   taskTotals,
   onOpenProject,
 }: MobileDashboardProps) {
-  const completedHabits = habits.filter(
+  const todayHabits = habits.filter((habit) =>
+    isHabitScheduledOnDate(habit, todayISO),
+  )
+  const completedHabits = todayHabits.filter(
     (habit) => habit.dailyStatus[todayISO] === true,
   ).length
   const pendingCount = Math.max(0, taskTotals.total - taskTotals.completed)
@@ -437,7 +444,7 @@ export function MobileDashboard({
         progressData: getCharacterStatProgress(
           scopedProjects,
           stat.id,
-          habits,
+          statHabits,
           weekDays,
         ),
       }))
@@ -450,7 +457,7 @@ export function MobileDashboard({
         return b.progressData.progress - a.progressData.progress
       })
       .slice(0, 6)
-  }, [visibleStatIds, scopedProjects, habits, weekDays])
+  }, [visibleStatIds, scopedProjects, statHabits, weekDays])
 
   const heroProgress = showOverall ? overallProgress : weeklyRoutineStats.progress
   const heroTitle = showOverall ? "Текущий прогресс" : "Ритм недели"
@@ -592,7 +599,7 @@ export function MobileDashboard({
                 Рутины
               </h2>
               <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                Отметок сегодня: {completedHabits} · ритм недели {weeklyRoutineStats.progress}%
+                Сегодня: {completedHabits}/{todayHabits.length} · ритм недели {weeklyRoutineStats.progress}%
               </p>
             </div>
             <Link
