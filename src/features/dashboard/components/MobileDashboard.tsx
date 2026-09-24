@@ -24,7 +24,13 @@ import type {
   Habit,
   Project,
 } from "@/store/appState.types"
-import { getProjectProgress, getProjectTaskStats } from "@/store/selectors"
+import {
+  getHabitTargetPerWeek,
+  getHabitWeeklyCompleted,
+  getHabitWeeklyCompliance,
+  getProjectProgress,
+  getProjectTaskStats,
+} from "@/store/selectors"
 
 type MobileDashboardProps = {
   selectedGoalTitle: string
@@ -82,12 +88,10 @@ function getRoutineWeekStats(habits: Habit[], days: string[]) {
   let completed = 0
 
   for (const habit of habits) {
-    const createdDate = habit.createdAt.slice(0, 10)
-    for (const day of days) {
-      if (createdDate && day < createdDate) continue
-      expected += 1
-      if (habit.dailyStatus[day] === true) completed += 1
-    }
+    const target = getHabitTargetPerWeek(habit)
+    const done = getHabitWeeklyCompleted(habit, days)
+    expected += target
+    completed += Math.min(done, target)
   }
 
   return {
@@ -288,9 +292,12 @@ function RoutineCard({
   const doneToday = habit.dailyStatus[todayISO] === true
   const createdDate = habit.createdAt.slice(0, 10)
   const activeDays = weekDays.filter((day) => !createdDate || day >= createdDate)
-  const completedWeek = activeDays.filter(
-    (day) => habit.dailyStatus[day] === true,
-  ).length
+  const targetPerWeek = getHabitTargetPerWeek(habit)
+  const completedWeek = Math.min(
+    getHabitWeeklyCompleted(habit, weekDays),
+    targetPerWeek,
+  )
+  const weeklyCompliance = getHabitWeeklyCompliance(habit, weekDays)
 
   return (
     <Link
@@ -347,9 +354,9 @@ function RoutineCard({
       </div>
 
       <div className="mt-2.5 flex items-center justify-between gap-2 text-xs">
-        <span className="text-slate-500 dark:text-slate-400">Последние 7 дней</span>
+        <span className="text-slate-500 dark:text-slate-400">Норма недели</span>
         <span className="font-semibold text-slate-800 dark:text-slate-200">
-          {completedWeek}/{activeDays.length || 0}
+          {completedWeek}/{targetPerWeek} · {weeklyCompliance}%
         </span>
       </div>
     </Link>
@@ -522,7 +529,7 @@ export function MobileDashboard({
           <PulseMetric
             icon={Clock3}
             value={`${weeklyRoutineStats.progress}%`}
-            label="Ритм 7д"
+            label="Ритм недели"
             hint={`${weeklyRoutineStats.completed}/${weeklyRoutineStats.expected}`}
           />
           <PulseMetric
@@ -583,7 +590,7 @@ export function MobileDashboard({
                 Рутины
               </h2>
               <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                Сегодня {completedHabits}/{habits.length} · 7 дней {weeklyRoutineStats.progress}%
+                Отметок сегодня: {completedHabits} · ритм недели {weeklyRoutineStats.progress}%
               </p>
             </div>
             <Link
