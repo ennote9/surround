@@ -6,6 +6,7 @@ import { DeleteHabitDialog } from "@/features/habits/components/DeleteHabitDialo
 import { HabitDialog } from "@/features/habits/components/HabitDialog"
 import { HabitTable } from "@/features/habits/components/HabitTable"
 import { HabitWeekControls } from "@/features/habits/components/HabitWeekControls"
+import { MobileRoutineWorkspace } from "@/features/habits/components/MobileRoutineWorkspace"
 import { Button } from "@/components/ui/button"
 import { getWeekISODatesFromMonday } from "@/shared/lib/dates"
 import type { Habit } from "@/store/appState.types"
@@ -69,27 +70,10 @@ export default function RoutinePage() {
   }
 
   return (
-    <div className="mx-auto min-w-0 w-full max-w-6xl space-y-4 sm:space-y-6">
-      <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <header className="min-w-0">
-          <h1 className="text-balance break-words text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
-            Ежедневная рутина
-          </h1>
-          <p className="mt-2 max-w-full text-pretty text-sm text-slate-600 sm:mt-3 sm:max-w-2xl sm:text-base">
-            Трекер привычек и ежедневных действий, влияющих на общий прогресс.
-          </p>
-        </header>
-        <Button
-          type="button"
-          className="min-h-10 w-full shrink-0 bg-blue-600 text-white hover:bg-blue-700 sm:w-auto sm:min-h-9"
-          onClick={openAddHabit}
-        >
-          Добавить привычку
-        </Button>
-      </div>
-
-      <HabitWeekControls
-        weekStartDate={weekStartDate}
+    <div className="mx-auto min-w-0 w-full max-w-6xl">
+      <MobileRoutineWorkspace
+        habits={habits}
+        weekDates={weekDates}
         onPreviousWeek={() =>
           setWeekStartDate((d) => startOfWeek(addWeeks(d, -1), { weekStartsOn: 1 }))
         }
@@ -99,39 +83,81 @@ export default function RoutinePage() {
         onNextWeek={() =>
           setWeekStartDate((d) => startOfWeek(addWeeks(d, 1), { weekStartsOn: 1 }))
         }
+        onAddHabit={openAddHabit}
+        onToggleHabitDate={(habitId, date) =>
+          dispatch({ type: "TOGGLE_HABIT_DATE", payload: { id: habitId, date } })
+        }
+        onEditHabit={openEditHabit}
+        onDeleteHabit={(habitId) => {
+          const h = habits.find((x) => x.id === habitId)
+          if (h) setDeletingHabit(h)
+        }}
       />
 
-      {habits.length === 0 ? (
-        <div className="min-w-0 max-w-full rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-10">
-          <p className="break-words text-base font-semibold text-slate-950">
-            Привычек пока нет
-          </p>
-          <p className="mx-auto mt-2 max-w-full text-pretty text-sm text-slate-600 sm:max-w-md">
-            Добавьте первую привычку, чтобы отслеживать ежедневную рутину и
-            compliance по неделям.
-          </p>
+      <div className="hidden space-y-6 md:block">
+        <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <header className="min-w-0">
+            <h1 className="text-balance break-words text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-100 sm:text-3xl">
+              Ежедневная рутина
+            </h1>
+            <p className="mt-2 max-w-full text-pretty text-sm text-slate-600 dark:text-slate-400 sm:mt-3 sm:max-w-2xl sm:text-base">
+              Трекер привычек и ежедневных действий, влияющих на общий прогресс.
+            </p>
+          </header>
           <Button
             type="button"
-            className="mt-6 min-h-10 w-full max-w-xs bg-blue-600 text-white hover:bg-blue-700 sm:w-auto"
+            className="min-h-10 w-full shrink-0 bg-blue-600 text-white hover:bg-blue-700 sm:w-auto sm:min-h-9"
             onClick={openAddHabit}
           >
             Добавить привычку
           </Button>
         </div>
-      ) : (
-        <HabitTable
-          habits={habits}
-          weekDates={weekDates}
-          onToggleHabitDate={(habitId, date) =>
-            dispatch({ type: "TOGGLE_HABIT_DATE", payload: { id: habitId, date } })
+
+        <HabitWeekControls
+          weekStartDate={weekStartDate}
+          onPreviousWeek={() =>
+            setWeekStartDate((d) => startOfWeek(addWeeks(d, -1), { weekStartsOn: 1 }))
           }
-          onEditHabit={openEditHabit}
-          onDeleteHabit={(habitId) => {
-            const h = habits.find((x) => x.id === habitId)
-            if (h) setDeletingHabit(h)
-          }}
+          onCurrentWeek={() =>
+            setWeekStartDate(startOfWeek(new Date(), { weekStartsOn: 1 }))
+          }
+          onNextWeek={() =>
+            setWeekStartDate((d) => startOfWeek(addWeeks(d, 1), { weekStartsOn: 1 }))
+          }
         />
-      )}
+
+        {habits.length === 0 ? (
+          <div className="min-w-0 max-w-full rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-10">
+            <p className="break-words text-base font-semibold text-slate-950 dark:text-slate-100">
+              Привычек пока нет
+            </p>
+            <p className="mx-auto mt-2 max-w-full text-pretty text-sm text-slate-600 dark:text-slate-400 sm:max-w-md">
+              Добавьте первую привычку, чтобы отслеживать ежедневную рутину и
+              compliance по неделям.
+            </p>
+            <Button
+              type="button"
+              className="mt-6 min-h-10 w-full max-w-xs bg-blue-600 text-white hover:bg-blue-700 sm:w-auto"
+              onClick={openAddHabit}
+            >
+              Добавить привычку
+            </Button>
+          </div>
+        ) : (
+          <HabitTable
+            habits={habits}
+            weekDates={weekDates}
+            onToggleHabitDate={(habitId, date) =>
+              dispatch({ type: "TOGGLE_HABIT_DATE", payload: { id: habitId, date } })
+            }
+            onEditHabit={openEditHabit}
+            onDeleteHabit={(habitId) => {
+              const h = habits.find((x) => x.id === habitId)
+              if (h) setDeletingHabit(h)
+            }}
+          />
+        )}
+      </div>
 
       <HabitDialog
         open={habitDialogOpen}
