@@ -34,7 +34,6 @@ import {
 } from "@/store/selectors"
 
 type MobileDashboardProps = {
-  selectedGoalTitle: string
   scopedProjects: Project[]
   dashboardProjects: Project[]
   habits: Habit[]
@@ -364,7 +363,6 @@ function RoutineCard({
 }
 
 export function MobileDashboard({
-  selectedGoalTitle,
   scopedProjects,
   dashboardProjects,
   habits,
