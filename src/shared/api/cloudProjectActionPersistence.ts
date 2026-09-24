@@ -1,6 +1,5 @@
 import type { AppAction } from "@/store/actions"
 import type { Project } from "@/store/appState.types"
-import { CANADA_GOAL_ID } from "@/store/initialState"
 import {
   createProject,
   deleteProject,
@@ -24,11 +23,9 @@ function sanitizeAddProjectPayload(
 
   const raw = payload.goalId
   const goalId: string | undefined =
-    raw === undefined
-      ? CANADA_GOAL_ID
-      : String(raw).trim() === ""
-        ? undefined
-        : String(raw).trim()
+    raw === undefined || String(raw).trim() === ""
+      ? undefined
+      : String(raw).trim()
 
   return {
     id: payload.id ?? "",
