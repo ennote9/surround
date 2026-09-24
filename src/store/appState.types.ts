@@ -80,10 +80,20 @@ export type Project = {
   updatedAt: string
 }
 
+export type HabitSchedule = {
+  /** Сколько раз привычку нужно выполнить за календарную неделю. */
+  targetPerWeek: number
+}
+
 export type Habit = {
   id: string
   name: string
   description?: string
+  /** Опциональная прямая связь с целью. */
+  goalId?: string
+  /** Опциональная связь с проектом; через проект привычка наследует контекст цели. */
+  projectId?: string
+  schedule?: HabitSchedule
   dailyStatus: Record<string, boolean>
   createdAt: string
   updatedAt: string
