@@ -1,5 +1,6 @@
 import { useMemo } from "react"
 import { AnalyticsSummaryCards } from "@/features/analytics/components/AnalyticsSummaryCards"
+import { MobileAnalyticsDashboard } from "@/features/analytics/components/MobileAnalyticsDashboard"
 import { HabitComplianceChart } from "@/features/analytics/components/HabitComplianceChart"
 import { ProjectTargetDatesCard } from "@/features/analytics/components/ProjectTargetDatesCard"
 import { ProjectProgressChart } from "@/features/analytics/components/ProjectProgressChart"
@@ -58,42 +59,55 @@ export default function AnalyticsPage() {
   }, [habits])
 
   return (
-    <div className="mx-auto min-w-0 w-full max-w-6xl space-y-4 sm:space-y-6 lg:space-y-8">
-      <header className="min-w-0">
-        <h1 className="text-balance break-words text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
-          Аналитика
-        </h1>
-        <p className="mt-2 max-w-full text-pretty text-sm text-slate-600 sm:mt-3 sm:text-base">
-          {selectedGoalId === ALL_GOALS_SCOPE
-            ? "Аналитика по всем активным целям, проектам, задачам и привычкам."
-            : `Аналитика цели «${selectedGoalTitle}». Привычки пока учитываются глобально.`}
-        </p>
-      </header>
-
-      <AnalyticsSummaryCards
-        totalProjects={scopedProjects.length}
-        totalTasks={taskAgg.total}
+    <div className="mx-auto min-w-0 w-full max-w-6xl">
+      <MobileAnalyticsDashboard
+        selectedGoalTitle={selectedGoalTitle}
+        projects={scopedProjects}
+        habits={habits}
+        overallProgress={overallProgress}
         completedTasks={taskAgg.completed}
         pendingTasks={taskAgg.pending}
-        overallProgress={overallProgress}
+        totalTasks={taskAgg.total}
         averageHabitCompliance={averageHabitCompliance}
       />
 
-      <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2 xl:gap-4">
-        <ProjectProgressChart projects={scopedProjects} />
-        <TaskStatusChart
-          completed={taskAgg.completed}
-          pending={taskAgg.pending}
+      <div className="hidden space-y-6 md:block lg:space-y-8">
+        <header className="min-w-0">
+          <h1 className="text-balance break-words text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-100 sm:text-3xl">
+            Аналитика
+          </h1>
+          <p className="mt-2 max-w-full text-pretty text-sm text-slate-600 dark:text-slate-400 sm:mt-3 sm:text-base">
+            {selectedGoalId === ALL_GOALS_SCOPE
+              ? "Аналитика по всем активным целям, проектам, задачам и привычкам."
+              : `Аналитика цели «${selectedGoalTitle}». Привычки пока учитываются глобально.`}
+          </p>
+        </header>
+
+        <AnalyticsSummaryCards
+          totalProjects={scopedProjects.length}
+          totalTasks={taskAgg.total}
+          completedTasks={taskAgg.completed}
+          pendingTasks={taskAgg.pending}
+          overallProgress={overallProgress}
+          averageHabitCompliance={averageHabitCompliance}
         />
-      </div>
 
-      <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2 xl:gap-4">
-        <HabitComplianceChart habits={habits} />
-        <UpcomingDeadlines projects={scopedProjects} />
-      </div>
+        <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2 xl:gap-4">
+          <ProjectProgressChart projects={scopedProjects} />
+          <TaskStatusChart
+            completed={taskAgg.completed}
+            pending={taskAgg.pending}
+          />
+        </div>
 
-      <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2 xl:gap-4">
-        <ProjectTargetDatesCard projects={scopedProjects} />
+        <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2 xl:gap-4">
+          <HabitComplianceChart habits={habits} />
+          <UpcomingDeadlines projects={scopedProjects} />
+        </div>
+
+        <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2 xl:gap-4">
+          <ProjectTargetDatesCard projects={scopedProjects} />
+        </div>
       </div>
     </div>
   )
