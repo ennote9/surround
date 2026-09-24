@@ -30,7 +30,9 @@ function sanitizeAddHabitPayload(
     goalId: payload.projectId ? undefined : payload.goalId,
     projectId: payload.projectId,
     schedule: payload.schedule,
+    settings: payload.settings,
     dailyStatus: {},
+    dailyEntries: {},
     createdAt: payload.createdAt ?? now,
     updatedAt: payload.updatedAt ?? now,
   }
@@ -51,6 +53,9 @@ function sanitizeUpdateHabitPatch(
   }
   if ("schedule" in patch) {
     next.schedule = patch.schedule
+  }
+  if ("settings" in patch) {
+    next.settings = patch.settings
   }
   if ("projectId" in patch) {
     next.projectId = patch.projectId
@@ -95,6 +100,19 @@ export async function persistHabitAction(
     return result.error ? repositoryFailure(result.error) : repositorySuccess(null)
   }
 
+  if (action.type === "SET_HABIT_ENTRY") {
+    if (!DATE_ONLY_PATTERN.test(action.payload.date)) {
+      return repositoryFailure("Некорректная дата привычки: ожидается YYYY-MM-DD.")
+    }
+    const result = await upsertHabitLog(
+      userId,
+      action.payload.id,
+      action.payload.date,
+      action.payload.entry,
+    )
+    return result.error ? repositoryFailure(result.error) : repositorySuccess(null)
+  }
+
   if (action.type === "TOGGLE_HABIT_DATE") {
     if (!DATE_ONLY_PATTERN.test(action.payload.date)) {
       return repositoryFailure("Некорректная дата привычки: ожидается YYYY-MM-DD.")
@@ -109,7 +127,10 @@ export async function persistHabitAction(
       userId,
       action.payload.id,
       action.payload.date,
-      action.payload.completed,
+      {
+        completed: action.payload.completed,
+        skipped: false,
+      },
     )
     return result.error ? repositoryFailure(result.error) : repositorySuccess(null)
   }
