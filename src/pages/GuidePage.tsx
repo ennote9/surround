@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react"
+import { MobileGuideWorkspace } from "@/features/guide/components/MobileGuideWorkspace"
 import {
   BarChart3,
   BookOpen,
@@ -24,14 +25,14 @@ type GuideCardProps = {
 
 function GuideCard({ icon: Icon, title, children }: GuideCardProps) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
       <div className="flex items-start gap-3">
         <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-200">
           <Icon className="size-5" aria-hidden />
         </div>
         <div className="min-w-0">
-          <h2 className="text-lg font-semibold text-slate-950">{title}</h2>
-          <div className="mt-2 text-sm leading-6 text-slate-600 sm:text-[15px]">
+          <h2 className="text-lg font-semibold text-slate-950 dark:text-slate-100">{title}</h2>
+          <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400 sm:text-[15px]">
             {children}
           </div>
         </div>
@@ -136,18 +137,21 @@ const sections = [
 
 export default function GuidePage() {
   return (
-    <div className="mx-auto min-w-0 w-full max-w-5xl space-y-5 sm:space-y-7">
-      <header className="rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-5 shadow-sm sm:p-8">
+    <div className="mx-auto min-w-0 w-full max-w-5xl">
+      <MobileGuideWorkspace />
+
+      <div className="hidden space-y-7 md:block">
+      <header className="rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-5 shadow-sm dark:border-blue-500/20 dark:from-blue-500/10 dark:via-slate-900 dark:to-indigo-500/10 sm:p-8">
         <div className="flex items-start gap-4">
           <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-sm">
             <BookOpen className="size-6" aria-hidden />
           </div>
           <div className="min-w-0">
             <p className="text-sm font-medium text-blue-700">Life Progress OS</p>
-            <h1 className="mt-1 text-balance text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
+            <h1 className="mt-1 text-balance text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-100 sm:text-3xl">
               Справочник
             </h1>
-            <p className="mt-3 max-w-3xl text-pretty text-sm leading-6 text-slate-600 sm:text-base">
+            <p className="mt-3 max-w-3xl text-pretty text-sm leading-6 text-slate-600 dark:text-slate-400 sm:text-base">
               Полное руководство по логике приложения. Если вы открыли Life Progress OS
               впервые, начните с раздела «Быстрый старт», а затем используйте эту страницу
               как памятку.
@@ -171,7 +175,7 @@ export default function GuidePage() {
           <a
             key={id}
             href={`#${id}`}
-            className="whitespace-nowrap rounded-full border border-slate-200 bg-white px-3 py-2 font-medium text-slate-700 shadow-sm transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+            className="whitespace-nowrap rounded-full border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 px-3 py-2 font-medium text-slate-700 dark:text-slate-300 shadow-sm transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
           >
             {label}
           </a>
@@ -180,10 +184,10 @@ export default function GuidePage() {
 
       <section id="start" className="scroll-mt-6 space-y-3">
         <div>
-          <h2 className="text-xl font-semibold text-slate-950 sm:text-2xl">
+          <h2 className="text-xl font-semibold text-slate-950 dark:text-slate-100 sm:text-2xl">
             Быстрый старт
           </h2>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
             Базовый сценарий, с которого стоит начинать новому пользователю.
           </p>
         </div>
@@ -192,15 +196,15 @@ export default function GuidePage() {
           {quickStart.map((item, index) => (
             <div
               key={item.title}
-              className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+              className="rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-4 shadow-sm"
             >
               <div className="flex items-start gap-3">
                 <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-semibold text-blue-700 ring-1 ring-blue-200">
                   {index + 1}
                 </span>
                 <div>
-                  <h3 className="font-semibold text-slate-950">{item.title}</h3>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">{item.text}</p>
+                  <h3 className="font-semibold text-slate-950 dark:text-slate-100">{item.title}</h3>
+                  <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">{item.text}</p>
                 </div>
               </div>
             </div>
@@ -210,16 +214,16 @@ export default function GuidePage() {
 
       <section id="system" className="scroll-mt-6 space-y-3">
         <div>
-          <h2 className="text-xl font-semibold text-slate-950 sm:text-2xl">
+          <h2 className="text-xl font-semibold text-slate-950 dark:text-slate-100 sm:text-2xl">
             Как устроена система
           </h2>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
             Основная иерархия: Цель → Проект → Группа → Задача. Привычки и вехи
             дополняют эту структуру.
           </p>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 shadow-sm">
           <div className="hidden grid-cols-[150px_1fr_1.35fr] gap-4 border-b border-slate-200 bg-slate-50 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:grid">
             <span>Элемент</span>
             <span>Пример</span>
@@ -228,11 +232,11 @@ export default function GuidePage() {
           {entityRows.map((row) => (
             <div
               key={row.name}
-              className="grid gap-1 border-b border-slate-100 px-5 py-4 last:border-b-0 sm:grid-cols-[150px_1fr_1.35fr] sm:gap-4"
+              className="grid gap-1 border-b border-slate-100 dark:border-slate-800 px-5 py-4 last:border-b-0 sm:grid-cols-[150px_1fr_1.35fr] sm:gap-4"
             >
-              <p className="font-semibold text-slate-950">{row.name}</p>
-              <p className="text-sm text-slate-700">{row.example}</p>
-              <p className="text-sm leading-6 text-slate-600">{row.purpose}</p>
+              <p className="font-semibold text-slate-950 dark:text-slate-100">{row.name}</p>
+              <p className="text-sm text-slate-700 dark:text-slate-300">{row.example}</p>
+              <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">{row.purpose}</p>
             </div>
           ))}
         </div>
@@ -247,10 +251,10 @@ export default function GuidePage() {
 
       <section id="sections" className="scroll-mt-6 space-y-3">
         <div>
-          <h2 className="text-xl font-semibold text-slate-950 sm:text-2xl">
+          <h2 className="text-xl font-semibold text-slate-950 dark:text-slate-100 sm:text-2xl">
             Разделы приложения
           </h2>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
             Что находится в каждой вкладке и когда её использовать.
           </p>
         </div>
@@ -266,22 +270,23 @@ export default function GuidePage() {
 
       <GuideCard icon={Layers3} title="Выбор цели и контекст">
         <p>
-          В боковой панели можно выбрать конкретную цель или режим «Все цели».
-          Выбранная цель задаёт контекст для Главной, Проектов и Аналитики, чтобы
-          не смешивать между собой разные направления жизни.
+          Конкретную цель или режим «Все цели» можно выбрать в интерфейсе приложения,
+          в том числе прямо на Главной. Выбранная цель задаёт контекст для Главной,
+          Проектов и Аналитики, чтобы не смешивать между собой разные направления жизни.
         </p>
         <p className="mt-2">
-          Рутина остаётся общим трекером повторяющихся действий. Это удобно для
-          привычек, которые могут поддерживать сразу несколько целей.
+          Привычка может быть глобальной или связанной с проектом. Связанная привычка
+          учитывается в аналитике соответствующей цели, а глобальная остаётся частью
+          общего контекста.
         </p>
       </GuideCard>
 
       <section id="statuses" className="scroll-mt-6 space-y-3">
         <div>
-          <h2 className="text-xl font-semibold text-slate-950 sm:text-2xl">
+          <h2 className="text-xl font-semibold text-slate-950 dark:text-slate-100 sm:text-2xl">
             Статусы и приоритеты
           </h2>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
             Используйте статусы, чтобы отделять текущий фокус от будущих идей.
           </p>
         </div>
@@ -289,17 +294,17 @@ export default function GuidePage() {
         <div className="grid gap-3 lg:grid-cols-2">
           <GuideCard icon={Target} title="Статусы целей">
             <div className="space-y-2">
-              <p><strong className="text-slate-900">Сейчас</strong> — цель находится в активном фокусе.</p>
-              <p><strong className="text-slate-900">Позже</strong> — важная цель, но не на текущем этапе.</p>
-              <p><strong className="text-slate-900">Архив</strong> — завершённая или больше не актуальная цель.</p>
+              <p><strong className="text-slate-900 dark:text-slate-200">Сейчас</strong> — цель находится в активном фокусе.</p>
+              <p><strong className="text-slate-900 dark:text-slate-200">Позже</strong> — важная цель, но не на текущем этапе.</p>
+              <p><strong className="text-slate-900 dark:text-slate-200">Архив</strong> — завершённая или больше не актуальная цель.</p>
             </div>
           </GuideCard>
 
           <GuideCard icon={FolderKanban} title="Этапы проектов">
             <div className="space-y-2">
-              <p><strong className="text-slate-900">Сейчас</strong> — проект в текущем фокусе.</p>
-              <p><strong className="text-slate-900">Позже</strong> — проект запланирован, но пока не активен.</p>
-              <p><strong className="text-slate-900">Стратегия</strong> — дальний стратегический этап.</p>
+              <p><strong className="text-slate-900 dark:text-slate-200">Сейчас</strong> — проект в текущем фокусе.</p>
+              <p><strong className="text-slate-900 dark:text-slate-200">Позже</strong> — проект запланирован, но пока не активен.</p>
+              <p><strong className="text-slate-900 dark:text-slate-200">Стратегия</strong> — дальний стратегический этап.</p>
             </div>
           </GuideCard>
         </div>
@@ -315,9 +320,9 @@ export default function GuidePage() {
 
       <GuideCard icon={CheckCircle2} title="Как считается прогресс">
         <p>
-          Прогресс проекта строится по выполненным задачам: чем больше задач отмечено
-          как выполненные, тем выше процент проекта. Прогресс цели агрегирует работу
-          связанных с ней проектов.
+          Прогресс проекта строится по выполненным задачам. Текущий прогресс на Главной
+          и в Аналитике учитывает только проекты фазы «Сейчас», а «Позже» и «Стратегия»
+          показываются отдельно как будущий портфель.
         </p>
         <p className="mt-2">
           Поэтому большие задачи лучше дробить на сопоставимые конкретные действия:
@@ -328,10 +333,10 @@ export default function GuidePage() {
 
       <section id="workflow" className="scroll-mt-6 space-y-3">
         <div>
-          <h2 className="text-xl font-semibold text-slate-950 sm:text-2xl">
+          <h2 className="text-xl font-semibold text-slate-950 dark:text-slate-100 sm:text-2xl">
             Рекомендуемый рабочий цикл
           </h2>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
             Система полезнее всего, когда её используют регулярно, но без лишней бюрократии.
           </p>
         </div>
@@ -360,7 +365,7 @@ export default function GuidePage() {
 
       <section id="rules" className="scroll-mt-6 space-y-3">
         <div>
-          <h2 className="text-xl font-semibold text-slate-950 sm:text-2xl">
+          <h2 className="text-xl font-semibold text-slate-950 dark:text-slate-100 sm:text-2xl">
             Правила хорошей структуры
           </h2>
         </div>
@@ -378,7 +383,7 @@ export default function GuidePage() {
         </GuideCard>
       </section>
 
-      <div className="rounded-2xl border border-slate-200 bg-slate-950 p-5 text-white shadow-sm sm:p-6">
+      <div className="rounded-2xl border border-slate-200 bg-slate-950 p-5 text-white shadow-sm dark:border-slate-800 sm:p-6">
         <div className="flex items-start gap-3">
           <BookOpen className="mt-0.5 size-5 shrink-0 text-blue-300" aria-hidden />
           <div>
@@ -390,6 +395,7 @@ export default function GuidePage() {
             </p>
           </div>
         </div>
+      </div>
       </div>
     </div>
   )
