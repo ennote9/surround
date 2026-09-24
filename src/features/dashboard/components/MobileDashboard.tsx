@@ -292,7 +292,8 @@ function RoutineCard({
   todayISO: string
   weekDays: string[]
 }) {
-  const doneToday = habit.dailyStatus[todayISO] === true
+  const scheduledToday = isHabitScheduledOnDate(habit, todayISO)
+  const doneToday = scheduledToday && habit.dailyStatus[todayISO] === true
   const createdDate = habit.createdAt.slice(0, 10)
   const targetPerWeek = getHabitWeeklyTarget(habit, weekDays)
   const completedWeek = Math.min(
@@ -311,7 +312,9 @@ function RoutineCard({
           className={
             doneToday
               ? "flex size-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500 text-white"
-              : "flex size-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+              : scheduledToday
+                ? "flex size-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                : "flex size-9 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-300 dark:bg-slate-900 dark:text-slate-600"
           }
         >
           {doneToday ? (
@@ -324,10 +327,12 @@ function RoutineCard({
           className={
             doneToday
               ? "rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"
-              : "rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+              : scheduledToday
+                ? "rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                : "rounded-full bg-slate-50 px-2 py-1 text-[10px] font-semibold text-slate-400 dark:bg-slate-900 dark:text-slate-500"
           }
         >
-          {doneToday ? "Сегодня ✓" : "Сегодня"}
+          {doneToday ? "Сегодня ✓" : scheduledToday ? "Сегодня" : "Не сегодня"}
         </span>
       </div>
 
@@ -337,7 +342,10 @@ function RoutineCard({
 
       <div className="mt-4 flex items-center justify-between gap-1.5">
         {weekDays.map((day) => {
-          const unavailable = Boolean(createdDate && day < createdDate)
+          const unavailable =
+            !isHabitActiveOnDate(habit, day) ||
+            !isHabitScheduledOnDate(habit, day) ||
+            Boolean(createdDate && day < createdDate)
           const done = habit.dailyStatus[day] === true
           return (
             <span
