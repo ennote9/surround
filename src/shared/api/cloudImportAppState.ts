@@ -93,6 +93,20 @@ function collectIdMaps(appState: AppState): {
   for (const h of appState.habits) {
     createImportId(h.id, habitIdMap)
   }
+  for (const habit of appState.habits) {
+    const projectId = habit.projectId?.trim()
+    const goalId = habit.goalId?.trim()
+    if (projectId && !projectIds.has(projectId)) {
+      return `Привычка «${habit.name}» ссылается на несуществующий проект (${habit.projectId}).`
+    }
+    if (goalId && !goalIds.has(goalId)) {
+      return `Привычка «${habit.name}» ссылается на несуществующую цель (${habit.goalId}).`
+    }
+    if (projectId && goalId) {
+      return `Привычка «${habit.name}» не должна быть одновременно привязана к проекту и цели.`
+    }
+  }
+
   for (const m of appState.milestones) {
     createImportId(m.id, milestoneIdMap)
   }
