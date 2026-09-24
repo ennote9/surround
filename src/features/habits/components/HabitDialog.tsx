@@ -76,7 +76,7 @@ function HabitDialogFields({
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="min-w-0 border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-              placeholder="Например, Китайский язык"
+              placeholder="Например, Прогулка 30 минут"
             />
           </div>
 
