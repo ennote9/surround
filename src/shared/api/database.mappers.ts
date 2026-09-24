@@ -113,12 +113,106 @@ function parseHabitScheduleFromDb(value: unknown): Habit["schedule"] {
   if (!value || typeof value !== "object") {
     return undefined
   }
-  const raw = (value as Record<string, unknown>).targetPerWeek
-  const targetPerWeek =
-    typeof raw === "number" && Number.isFinite(raw)
-      ? Math.max(1, Math.min(7, Math.round(raw)))
+  const raw = value as Record<string, unknown>
+  const target =
+    typeof raw.targetPerWeek === "number" && Number.isFinite(raw.targetPerWeek)
+      ? Math.max(1, Math.min(7, Math.round(raw.targetPerWeek)))
+      : 7
+  const mode =
+    raw.mode === "daily" ||
+    raw.mode === "specific-days" ||
+    raw.mode === "times-per-week"
+      ? raw.mode
+      : "times-per-week"
+  const daysOfWeek = Array.isArray(raw.daysOfWeek)
+    ? [...new Set(
+        raw.daysOfWeek
+          .filter((day): day is number => typeof day === "number" && Number.isFinite(day))
+          .map((day) => Math.round(day))
+          .filter((day) => day >= 1 && day <= 7),
+      )].sort((a, b) => a - b)
+    : undefined
+
+  return {
+    mode,
+    targetPerWeek:
+      mode === "daily"
+        ? 7
+        : mode === "specific-days"
+          ? Math.max(1, daysOfWeek?.length ?? target)
+          : target,
+    ...(daysOfWeek && daysOfWeek.length > 0 ? { daysOfWeek } : {}),
+  }
+}
+
+function parseHabitSettingsFromDb(value: unknown): Habit["settings"] {
+  if (!value || typeof value !== "object") return undefined
+  const raw = value as Record<string, unknown>
+  const targetRaw =
+    raw.target && typeof raw.target === "object"
+      ? (raw.target as Record<string, unknown>)
       : undefined
-  return targetPerWeek ? { targetPerWeek } : undefined
+  const targetType =
+    targetRaw?.type === "duration" || targetRaw?.type === "quantity"
+      ? targetRaw.type
+      : "check"
+  const numberOrUndefined = (input: unknown) =>
+    typeof input === "number" && Number.isFinite(input) && input >= 0
+      ? input
+      : undefined
+  const timingRaw =
+    raw.timing && typeof raw.timing === "object"
+      ? (raw.timing as Record<string, unknown>)
+      : undefined
+  const timingPreference =
+    timingRaw?.preference === "morning" ||
+    timingRaw?.preference === "day" ||
+    timingRaw?.preference === "evening" ||
+    timingRaw?.preference === "window"
+      ? timingRaw.preference
+      : "any"
+  const periodRaw =
+    raw.period && typeof raw.period === "object"
+      ? (raw.period as Record<string, unknown>)
+      : undefined
+
+  return {
+    target: {
+      type: targetType,
+      ...(numberOrUndefined(targetRaw?.targetValue) !== undefined
+        ? { targetValue: numberOrUndefined(targetRaw?.targetValue) }
+        : {}),
+      ...(numberOrUndefined(targetRaw?.minimumValue) !== undefined
+        ? { minimumValue: numberOrUndefined(targetRaw?.minimumValue) }
+        : {}),
+      ...(typeof targetRaw?.unit === "string" && targetRaw.unit.trim()
+        ? { unit: targetRaw.unit.trim() }
+        : {}),
+    },
+    timing: {
+      preference: timingPreference,
+      ...(typeof timingRaw?.startTime === "string" ? { startTime: timingRaw.startTime } : {}),
+      ...(typeof timingRaw?.endTime === "string" ? { endTime: timingRaw.endTime } : {}),
+    },
+    period: {
+      ...(typeof periodRaw?.startDate === "string" ? { startDate: periodRaw.startDate } : {}),
+      ...(typeof periodRaw?.endDate === "string" ? { endDate: periodRaw.endDate } : {}),
+      paused: periodRaw?.paused === true,
+    },
+    ...(isCharacterStatType(raw.statType) ? { statType: raw.statType } : {}),
+    showOnDashboard: raw.showOnDashboard !== false,
+  }
+}
+
+function serializeHabitSettings(settings: Habit["settings"]): Record<string, unknown> {
+  if (!settings) return {}
+  return {
+    ...(settings.target ? { target: settings.target } : {}),
+    ...(settings.timing ? { timing: settings.timing } : {}),
+    ...(settings.period ? { period: settings.period } : {}),
+    ...(settings.statType ? { statType: settings.statType } : {}),
+    showOnDashboard: settings.showOnDashboard !== false,
+  }
 }
 
 // --- Goals ---
@@ -320,6 +414,21 @@ export function buildDailyStatusFromHabitLogRows(
   return d
 }
 
+export function buildDailyEntriesFromHabitLogRows(
+  logs: HabitLogRow[],
+): NonNullable<Habit["dailyEntries"]> {
+  const entries: NonNullable<Habit["dailyEntries"]> = {}
+  for (const log of logs) {
+    entries[log.date] = {
+      completed: log.completed,
+      ...(log.value !== null ? { value: Number(log.value) } : {}),
+      ...(log.note ? { note: log.note } : {}),
+      ...(log.skipped ? { skipped: true } : {}),
+    }
+  }
+  return entries
+}
+
 export function habitRowToHabit(
   row: HabitRow,
   logs: HabitLogRow[] = [],
@@ -331,7 +440,9 @@ export function habitRowToHabit(
     goalId: row.goal_id ?? undefined,
     projectId: row.project_id ?? undefined,
     schedule: parseHabitScheduleFromDb(row.schedule),
+    settings: parseHabitSettingsFromDb(row.settings),
     dailyStatus: buildDailyStatusFromHabitLogRows(logs),
+    dailyEntries: buildDailyEntriesFromHabitLogRows(logs),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
@@ -344,8 +455,13 @@ export function habitToHabitInsert(habit: Habit, userId: string): HabitInsert {
     title: habit.name,
     description: habit.description ?? null,
     schedule: habit.schedule
-      ? { targetPerWeek: habit.schedule.targetPerWeek }
+      ? {
+          mode: habit.schedule.mode ?? "times-per-week",
+          targetPerWeek: habit.schedule.targetPerWeek,
+          ...(habit.schedule.daysOfWeek ? { daysOfWeek: habit.schedule.daysOfWeek } : {}),
+        }
       : null,
+    settings: serializeHabitSettings(habit.settings),
     goal_id: habit.projectId ? null : (habit.goalId ?? null),
     project_id: habit.projectId ?? null,
   }
@@ -357,8 +473,15 @@ export function habitToHabitUpdate(patch: Partial<Habit>): HabitUpdate {
   if ("description" in patch) o.description = patch.description ?? null
   if ("schedule" in patch) {
     o.schedule = patch.schedule
-      ? { targetPerWeek: patch.schedule.targetPerWeek }
+      ? {
+          mode: patch.schedule.mode ?? "times-per-week",
+          targetPerWeek: patch.schedule.targetPerWeek,
+          ...(patch.schedule.daysOfWeek ? { daysOfWeek: patch.schedule.daysOfWeek } : {}),
+        }
       : null
+  }
+  if ("settings" in patch) {
+    o.settings = serializeHabitSettings(patch.settings)
   }
   if ("projectId" in patch) {
     o.project_id = patch.projectId ?? null
