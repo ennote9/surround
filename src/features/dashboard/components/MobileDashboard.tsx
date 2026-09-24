@@ -291,7 +291,6 @@ function RoutineCard({
 }) {
   const doneToday = habit.dailyStatus[todayISO] === true
   const createdDate = habit.createdAt.slice(0, 10)
-  const activeDays = weekDays.filter((day) => !createdDate || day >= createdDate)
   const targetPerWeek = getHabitTargetPerWeek(habit)
   const completedWeek = Math.min(
     getHabitWeeklyCompleted(habit, weekDays),
