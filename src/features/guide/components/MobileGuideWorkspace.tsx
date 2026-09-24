@@ -2,6 +2,7 @@ import {
   BarChart3,
   BookOpen,
   CalendarCheck,
+  Clock3,
   Check,
   ChevronDown,
   CircleUserRound,
@@ -9,8 +10,10 @@ import {
   FolderKanban,
   Gauge,
   Layers3,
+  Hash,
   Lightbulb,
   ListChecks,
+  PauseCircle,
   Settings,
   Sparkles,
   Target,
@@ -30,8 +33,8 @@ const quickStart = [
     text: "Группы — этапы проекта, задачи — конкретные действия, которые можно закрыть.",
   },
   {
-    title: "Добавьте рутину",
-    text: "Повторяющиеся действия оформляйте как привычки и задавайте им недельную норму.",
+    title: "Настройте рутину",
+    text: "Повторяющиеся действия оформляйте как привычки: выберите тип выполнения, расписание и при необходимости свяжите их с проектом или статом.",
   },
   {
     title: "Проверяйте состояние",
@@ -62,8 +65,8 @@ const entities = [
   },
   {
     title: "Привычка",
-    example: "Прогулка — 3 раза в неделю",
-    text: "Регулярное действие. Может быть глобальным или привязанным к проекту.",
+    example: "Прогулка — 30 минут, Пн / Ср / Пт",
+    text: "Регулярное действие. Может считаться галочкой, временем или количеством и связываться с проектом и статом.",
   },
   {
     title: "Веха",
@@ -95,25 +98,25 @@ const appSections = [
     icon: CalendarCheck,
     title: "Рутина",
     caption: "Что нужно повторять",
-    text: "Привычки с недельной нормой. Связанная с проектом привычка учитывается в аналитике соответствующей цели; глобальная — в общем контексте.",
+    text: "Гибкий трекер привычек: галочка, время или количество; N раз в неделю, конкретные дни или ежедневно. Поддерживаются минимум и цель, предпочтительное время, период действия, пауза, проект, стат и скрытие с Главной.",
   },
   {
     icon: BarChart3,
     title: "Аналитика",
     caption: "Как меняется состояние",
-    text: "Текущий прогресс считается только по проектам «Сейчас». Будущие проекты показываются отдельно как портфель. Здесь же ритм привычек, вехи и качество планирования.",
+    text: "Текущий прогресс считается по проектам «Сейчас», а «Позже» и «Стратегия» вынесены в портфель. Аналитика также показывает ритм привычек, вехи, просроченные задачи и качество планирования сроков.",
   },
   {
     icon: Settings,
     title: "Настройки",
     caption: "Как выглядит и ведёт себя приложение",
-    text: "Тема, блоки Главной, отображаемые статы, поведение групп проектов и управление данными.",
+    text: "Светлая, тёмная или системная тема; состав Главной и видимые статы; поведение групп проектов; экспорт, импорт, очистка и сброс данных.",
   },
   {
     icon: CircleUserRound,
     title: "Профиль",
     caption: "Аккаунт и синхронизация",
-    text: "Имя, email, состояние облачного сохранения, безопасность и техническая информация аккаунта.",
+    text: "Отображаемое имя, email и провайдер входа, статус облачной синхронизации, сброс пароля, безопасность и выход из аккаунта.",
   },
 ]
 
@@ -129,12 +132,12 @@ const navItems = [
 const workCycles = [
   {
     title: "Каждый день",
-    text: "Откройте Главную, выберите контекст цели, выполните текущие задачи и отметьте привычки.",
+    text: "Откройте Главную, выберите контекст цели, выполните текущие задачи и внесите фактические результаты привычек.",
     icon: ListChecks,
   },
   {
     title: "Раз в неделю",
-    text: "Посмотрите Аналитику: текущий прогресс, ритм привычек, вехи и качество планирования.",
+    text: "Посмотрите Аналитику: текущий прогресс, портфель, ритм привычек, вехи, просрочки и покрытие сроками.",
     icon: CalendarCheck,
   },
   {
@@ -270,7 +273,7 @@ export function MobileGuideWorkspace() {
             <span className="rounded-full bg-slate-100 px-2.5 py-1.5 dark:bg-slate-800">Задача</span>
           </div>
           <p className="mt-3 text-center text-xs leading-5 text-slate-500 dark:text-slate-400">
-            Привычки поддерживают регулярную работу, а вехи фиксируют значимые результаты.
+            Привычки поддерживают регулярную работу, вехи фиксируют значимые результаты, а проекты и привычки могут прокачивать выбранные статы.
           </p>
         </div>
 
@@ -350,6 +353,104 @@ export function MobileGuideWorkspace() {
         </div>
       </section>
 
+      <section className="scroll-mt-24 space-y-3.5">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-400">
+            Рутина
+          </p>
+          <h2 className="mt-0.5 text-xl font-semibold tracking-tight text-slate-950 dark:text-white">
+            Как работают привычки
+          </h2>
+          <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+            Привычка теперь описывает не только частоту, но и способ измерения результата.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            ["Галочка", "Сделал / не сделал", Check],
+            ["Время", "Фактические минуты", Clock3],
+            ["Количество", "Шаги, страницы и др.", Hash],
+          ].map(([title, text, Icon]) => (
+            <div
+              key={title as string}
+              className="rounded-[20px] border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+            >
+              <span className="flex size-8 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300">
+                <Icon className="size-4" aria-hidden />
+              </span>
+              <p className="mt-2 text-xs font-semibold text-slate-950 dark:text-slate-100">
+                {title}
+              </p>
+              <p className="mt-1 text-[10px] leading-4 text-slate-500 dark:text-slate-400">
+                {text}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="border-b border-slate-100 p-4 dark:border-slate-800">
+            <p className="text-sm font-semibold text-slate-950 dark:text-slate-100">
+              Расписание
+            </p>
+            <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+              Можно выбрать N раз в неделю, конкретные дни недели или ежедневное выполнение.
+            </p>
+          </div>
+
+          <div className="border-b border-slate-100 p-4 dark:border-slate-800">
+            <p className="text-sm font-semibold text-slate-950 dark:text-slate-100">
+              Минимум и цель
+            </p>
+            <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+              Для времени и количества день считается выполненным после достижения минимума. Цель показывает желаемый объём и прогресс внутри дня.
+            </p>
+          </div>
+
+          <div className="border-b border-slate-100 p-4 dark:border-slate-800">
+            <p className="text-sm font-semibold text-slate-950 dark:text-slate-100">
+              Фактический результат
+            </p>
+            <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+              В день выполнения можно сохранить минуты или количество, добавить заметку либо зафиксировать пропуск. Пропуск сохраняется в истории, но не считается выполнением.
+            </p>
+          </div>
+
+          <div className="border-b border-slate-100 p-4 dark:border-slate-800">
+            <p className="text-sm font-semibold text-slate-950 dark:text-slate-100">
+              Связи и статы
+            </p>
+            <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+              Связь с проектом переносит привычку в контекст соответствующей цели. Назначенный стат получает вклад от недельного выполнения привычки.
+            </p>
+          </div>
+
+          <div className="p-4">
+            <div className="flex items-start gap-3">
+              <PauseCircle className="mt-0.5 size-4 shrink-0 text-amber-500" aria-hidden />
+              <div>
+                <p className="text-sm font-semibold text-slate-950 dark:text-slate-100">
+                  Период и пауза
+                </p>
+                <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                  Можно задать даты начала и окончания или поставить привычку на паузу без удаления истории. Предпочтительное время сейчас является настройкой режима, а не push-напоминанием.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-[20px] border border-blue-200 bg-blue-50 p-4 dark:border-blue-500/20 dark:bg-blue-500/10">
+          <p className="text-xs font-semibold text-blue-800 dark:text-blue-300">
+            Как считается compliance
+          </p>
+          <p className="mt-1 text-xs leading-5 text-blue-700/80 dark:text-blue-200/80">
+            Расчёт учитывает реальное расписание, активный период и паузу. Для конкретных дней в норму входят только запланированные дни; для N раз в неделю используется недельная норма.
+          </p>
+        </div>
+      </section>
+
       <section id="statuses" className="scroll-mt-24 space-y-3.5">
         <div>
           <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-400">
@@ -392,6 +493,15 @@ export function MobileGuideWorkspace() {
           </p>
           <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
             Главная и верх Аналитики считают только проекты «Сейчас». «Позже» и «Стратегия» остаются видимыми отдельно и не занижают текущий показатель.
+          </p>
+        </div>
+
+        <div className="rounded-[20px] border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+          <p className="text-xs font-semibold text-slate-950 dark:text-slate-100">
+            Статы персонажа
+          </p>
+          <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+            Стат можно назначить проекту или привычке. Прогресс стата объединяет выполненные задачи связанных проектов и недельное выполнение связанных привычек.
           </p>
         </div>
       </section>
@@ -440,9 +550,10 @@ export function MobileGuideWorkspace() {
               "Не создавайте отдельную цель для каждой мелочи.",
               "Не держите слишком много проектов в фазе «Сейчас».",
               "Формулируйте задачи как конкретные действия.",
-              "Повторяющиеся действия переносите в Рутину.",
+              "Повторяющиеся действия переносите в Рутину и выбирайте подходящий тип измерения.",
               "Используйте группы как этапы проекта, а не случайные папки.",
               "Ставьте дедлайн только там, где дата действительно важна.",
+              "Используйте паузу привычки, если нужно временно остановить её без потери истории.",
               "Регулярно архивируйте то, что больше не требует внимания.",
             ].map((rule) => (
               <li key={rule} className="flex items-start gap-2.5">
