@@ -24,7 +24,7 @@ export function TaskStatusChart({ completed, pending }: TaskStatusChartProps) {
   return (
     <div className="min-w-0 max-w-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
       <h2 className="min-w-0 break-words text-lg font-semibold text-slate-950">
-        Статус задач
+        Статус текущих задач
       </h2>
       {total === 0 ? (
         <p className="mt-6 text-sm text-slate-600">Нет задач для анализа</p>
