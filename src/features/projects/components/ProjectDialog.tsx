@@ -97,8 +97,8 @@ function ProjectDialogFields({
 
   return (
     <>
-      <DialogHeader className="shrink-0 border-b border-slate-100 px-4 py-4 sm:px-5">
-        <DialogTitle className="min-w-0 break-words text-lg text-slate-950">
+      <DialogHeader className="shrink-0 border-b border-slate-100 px-4 py-4 dark:border-slate-800 sm:px-5">
+        <DialogTitle className="min-w-0 break-words text-lg text-slate-950 dark:text-slate-100">
           {initialProject ? "Редактировать проект" : "Новый проект"}
         </DialogTitle>
       </DialogHeader>
@@ -112,7 +112,7 @@ function ProjectDialogFields({
                 id="project-title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="border-slate-300"
+                className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                 placeholder="Например, Подготовка к IELTS"
               />
             </div>
@@ -122,7 +122,7 @@ function ProjectDialogFields({
                 id="project-desc"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="border-slate-300"
+                className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                 rows={3}
               />
             </div>
@@ -135,7 +135,7 @@ function ProjectDialogFields({
                 id="project-stat-type"
                 value={statTypeSelect}
                 onChange={(e) => setStatTypeSelect(e.target.value)}
-                className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 shadow-xs outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/30"
+                className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 shadow-xs outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/30 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
               >
                 <option value="">Не привязано</option>
                 {CHARACTER_STATS.map((s) => (
@@ -151,7 +151,7 @@ function ProjectDialogFields({
                 id="project-phase"
                 value={phase}
                 onChange={(e) => setPhase(e.target.value as ProjectPhase)}
-                className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 shadow-xs outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/30"
+                className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 shadow-xs outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/30 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
               >
                 {PROJECT_PHASES.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -169,7 +169,7 @@ function ProjectDialogFields({
                 id="project-goal"
                 value={goalId}
                 onChange={(e) => setGoalId(e.target.value)}
-                className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 shadow-xs outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/30"
+                className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 shadow-xs outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/30 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
               >
                 <option value="">Без цели</option>
                 {goals.map((goal) => (
@@ -187,12 +187,12 @@ function ProjectDialogFields({
                 type="date"
                 value={targetDate}
                 onChange={(e) => setTargetDate(e.target.value)}
-                className="border-slate-300"
+                className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
               />
             </div>
           </div>
 
-          <div className="flex gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <div className="flex gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/55">
             <Checkbox
               id="project-show-dashboard"
               checked={showOnDashboard}
@@ -202,7 +202,7 @@ function ProjectDialogFields({
             <div className="min-w-0 flex-1">
               <Label
                 htmlFor="project-show-dashboard"
-                className="cursor-pointer text-sm font-medium leading-snug text-slate-950"
+                className="cursor-pointer text-sm font-medium leading-snug text-slate-950 dark:text-slate-100"
               >
                 Показывать плитку на Главной
               </Label>
@@ -211,11 +211,11 @@ function ProjectDialogFields({
         </div>
       </div>
 
-      <DialogFooter className="flex shrink-0 flex-col-reverse gap-2 border-t border-slate-200 bg-slate-50/90 px-4 pb-6 pt-4 sm:flex-row sm:justify-end sm:gap-2 sm:px-6 sm:pb-8">
+      <DialogFooter className="flex shrink-0 flex-col-reverse gap-2 border-t border-slate-200 bg-slate-50/90 px-4 pb-6 pt-4 dark:border-slate-800 dark:bg-slate-950 sm:flex-row sm:justify-end sm:gap-2 sm:px-6 sm:pb-8">
         <Button
           type="button"
           variant="outline"
-          className="min-h-10 w-full border-slate-300 sm:w-auto sm:min-h-9"
+          className="min-h-10 w-full border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 sm:w-auto sm:min-h-9"
           onClick={() => onOpenChange(false)}
         >
           Отмена
@@ -245,7 +245,7 @@ export function ProjectDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton
-        className="flex max-h-[90vh] w-full max-w-[calc(100vw-1.5rem)] flex-col gap-0 overflow-hidden border-slate-200 bg-white p-0 text-slate-950 sm:max-w-xl"
+        className="flex max-h-[90vh] w-full max-w-[calc(100vw-1.5rem)] flex-col gap-0 overflow-hidden border-slate-200 bg-white p-0 text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 sm:max-w-xl"
       >
         {open ? (
           <ProjectDialogFields
