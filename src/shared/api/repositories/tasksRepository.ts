@@ -20,12 +20,32 @@ export async function createTask(
     return repositoryFailure("Supabase не настроен.")
   }
 
+  let order = sortOrder
+  if (order === undefined) {
+    const { data: lastRow, error: orderError } = await supabase
+      .from("tasks")
+      .select("sort_order")
+      .eq("user_id", userId)
+      .eq("group_id", groupId)
+      .order("sort_order", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (orderError) {
+      return repositoryFailure(getRepositoryErrorMessage(orderError))
+    }
+    order =
+      typeof lastRow?.sort_order === "number"
+        ? lastRow.sort_order + 1
+        : 0
+  }
+
   const insert = taskToTaskInsert(
     task,
     userId,
     projectId,
     groupId,
-    sortOrder ?? 0,
+    order,
   )
   const { data, error } = await supabase
     .from("tasks")
