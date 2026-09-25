@@ -51,10 +51,10 @@ export function CloudStateGate({ children }: CloudStateGateProps) {
 
   if (!userId) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-        <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white px-6 py-5 text-center shadow-sm">
-          <p className="text-sm font-semibold text-slate-900">Пользователь не авторизован</p>
-          <p className="mt-2 text-xs text-slate-600">Нет id пользователя в сессии.</p>
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 dark:bg-slate-950">
+        <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white px-6 py-5 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Пользователь не авторизован</p>
+          <p className="mt-2 text-xs text-slate-600 dark:text-slate-400">Нет id пользователя в сессии.</p>
         </div>
       </div>
     )
@@ -62,10 +62,10 @@ export function CloudStateGate({ children }: CloudStateGateProps) {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-        <div className="rounded-2xl border border-slate-200 bg-white px-6 py-5 text-center shadow-sm">
-          <p className="text-sm font-medium text-slate-900">Загружаем данные...</p>
-          <p className="mt-1 text-xs text-slate-500">Life Progress OS</p>
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 dark:bg-slate-950">
+        <div className="rounded-2xl border border-slate-200 bg-white px-6 py-5 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Загружаем данные...</p>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Life Progress OS</p>
         </div>
       </div>
     )
@@ -73,12 +73,12 @@ export function CloudStateGate({ children }: CloudStateGateProps) {
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-        <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white px-6 py-5 text-center shadow-sm">
-          <p className="text-sm font-semibold text-slate-900">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 dark:bg-slate-950">
+        <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white px-6 py-5 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
             Не удалось загрузить данные
           </p>
-          <p className="mt-2 text-xs text-slate-600">{error}</p>
+          <p className="mt-2 text-xs text-slate-600 dark:text-slate-400">{error}</p>
           <button
             type="button"
             onClick={handleRetry}
@@ -93,12 +93,12 @@ export function CloudStateGate({ children }: CloudStateGateProps) {
 
   if (!appState) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-        <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white px-6 py-5 text-center shadow-sm">
-          <p className="text-sm font-semibold text-slate-900">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 dark:bg-slate-950">
+        <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white px-6 py-5 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
             Не удалось инициализировать приложение
           </p>
-          <p className="mt-2 text-xs text-slate-600">Нет данных состояния после загрузки.</p>
+          <p className="mt-2 text-xs text-slate-600 dark:text-slate-400">Нет данных состояния после загрузки.</p>
         </div>
       </div>
     )
@@ -106,10 +106,10 @@ export function CloudStateGate({ children }: CloudStateGateProps) {
 
   if (!user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-        <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white px-6 py-5 text-center shadow-sm">
-          <p className="text-sm font-semibold text-slate-900">Сессия не найдена</p>
-          <p className="mt-2 text-xs text-slate-600">Обновите страницу или войдите снова.</p>
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 dark:bg-slate-950">
+        <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white px-6 py-5 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Сессия не найдена</p>
+          <p className="mt-2 text-xs text-slate-600 dark:text-slate-400">Обновите страницу или войдите снова.</p>
         </div>
       </div>
     )
