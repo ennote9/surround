@@ -424,7 +424,7 @@ export function MobileRoutineWorkspace({
                       const isToday = date === todayISO
                       const active = isHabitActiveOnDate(habit, date)
                       const scheduled = isHabitScheduledOnDate(habit, date)
-                      const enabled = active && scheduled
+                      const enabled = active && scheduled && date <= todayISO
 
                       return (
                         <button
