@@ -21,8 +21,6 @@ import { getTodayISO } from "@/shared/lib/dates"
 import {
   ALL_GOALS_SCOPE,
   getProjectGoalLabel,
-  getScopedHabitsForSelectedGoal,
-  getScopedProjectsForSelectedGoal,
   getSelectedGoalTitle,
   normalizeSelectedGoalId,
 } from "@/shared/lib/selectedGoal"
@@ -51,28 +49,66 @@ export default function DashboardPage() {
     SELECTED_GOAL_STORAGE_KEY,
     ALL_GOALS_SCOPE,
   )
-  const selectedGoalId = normalizeSelectedGoalId(rawSelectedGoalId, state.goals)
-  const selectedGoalTitle = getSelectedGoalTitle(selectedGoalId, state.goals)
-  const scopedProjects = useMemo(
-    () => getScopedProjectsForSelectedGoal(projects, selectedGoalId, state.goals),
-    [projects, selectedGoalId, state.goals],
+  const dashboardGoals = useMemo(
+    () => state.goals.filter((goal) => goal.showOnDashboard !== false),
+    [state.goals],
   )
+  const selectedGoalId = normalizeSelectedGoalId(rawSelectedGoalId, dashboardGoals)
+  const selectedGoalTitle = getSelectedGoalTitle(selectedGoalId, dashboardGoals)
+
+  const scopedProjects = useMemo(() => {
+    if (selectedGoalId !== ALL_GOALS_SCOPE) {
+      return projects.filter(
+        (project) => (project.goalId?.trim() ?? "") === selectedGoalId,
+      )
+    }
+
+    const knownGoalIds = new Set(state.goals.map((goal) => goal.id))
+    const visibleActiveGoalIds = new Set(
+      dashboardGoals
+        .filter((goal) => goal.status === "active")
+        .map((goal) => goal.id),
+    )
+
+    return projects.filter((project) => {
+      const goalId = project.goalId?.trim()
+      if (!goalId || !knownGoalIds.has(goalId)) return true
+      return visibleActiveGoalIds.has(goalId)
+    })
+  }, [projects, selectedGoalId, state.goals, dashboardGoals])
 
   const dashboardProjects = useMemo(
     () => scopedProjects.filter((project) => project.showOnDashboard !== false),
     [scopedProjects],
   )
 
-  const scopedHabits = useMemo(
-    () =>
-      getScopedHabitsForSelectedGoal(
-        habits,
-        scopedProjects,
-        selectedGoalId,
-        state.goals,
-      ),
-    [habits, scopedProjects, selectedGoalId, state.goals],
-  )
+  const scopedHabits = useMemo(() => {
+    const scopedProjectIds = new Set(scopedProjects.map((project) => project.id))
+
+    if (selectedGoalId !== ALL_GOALS_SCOPE) {
+      return habits.filter((habit) => {
+        const projectId = habit.projectId?.trim()
+        if (projectId) return scopedProjectIds.has(projectId)
+        return habit.goalId?.trim() === selectedGoalId
+      })
+    }
+
+    const visibleActiveGoalIds = new Set(
+      dashboardGoals
+        .filter((goal) => goal.status === "active")
+        .map((goal) => goal.id),
+    )
+
+    return habits.filter((habit) => {
+      const projectId = habit.projectId?.trim()
+      if (projectId) return scopedProjectIds.has(projectId)
+
+      const goalId = habit.goalId?.trim()
+      if (goalId) return visibleActiveGoalIds.has(goalId)
+
+      return true
+    })
+  }, [habits, scopedProjects, selectedGoalId, dashboardGoals])
 
   const dashboardHabits = useMemo(
     () =>
@@ -190,7 +226,7 @@ export default function DashboardPage() {
 
       {hasProjectsSection ? (
         <section className="min-w-0 space-y-2">
-          <h2 className="min-w-0 break-words text-base font-semibold text-slate-950">
+          <h2 className="min-w-0 break-words text-base font-semibold text-slate-950 dark:text-slate-100">
             Проекты
           </h2>
           {scopedProjects.length === 0 ? (
