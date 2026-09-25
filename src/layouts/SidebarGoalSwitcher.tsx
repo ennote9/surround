@@ -46,7 +46,7 @@ export function SidebarGoalSwitcher({
   if (collapsed) {
     return (
       <div
-        className="mx-auto flex size-10 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-600"
+        className="mx-auto flex size-10 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
         title={selectedGoalTitle}
       >
         <Target className="size-4" aria-hidden />
@@ -55,8 +55,8 @@ export function SidebarGoalSwitcher({
   }
 
   return (
-    <div className="min-w-0 space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
-      <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-slate-500">
+    <div className="min-w-0 space-y-2 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-3 dark:border-slate-800 dark:bg-slate-950/55">
+      <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500">
         <Target className="size-3.5 shrink-0" aria-hidden />
         <span>Цель</span>
       </div>
@@ -65,7 +65,7 @@ export function SidebarGoalSwitcher({
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            className="flex h-9 w-full min-w-0 items-center justify-between gap-2 rounded-md border border-slate-300 bg-white px-3 text-left text-sm text-slate-950 shadow-xs outline-none transition-colors hover:bg-slate-50 focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/30"
+            className="flex h-10 w-full min-w-0 items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 text-left text-sm font-medium text-slate-800 shadow-xs outline-none transition-colors hover:border-slate-300 hover:bg-white focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:border-slate-600 dark:hover:bg-slate-800"
             aria-label="Текущая цель"
             title={selectedGoalTitle}
           >
@@ -77,7 +77,7 @@ export function SidebarGoalSwitcher({
         <DropdownMenuContent
           align="start"
           sideOffset={6}
-          className="min-w-[240px] max-w-72 border border-slate-200 bg-white p-1 text-slate-950 shadow-lg"
+          className="min-w-[240px] max-w-72 rounded-xl border border-slate-200 bg-white p-1.5 text-slate-950 shadow-xl dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
         >
           <DropdownMenuRadioGroup
             value={selectedGoalId}
@@ -87,25 +87,25 @@ export function SidebarGoalSwitcher({
           >
             <DropdownMenuRadioItem
               value={ALL_GOALS_SCOPE}
-              className="min-h-9 px-2 pr-8 text-sm"
+              className="min-h-10 rounded-lg px-2.5 pr-8 text-sm"
             >
               <span className="truncate">Все активные цели</span>
             </DropdownMenuRadioItem>
 
             {selectableGoals.length > 0 ? (
-              <DropdownMenuSeparator className="bg-slate-200" />
+              <DropdownMenuSeparator className="bg-slate-200 dark:bg-slate-700" />
             ) : null}
 
             {selectableGoals.map((goal) => (
               <DropdownMenuRadioItem
                 key={goal.id}
                 value={goal.id}
-                className="min-h-9 px-2 pr-8 text-sm"
+                className="min-h-10 rounded-lg px-2.5 pr-8 text-sm"
                 title={goal.title}
               >
                 <span className="min-w-0 flex-1 truncate">{goal.title}</span>
                 {goal.status === "later" ? (
-                  <span className="ml-2 shrink-0 text-[11px] text-slate-400">
+                  <span className="ml-2 shrink-0 text-[11px] text-slate-400 dark:text-slate-500">
                     Позже
                   </span>
                 ) : null}
