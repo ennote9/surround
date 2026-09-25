@@ -35,15 +35,18 @@ export function DashboardGoalSwitcher({
       ALL_GOALS_SCOPE,
     )
 
+  const dashboardGoals = state.goals.filter(
+    (goal) => goal.showOnDashboard !== false,
+  )
   const selectedGoalId = normalizeSelectedGoalId(
     rawSelectedGoalId,
-    state.goals,
+    dashboardGoals,
   )
   const selectedGoalTitle = getSelectedGoalTitle(
     selectedGoalId,
-    state.goals,
+    dashboardGoals,
   )
-  const selectableGoals = getSelectableGoals(state.goals)
+  const selectableGoals = getSelectableGoals(dashboardGoals)
 
   useEffect(() => {
     if (rawSelectedGoalId !== selectedGoalId) {
@@ -84,7 +87,7 @@ export function DashboardGoalSwitcher({
           value={selectedGoalId}
           onValueChange={(value) =>
             setSelectedGoalId(
-              normalizeSelectedGoalId(value, state.goals),
+              normalizeSelectedGoalId(value, dashboardGoals),
             )
           }
         >
