@@ -195,14 +195,19 @@ export default function DashboardPage() {
   const dashboardLeftColumn = (
     <>
       {hasSummarySection ? (
-        <section className="min-w-0 space-y-2">
-          <h2 className="min-w-0 break-words text-base font-semibold text-slate-950 dark:text-slate-100">
-            Сводка
-          </h2>
+        <section className="min-w-0 space-y-3">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500">
+              Сегодня
+            </p>
+            <h2 className="mt-1 min-w-0 break-words text-lg font-semibold tracking-tight text-slate-950 dark:text-slate-100">
+              Сводка
+            </h2>
+          </div>
           <div
             className={cn(
               "grid min-w-0 grid-cols-1 items-start gap-4",
-              showOverall && showToday && "md:grid-cols-2 md:gap-3",
+              showOverall && showToday && "md:grid-cols-2 md:gap-4",
             )}
           >
             {showOverall ? (
@@ -225,10 +230,22 @@ export default function DashboardPage() {
       ) : null}
 
       {hasProjectsSection ? (
-        <section className="min-w-0 space-y-2">
-          <h2 className="min-w-0 break-words text-base font-semibold text-slate-950 dark:text-slate-100">
-            Проекты
-          </h2>
+        <section className="min-w-0 space-y-3">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500">
+                В работе
+              </p>
+              <h2 className="mt-1 min-w-0 break-words text-lg font-semibold tracking-tight text-slate-950 dark:text-slate-100">
+                Проекты
+              </h2>
+            </div>
+            {dashboardProjects.length > 0 ? (
+              <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                {dashboardProjects.length}
+              </span>
+            ) : null}
+          </div>
           {scopedProjects.length === 0 ? (
             <div className="min-w-0 w-full max-w-full rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
               <p className="break-words text-sm font-medium text-slate-950 dark:text-slate-100">
@@ -264,7 +281,7 @@ export default function DashboardPage() {
               </Button>
             </div>
           ) : (
-            <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2 md:gap-3">
+            <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
               {dashboardProjects.map((project) => (
                 <ProjectSummaryCard
                   key={project.id}
@@ -281,7 +298,7 @@ export default function DashboardPage() {
   )
 
   return (
-    <div className="mx-auto min-w-0 w-full max-w-5xl">
+    <div className="mx-auto min-w-0 w-full max-w-[1480px]">
       {!anyWidgetEnabled ? (
         <div className="min-w-0 w-full max-w-full rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
           <p className="break-words text-sm font-medium text-slate-950 dark:text-slate-100">
@@ -315,21 +332,31 @@ export default function DashboardPage() {
             onOpenProject={handleOpenProject}
           />
 
-          <div className="hidden space-y-4 md:block lg:space-y-5">
-            <header className="flex min-w-0 items-center justify-between gap-4">
-              <h1 className="text-balance break-words text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-100 sm:text-3xl">
-                Главная
-              </h1>
-              <DashboardGoalSwitcher className="max-w-[360px]" />
+          <div className="hidden space-y-6 md:block xl:space-y-7">
+            <header className="flex min-w-0 items-end justify-between gap-8">
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">
+                  Life Progress OS
+                </p>
+                <h1 className="mt-1 text-balance break-words text-[32px] font-semibold tracking-[-0.025em] text-slate-950 dark:text-slate-100">
+                  Главная
+                </h1>
+                <p className="mt-1.5 truncate text-sm text-slate-500 dark:text-slate-400">
+                  {selectedGoalId === ALL_GOALS_SCOPE
+                    ? "Общая картина по активным целям, проектам и привычкам"
+                    : `Фокус: ${selectedGoalTitle}`}
+                </p>
+              </div>
+              <DashboardGoalSwitcher className="max-w-[380px]" />
             </header>
 
             {hasLeftColumn && hasStatsSection ? (
-              <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)] xl:gap-5">
-                <div className="min-w-0 space-y-4 lg:space-y-5">
+              <div className="grid min-w-0 grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.5fr)_minmax(390px,0.78fr)] 2xl:grid-cols-[minmax(0,1.6fr)_minmax(420px,0.72fr)]">
+                <div className="min-w-0 space-y-6">
                   {dashboardLeftColumn}
                 </div>
 
-                <aside className="min-w-0">
+                <aside className="min-w-0 xl:sticky xl:top-7 xl:self-start">
                   <MetricsGrid
                     projects={scopedProjects}
                     habits={scopedHabits}
@@ -338,7 +365,7 @@ export default function DashboardPage() {
                 </aside>
               </div>
             ) : hasLeftColumn ? (
-              <div className="min-w-0 space-y-4 lg:space-y-5">
+              <div className="min-w-0 space-y-6">
                 {dashboardLeftColumn}
               </div>
             ) : hasStatsSection ? (
