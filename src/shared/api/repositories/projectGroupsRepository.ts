@@ -27,7 +27,26 @@ export async function createProjectGroup(
     return repositoryFailure("Supabase не настроен.")
   }
 
-  const order = sortOrder ?? 0
+  let order = sortOrder
+  if (order === undefined) {
+    const { data: lastRow, error: orderError } = await supabase
+      .from("project_groups")
+      .select("sort_order")
+      .eq("user_id", userId)
+      .eq("project_id", projectId)
+      .order("sort_order", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (orderError) {
+      return repositoryFailure(getRepositoryErrorMessage(orderError))
+    }
+    order =
+      typeof lastRow?.sort_order === "number"
+        ? lastRow.sort_order + 1
+        : 0
+  }
+
   const insert = projectGroupToProjectGroupInsert(
     userId,
     projectId,
