@@ -13,7 +13,7 @@ export function AppLayout() {
   )
 
   return (
-    <div className="min-h-screen min-w-0 bg-slate-50 text-slate-950">
+    <div className="min-h-screen min-w-0 bg-slate-50 text-slate-950 dark:bg-slate-950 dark:text-slate-100">
       <Sidebar
         collapsed={isSidebarCollapsed}
         onToggleCollapsed={() => setIsSidebarCollapsed((value) => !value)}
@@ -21,13 +21,13 @@ export function AppLayout() {
       <div
         className={cn(
           "min-h-screen min-w-0 w-full max-w-full overflow-x-hidden transition-[padding] duration-200 ease-out",
-          isSidebarCollapsed ? "lg:pl-20" : "lg:pl-72",
+          isSidebarCollapsed ? "lg:pl-[76px]" : "lg:pl-64",
         )}
       >
         <MobileNav />
         <main
           className={cn(
-            "min-w-0 w-full max-w-full px-4 pt-6 lg:px-8 lg:py-8",
+            "min-w-0 w-full max-w-full px-4 pt-6 lg:px-7 lg:py-7 xl:px-8 2xl:px-10 2xl:py-8",
             /* ~pb-24 + safe area: clears fixed bottom bar (4rem + inset) + breathing room */
             "pb-[calc(6rem+env(safe-area-inset-bottom,0px))] lg:pb-8",
           )}
