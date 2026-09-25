@@ -2,6 +2,7 @@ import { Check, Pencil, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
+import { getTodayISO } from "@/shared/lib/dates"
 import {
   getHabitCompletionType,
   getHabitScheduleMode,
@@ -63,6 +64,7 @@ export function HabitRow({
 }: HabitRowProps) {
   const completionType = getHabitCompletionType(habit)
   const paused = habit.settings?.period?.paused === true
+  const todayISO = getTodayISO()
 
   return (
     <tr className="border-b border-slate-200 last:border-0 dark:border-slate-800">
@@ -95,7 +97,7 @@ export function HabitRow({
         const entry = habit.dailyEntries?.[date]
         const active = isHabitActiveOnDate(habit, date)
         const scheduled = isHabitScheduledOnDate(habit, date)
-        const enabled = active && scheduled
+        const enabled = active && scheduled && date <= todayISO
 
         return (
           <td
