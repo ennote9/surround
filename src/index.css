@@ -233,11 +233,11 @@ html.dark body {
 .dark .text-indigo-800 { color: #c7d2fe !important; }
 .dark .border-indigo-200 { border-color: rgb(99 102 241 / 0.45) !important; }
 
-.dark .hover\\:bg-slate-50:hover { background-color: #111827 !important; }
-.dark .hover\\:bg-slate-100:hover { background-color: #1e293b !important; }
-.dark .hover\\:text-slate-950:hover { color: #f8fafc !important; }
-.dark .hover\\:text-slate-900:hover { color: #f1f5f9 !important; }
-.dark .hover\\:border-slate-300:hover { border-color: #64748b !important; }
+.dark .hover\:bg-slate-50:hover { background-color: #111827 !important; }
+.dark .hover\:bg-slate-100:hover { background-color: #1e293b !important; }
+.dark .hover\:text-slate-950:hover { color: #f8fafc !important; }
+.dark .hover\:text-slate-900:hover { color: #f1f5f9 !important; }
+.dark .hover\:border-slate-300:hover { border-color: #64748b !important; }
 
 .dark input,
 .dark textarea,
