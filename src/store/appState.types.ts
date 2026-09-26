@@ -133,11 +133,44 @@ export type HabitSettings = {
   showOnDashboard?: boolean
 }
 
+export type HabitEntryStatus =
+  | "planned"
+  | "completed"
+  | "partial"
+  | "skipped"
+  | "rescheduled"
+
+export type HabitEntryReason =
+  | "no-time"
+  | "fatigue"
+  | "forgot"
+  | "health"
+  | "no-conditions"
+  | "motivation"
+  | "plan-too-hard"
+  | "other"
+
+export type HabitEntryLoad = "low" | "normal" | "high"
+
 export type HabitEntry = {
   completed: boolean
   value?: number
   note?: string
   skipped?: boolean
+  /** Structured daily outcome; absent on legacy entries. */
+  status?: HabitEntryStatus
+  /** Structured reason used for later analytics. */
+  reason?: HabitEntryReason
+  /** Optional positive context: what helped this time. */
+  helped?: string
+  /** Destination date when the occurrence was moved. */
+  rescheduledTo?: string
+  /** Time the outcome was recorded. */
+  recordedAt?: string
+  /** Optional subjective energy score from 1 to 5. */
+  energy?: 1 | 2 | 3 | 4 | 5
+  /** Optional perceived workload. */
+  load?: HabitEntryLoad
 }
 
 export type Habit = {
