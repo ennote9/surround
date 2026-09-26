@@ -130,6 +130,8 @@ export async function persistHabitAction(
       {
         completed: action.payload.completed,
         skipped: false,
+        status: action.payload.completed ? "completed" : "planned",
+        recordedAt: new Date().toISOString(),
       },
     )
     return result.error ? repositoryFailure(result.error) : repositorySuccess(null)
