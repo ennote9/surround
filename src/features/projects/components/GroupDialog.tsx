@@ -40,17 +40,17 @@ function GroupDialogFields({
     <>
       <DialogHeader>
         <DialogTitle>
-          {initialGroup ? "Редактировать группу" : "Новая группа"}
+          {initialGroup ? "Редактировать этап" : "Новый этап"}
         </DialogTitle>
       </DialogHeader>
       <div className="grid gap-2 py-2">
-        <Label htmlFor="group-title">Название группы</Label>
+        <Label htmlFor="group-title">Название этапа</Label>
         <Input
           id="group-title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-          placeholder="Например, Документы"
+          placeholder="Например, Подготовка"
         />
       </div>
       <DialogFooter className="gap-2 sm:gap-0">
