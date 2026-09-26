@@ -88,6 +88,13 @@ export default function RoutinePage() {
     setDeletingHabit(null)
   }
 
+  const openHabitLog = (habitId: string, date: string) => {
+    const habit = habits.find((item) => item.id === habitId)
+    if (habit) {
+      setLoggingHabit({ habit, date })
+    }
+  }
+
   const handleHabitDateAction = (habitId: string, date: string) => {
     const habit = habits.find((item) => item.id === habitId)
     if (!habit) return
@@ -116,6 +123,7 @@ export default function RoutinePage() {
         }
         onAddHabit={openAddHabit}
         onToggleHabitDate={handleHabitDateAction}
+        onOpenHabitLog={openHabitLog}
         onEditHabit={openEditHabit}
         onDeleteHabit={(habitId) => {
           const h = habits.find((x) => x.id === habitId)
@@ -211,7 +219,15 @@ export default function RoutinePage() {
               entry,
             },
           })
-          toast.success(entry.skipped ? "Пропуск сохранён" : "Результат сохранён")
+          toast.success(
+            entry.status === "skipped"
+              ? "Пропуск сохранён"
+              : entry.status === "rescheduled"
+                ? "Перенос сохранён"
+                : entry.status === "partial"
+                  ? "Частичное выполнение сохранено"
+                  : "Результат сохранён",
+          )
           setLoggingHabit(null)
         }}
       />
