@@ -25,7 +25,22 @@ export async function upsertHabitLog(
     completed: entry.completed,
     value: entry.value ?? null,
     note: entry.note ?? null,
-    skipped: entry.skipped ?? false,
+    skipped: entry.skipped ?? entry.status === "skipped",
+    status:
+      entry.status ??
+      (entry.skipped
+        ? "skipped"
+        : entry.completed
+          ? "completed"
+          : entry.value != null && entry.value > 0
+            ? "partial"
+            : "planned"),
+    reason: entry.reason ?? null,
+    helped: entry.helped ?? null,
+    rescheduled_to: entry.rescheduledTo ?? null,
+    recorded_at: entry.recordedAt ?? new Date().toISOString(),
+    energy: entry.energy ?? null,
+    load: entry.load ?? null,
   }
 
   const { error } = await supabase.from("habit_logs").upsert(row, {
