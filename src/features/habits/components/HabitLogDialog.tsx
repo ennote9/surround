@@ -68,6 +68,13 @@ function LogFields({
   onOpenChange: (open: boolean) => void
 }) {
   const existing = habit.dailyEntries?.[date]
+  const today = new Date()
+  const todayISO = [
+    today.getFullYear(),
+    String(today.getMonth() + 1).padStart(2, "0"),
+    String(today.getDate()).padStart(2, "0"),
+  ].join("-")
+  const futureDate = date > todayISO
   const completionType = getHabitCompletionType(habit)
   const minimum = getHabitMinimumValue(habit)
   const target = getHabitTargetValue(habit)
@@ -75,7 +82,11 @@ function LogFields({
 
   const initialStatus = getHabitEntryStatus(existing)
   const [status, setStatus] = useState<HabitEntryStatus>(
-    initialStatus === "planned" ? "completed" : initialStatus,
+    futureDate
+      ? "rescheduled"
+      : initialStatus === "planned"
+        ? "completed"
+        : initialStatus,
   )
   const [value, setValue] = useState(
     existing?.value != null ? String(existing.value) : "",
@@ -177,7 +188,7 @@ function LogFields({
 
       <div className="max-h-[68vh] space-y-4 overflow-y-auto py-2 pr-0.5">
         <div className="grid grid-cols-2 gap-2">
-          {OUTCOMES.map(({ value: outcome, label, icon: Icon }) => {
+          {OUTCOMES.filter((item) => !futureDate || item.value === "rescheduled").map(({ value: outcome, label, icon: Icon }) => {
             const selected = status === outcome
             return (
               <button
