@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { format, parseISO } from "date-fns"
 import { ru } from "date-fns/locale"
 import {
@@ -21,6 +21,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import type { Habit } from "@/store/appState.types"
+import { getHabitEntryStatus } from "@/shared/lib/habitEntries"
+import { RoutineTodayPanel } from "./RoutineTodayPanel"
+import { RoutineInsights } from "./RoutineInsights"
 import {
   getHabitCompletionType,
   getHabitScheduleMode,
@@ -42,6 +45,7 @@ type MobileRoutineWorkspaceProps = {
   onNextWeek: () => void
   onAddHabit: () => void
   onToggleHabitDate: (habitId: string, date: string) => void
+  onOpenHabitLog: (habitId: string, date: string) => void
   onEditHabit: (habitId: string) => void
   onDeleteHabit: (habitId: string) => void
 }
@@ -147,6 +151,7 @@ export function MobileRoutineWorkspace({
   onNextWeek,
   onAddHabit,
   onToggleHabitDate,
+  onOpenHabitLog,
   onEditHabit,
   onDeleteHabit,
 }: MobileRoutineWorkspaceProps) {
@@ -159,6 +164,16 @@ export function MobileRoutineWorkspace({
     ),
   )
   const viewingCurrentWeek = weekDates[0] === currentWeekStartISO
+  const initialSelectedDate = weekDates.includes(todayISO)
+    ? todayISO
+    : (weekDates[0] ?? todayISO)
+  const [selectedDate, setSelectedDate] = useState(initialSelectedDate)
+
+  useEffect(() => {
+    if (!weekDates.includes(selectedDate)) {
+      setSelectedDate(weekDates.includes(todayISO) ? todayISO : (weekDates[0] ?? todayISO))
+    }
+  }, [selectedDate, todayISO, weekDates])
 
   const weeklyStats = useMemo(() => {
     const possible = habits.reduce(
@@ -221,6 +236,18 @@ export function MobileRoutineWorkspace({
           <Plus className="size-5" aria-hidden />
         </Button>
       </header>
+
+      {habits.length > 0 ? (
+        <RoutineTodayPanel
+          habits={habits}
+          weekDates={weekDates}
+          selectedDate={selectedDate}
+          todayISO={todayISO}
+          onSelectDate={setSelectedDate}
+          onQuickToggle={onToggleHabitDate}
+          onOpenLog={onOpenHabitLog}
+        />
+      ) : null}
 
       <section className="overflow-hidden rounded-[28px] bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-700 p-5 text-white shadow-lg shadow-blue-950/10 dark:from-blue-600 dark:via-indigo-700 dark:to-slate-900 dark:shadow-black/20">
         <div className="flex items-start justify-between gap-4">
@@ -377,6 +404,14 @@ export function MobileRoutineWorkspace({
                       >
                         <DropdownMenuItem
                           className="gap-2 px-2.5 py-2"
+                          onSelect={() => onOpenHabitLog(habit.id, selectedDate)}
+                          disabled={selectedDate > todayISO}
+                        >
+                          <Check className="size-4" aria-hidden />
+                          Отметка выбранного дня
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="gap-2 px-2.5 py-2"
                           onSelect={() => onEditHabit(habit.id)}
                         >
                           <Pencil className="size-4" aria-hidden />
@@ -421,6 +456,7 @@ export function MobileRoutineWorkspace({
                     {weekDates.map((date, index) => {
                       const done = habit.dailyStatus[date] === true
                       const entry = habit.dailyEntries?.[date]
+                      const entryStatus = getHabitEntryStatus(entry)
                       const isToday = date === todayISO
                       const active = isHabitActiveOnDate(habit, date)
                       const scheduled = isHabitScheduledOnDate(habit, date)
@@ -437,7 +473,7 @@ export function MobileRoutineWorkspace({
                               ? "flex min-w-0 flex-col items-center gap-1.5"
                               : "flex min-w-0 flex-col items-center gap-1.5 opacity-35"
                           }
-                          aria-label={`${habit.name}, ${date}, ${enabled ? (done ? "выполнено" : "не выполнено") : "не запланировано"}`}
+                          aria-label={`${habit.name}, ${date}, ${enabled ? entryStatus : "не запланировано"}`}
                         >
                           <span
                             className={
@@ -450,23 +486,29 @@ export function MobileRoutineWorkspace({
                           </span>
                           <span
                             className={
-                              entry?.skipped
+                              entryStatus === "skipped"
                                 ? "flex size-9 items-center justify-center rounded-xl bg-amber-50 text-xs font-semibold text-amber-600 dark:bg-amber-500/10 dark:text-amber-300"
-                                : done
-                                  ? "flex size-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm shadow-blue-600/20"
-                                  : entry?.value != null
-                                    ? "flex size-9 items-center justify-center rounded-xl border border-amber-300 bg-amber-50 text-[10px] font-semibold text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300"
-                                    : isToday
-                                      ? "flex size-9 items-center justify-center rounded-xl border border-blue-500 bg-blue-50 text-xs font-medium text-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
-                                      : "flex size-9 items-center justify-center rounded-xl bg-slate-100 text-xs font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                                : entryStatus === "rescheduled"
+                                  ? "flex size-9 items-center justify-center rounded-xl bg-violet-50 text-xs font-semibold text-violet-600 dark:bg-violet-500/10 dark:text-violet-300"
+                                  : done
+                                    ? "flex size-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm shadow-blue-600/20"
+                                    : entryStatus === "partial"
+                                      ? "flex size-9 items-center justify-center rounded-xl border border-amber-300 bg-amber-50 text-[10px] font-semibold text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300"
+                                      : isToday
+                                        ? "flex size-9 items-center justify-center rounded-xl border border-blue-500 bg-blue-50 text-xs font-medium text-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
+                                        : "flex size-9 items-center justify-center rounded-xl bg-slate-100 text-xs font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400"
                             }
                           >
-                            {entry?.skipped ? (
+                            {entryStatus === "skipped" ? (
                               "—"
+                            ) : entryStatus === "rescheduled" ? (
+                              "→"
                             ) : entry?.value != null && completionType !== "check" ? (
                               formatEntryValue(entry.value)
                             ) : done ? (
                               <Check className="size-4" aria-hidden />
+                            ) : entryStatus === "partial" ? (
+                              "½"
                             ) : (
                               format(parseISO(date), "d", { locale: ru })
                             )}
@@ -496,6 +538,10 @@ export function MobileRoutineWorkspace({
           </div>
         </section>
       )}
+
+      {habits.length > 0 ? (
+        <RoutineInsights habits={habits} todayISO={todayISO} />
+      ) : null}
     </div>
   )
 }
