@@ -274,8 +274,6 @@ export default function ProjectsPage() {
       <MobileProjectsWorkspace
         projects={scopedProjects}
         goals={state.goals}
-        selectedProject={selectedProject}
-        selectedProjectId={selectedProjectId}
         selectedGoalTitle={getSelectedGoalTitle(selectedGoalId, state.goals)}
         onSelectProject={setSelectedProjectId}
         onAddProject={openAddProject}
