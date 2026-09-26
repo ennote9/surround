@@ -119,10 +119,18 @@ export type HabitTiming = {
   endTime?: string
 }
 
+export type HabitPauseRange = {
+  startDate: string
+  endDate: string
+  reason?: string
+}
+
 export type HabitPeriod = {
   startDate?: string
   endDate?: string
   paused?: boolean
+  /** Date ranges intentionally excluded from routine calculations. */
+  pauseRanges?: HabitPauseRange[]
 }
 
 export type HabitSettings = {
