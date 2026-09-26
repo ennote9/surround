@@ -194,13 +194,22 @@ export function RoutineTodayPanel({
                       "Отметить"
                     )}
                   </Button>
+                ) : future && status === "planned" ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="rounded-xl border-slate-300 dark:border-slate-700 dark:bg-slate-900"
+                    onClick={() => onOpenLog(habit.id, selectedDate)}
+                  >
+                    Перенести
+                  </Button>
                 ) : (
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
                     className="size-9 rounded-xl text-slate-500 dark:text-slate-400"
-                    disabled={future}
                     onClick={() => onOpenLog(habit.id, selectedDate)}
                     aria-label="Открыть отметку"
                   >
