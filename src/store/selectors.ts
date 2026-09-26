@@ -106,10 +106,18 @@ export function isHabitActiveOnDate(habit: Habit, date: string): boolean {
   const startDate = habit.settings?.period?.startDate
   const endDate = habit.settings?.period?.endDate
   const createdDate = habit.createdAt.slice(0, 10)
+  const pauseRanges = habit.settings?.period?.pauseRanges ?? []
 
   if (createdDate && date < createdDate) return false
   if (startDate && date < startDate) return false
   if (endDate && date > endDate) return false
+  if (
+    pauseRanges.some(
+      (range) => date >= range.startDate && date <= range.endDate,
+    )
+  ) {
+    return false
+  }
   return true
 }
 
