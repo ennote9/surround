@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { format, parseISO } from "date-fns"
 import { ru } from "date-fns/locale"
 import {
+  BarChart3,
   CalendarDays,
   Check,
   ChevronLeft,
@@ -46,6 +47,7 @@ type MobileRoutineWorkspaceProps = {
   onAddHabit: () => void
   onToggleHabitDate: (habitId: string, date: string) => void
   onOpenHabitLog: (habitId: string, date: string) => void
+  onOpenHabitDetails: (habitId: string) => void
   onEditHabit: (habitId: string) => void
   onDeleteHabit: (habitId: string) => void
 }
@@ -152,6 +154,7 @@ export function MobileRoutineWorkspace({
   onAddHabit,
   onToggleHabitDate,
   onOpenHabitLog,
+  onOpenHabitDetails,
   onEditHabit,
   onDeleteHabit,
 }: MobileRoutineWorkspaceProps) {
@@ -409,6 +412,13 @@ export function MobileRoutineWorkspace({
                         >
                           <Check className="size-4" aria-hidden />
                           Отметка выбранного дня
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="gap-2 px-2.5 py-2"
+                          onSelect={() => onOpenHabitDetails(habit.id)}
+                        >
+                          <BarChart3 className="size-4" aria-hidden />
+                          История и анализ
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="gap-2 px-2.5 py-2"
