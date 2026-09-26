@@ -313,21 +313,21 @@ export function ProjectView({
         </div>
       </div>
 
-      <div className="mt-4 rounded-2xl border border-blue-200 bg-blue-50/70 p-4">
+      <div className="mt-4 rounded-2xl border border-blue-200 bg-blue-50/70 p-4 dark:border-blue-500/20 dark:bg-blue-500/10">
         <div className="flex items-start gap-3">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Flag className="size-4" />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-medium uppercase tracking-wide text-blue-700">
+            <p className="text-xs font-medium uppercase tracking-wide text-blue-700 dark:text-blue-300">
               Следующий шаг
             </p>
             {nextTask ? (
               <>
-                <p className="mt-1 break-words text-sm font-semibold text-slate-950">
+                <p className="mt-1 break-words text-sm font-semibold text-slate-950 dark:text-slate-100">
                   {nextTask.task.title}
                 </p>
-                <p className="mt-1 text-xs text-slate-600">
+                <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
                   Этап: {nextTask.group.title}
                   {nextTask.task.deadline
                     ? " · До " + formatDateOnly(nextTask.task.deadline)
@@ -347,7 +347,7 @@ export function ProjectView({
               </>
             ) : (
               <>
-                <p className="mt-1 text-sm font-semibold text-slate-950">
+                <p className="mt-1 text-sm font-semibold text-slate-950 dark:text-slate-100">
                   {stats.total > 0 ? "Все задачи выполнены" : "Задач пока нет"}
                 </p>
                 <p className="mt-1 text-xs text-slate-600">
@@ -359,7 +359,7 @@ export function ProjectView({
             )}
           </div>
           {overdue > 0 ? (
-            <span className="shrink-0 rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-red-200">
+            <span className="shrink-0 rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-red-200 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-500/20">
               {overdue} просрочено
             </span>
           ) : null}
