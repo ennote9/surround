@@ -4,6 +4,7 @@ import { addWeeks } from "date-fns"
 import { startOfWeek } from "date-fns"
 import { DeleteHabitDialog } from "@/features/habits/components/DeleteHabitDialog"
 import { HabitDialog, type HabitFormValues } from "@/features/habits/components/HabitDialog"
+import { HabitDetailDialog } from "@/features/habits/components/HabitDetailDialog"
 import { HabitLogDialog } from "@/features/habits/components/HabitLogDialog"
 import { HabitTable } from "@/features/habits/components/HabitTable"
 import { HabitWeekControls } from "@/features/habits/components/HabitWeekControls"
@@ -31,6 +32,7 @@ export default function RoutinePage() {
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null)
 
   const [deletingHabit, setDeletingHabit] = useState<Habit | null>(null)
+  const [detailHabit, setDetailHabit] = useState<Habit | null>(null)
   const [loggingHabit, setLoggingHabit] = useState<{
     habit: Habit
     date: string
@@ -124,6 +126,10 @@ export default function RoutinePage() {
         onAddHabit={openAddHabit}
         onToggleHabitDate={handleHabitDateAction}
         onOpenHabitLog={openHabitLog}
+        onOpenHabitDetails={(habitId) => {
+          const h = habits.find((item) => item.id === habitId)
+          if (h) setDetailHabit(h)
+        }}
         onEditHabit={openEditHabit}
         onDeleteHabit={(habitId) => {
           const h = habits.find((x) => x.id === habitId)
@@ -185,6 +191,10 @@ export default function RoutinePage() {
             habits={habits}
             weekDates={weekDates}
             onToggleHabitDate={handleHabitDateAction}
+            onOpenHabitDetails={(habitId) => {
+              const h = habits.find((item) => item.id === habitId)
+              if (h) setDetailHabit(h)
+            }}
             onEditHabit={openEditHabit}
             onDeleteHabit={(habitId) => {
               const h = habits.find((x) => x.id === habitId)
@@ -230,6 +240,14 @@ export default function RoutinePage() {
           )
           setLoggingHabit(null)
         }}
+      />
+
+      <HabitDetailDialog
+        open={detailHabit !== null}
+        onOpenChange={(open) => {
+          if (!open) setDetailHabit(null)
+        }}
+        habit={detailHabit}
       />
 
       <DeleteHabitDialog
