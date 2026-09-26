@@ -288,6 +288,9 @@ function HabitDialogFields({
           ...(periodStart ? { startDate: periodStart } : {}),
           ...(periodEnd ? { endDate: periodEnd } : {}),
           paused,
+          ...(initialHabit?.settings?.period?.pauseRanges?.length
+            ? { pauseRanges: initialHabit.settings.period.pauseRanges }
+            : {}),
         },
         ...(statType ? { statType } : {}),
         showOnDashboard,
