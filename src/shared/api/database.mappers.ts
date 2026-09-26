@@ -175,6 +175,20 @@ function parseHabitSettingsFromDb(value: unknown): Habit["settings"] {
     raw.period && typeof raw.period === "object"
       ? (raw.period as Record<string, unknown>)
       : undefined
+  const pauseRanges = Array.isArray(periodRaw?.pauseRanges)
+    ? periodRaw.pauseRanges
+        .filter((item): item is Record<string, unknown> =>
+          Boolean(item) && typeof item === "object" && !Array.isArray(item),
+        )
+        .map((item) => ({
+          startDate: typeof item.startDate === "string" ? item.startDate : "",
+          endDate: typeof item.endDate === "string" ? item.endDate : "",
+          ...(typeof item.reason === "string" && item.reason.trim()
+            ? { reason: item.reason.trim() }
+            : {}),
+        }))
+        .filter((item) => item.startDate && item.endDate && item.endDate >= item.startDate)
+    : undefined
 
   return {
     target: {
@@ -198,6 +212,7 @@ function parseHabitSettingsFromDb(value: unknown): Habit["settings"] {
       ...(typeof periodRaw?.startDate === "string" ? { startDate: periodRaw.startDate } : {}),
       ...(typeof periodRaw?.endDate === "string" ? { endDate: periodRaw.endDate } : {}),
       paused: periodRaw?.paused === true,
+      ...(pauseRanges && pauseRanges.length > 0 ? { pauseRanges } : {}),
     },
     ...(isCharacterStatType(raw.statType) ? { statType: raw.statType } : {}),
     showOnDashboard: raw.showOnDashboard !== false,
