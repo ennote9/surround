@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   MoreHorizontal,
+  PauseCircle,
   Pencil,
   Plus,
   RefreshCw,
@@ -45,6 +46,7 @@ type MobileRoutineWorkspaceProps = {
   onCurrentWeek: () => void
   onNextWeek: () => void
   onAddHabit: () => void
+  onPauseRoutine: () => void
   onToggleHabitDate: (habitId: string, date: string) => void
   onOpenHabitLog: (habitId: string, date: string) => void
   onOpenHabitDetails: (habitId: string) => void
@@ -152,6 +154,7 @@ export function MobileRoutineWorkspace({
   onCurrentWeek,
   onNextWeek,
   onAddHabit,
+  onPauseRoutine,
   onToggleHabitDate,
   onOpenHabitLog,
   onOpenHabitDetails,
@@ -229,15 +232,27 @@ export function MobileRoutineWorkspace({
             {activeHabits.length} активных · сегодня {todayDone}/{todayHabits.length}
           </p>
         </div>
-        <Button
-          type="button"
-          size="icon"
-          className="size-11 shrink-0 rounded-2xl bg-blue-600 text-white shadow-sm shadow-blue-600/20 hover:bg-blue-700"
-          onClick={onAddHabit}
-          aria-label="Добавить привычку"
-        >
-          <Plus className="size-5" aria-hidden />
-        </Button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="size-11 rounded-2xl border-slate-200 bg-white text-slate-500 shadow-sm hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+            onClick={onPauseRoutine}
+            aria-label="Пауза рутины"
+          >
+            <PauseCircle className="size-5" aria-hidden />
+          </Button>
+          <Button
+            type="button"
+            size="icon"
+            className="size-11 rounded-2xl bg-blue-600 text-white shadow-sm shadow-blue-600/20 hover:bg-blue-700"
+            onClick={onAddHabit}
+            aria-label="Добавить привычку"
+          >
+            <Plus className="size-5" aria-hidden />
+          </Button>
+        </div>
       </header>
 
       {habits.length > 0 ? (
