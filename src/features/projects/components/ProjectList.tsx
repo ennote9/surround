@@ -109,7 +109,7 @@ export function ProjectList({
                     </span>
                     <span className="text-slate-400">·</span>
                     <span>
-                      {progress}% · Групп: {groupCount} · Задач: {stats.total}
+                      {progress}% · Этапов: {groupCount} · Задач: {stats.total}
                     </span>
                   </p>
                   {project.targetDate ? (
