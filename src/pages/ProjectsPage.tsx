@@ -180,13 +180,13 @@ export default function ProjectsPage() {
           patch: { title: values.title },
         },
       })
-      toast.success("Группа обновлена")
+      toast.success("Этап обновлён")
     } else {
       dispatch({
         type: "ADD_GROUP",
         payload: { projectId: groupDialogProjectId, title: values.title },
       })
-      toast.success("Группа создана")
+      toast.success("Этап создан")
     }
   }
 
@@ -463,7 +463,7 @@ export default function ProjectsPage() {
             : deleteTarget.kind === "project"
               ? "Удалить проект?"
               : deleteTarget.kind === "group"
-                ? "Удалить группу?"
+                ? "Удалить этап?"
                 : "Удалить задачу?"
         }
         description={
@@ -472,7 +472,7 @@ export default function ProjectsPage() {
             : deleteTarget.kind === "project"
               ? `Проект «${deleteTarget.name}» и все его группы и задачи будут удалены безвозвратно.`
               : deleteTarget.kind === "group"
-                ? `Группа «${deleteTarget.name}» и все задачи внутри неё будут удалены.`
+                ? `Этап «${deleteTarget.name}» и все задачи внутри него будут удалены.`
                 : `Задача «${deleteTarget.name}» будет удалена.`
         }
         onConfirm={confirmDelete}
