@@ -22,7 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import type { Habit } from "@/store/appState.types"
+import type { Habit, Project } from "@/store/appState.types"
 import { getHabitEntryStatus } from "@/shared/lib/habitEntries"
 import { RoutineTodayPanel } from "./RoutineTodayPanel"
 import { RoutineInsights } from "./RoutineInsights"
@@ -41,6 +41,7 @@ import {
 
 type MobileRoutineWorkspaceProps = {
   habits: Habit[]
+  projects: Project[]
   weekDates: string[]
   onPreviousWeek: () => void
   onCurrentWeek: () => void
@@ -50,6 +51,7 @@ type MobileRoutineWorkspaceProps = {
   onToggleHabitDate: (habitId: string, date: string) => void
   onOpenHabitLog: (habitId: string, date: string) => void
   onOpenHabitDetails: (habitId: string) => void
+  onOpenProject: (projectId: string) => void
   onEditHabit: (habitId: string) => void
   onDeleteHabit: (habitId: string) => void
 }
@@ -149,6 +151,7 @@ function formatEntryValue(value: number): string {
 
 export function MobileRoutineWorkspace({
   habits,
+  projects,
   weekDates,
   onPreviousWeek,
   onCurrentWeek,
@@ -158,6 +161,7 @@ export function MobileRoutineWorkspace({
   onToggleHabitDate,
   onOpenHabitLog,
   onOpenHabitDetails,
+  onOpenProject,
   onEditHabit,
   onDeleteHabit,
 }: MobileRoutineWorkspaceProps) {
@@ -382,6 +386,9 @@ export function MobileRoutineWorkspace({
           <div className="space-y-3">
             {habits.map((habit) => {
               const weeklyCompliance = getHabitWeeklyCompliance(habit, weekDates)
+              const linkedProject = habit.projectId
+                ? projects.find((project) => project.id === habit.projectId)
+                : undefined
               const totalCompliance = getHabitTotalCompliance(habit)
               const targetPerWeek = getHabitWeeklyTarget(habit, weekDates)
               const completionType = getHabitCompletionType(habit)
@@ -467,9 +474,13 @@ export function MobileRoutineWorkspace({
                         На паузе
                       </span>
                     ) : habit.projectId ? (
-                      <span className="truncate rounded-full bg-blue-50 px-2 py-1 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">
-                        Привязана к проекту
-                      </span>
+                      <button
+                        type="button"
+                        onClick={() => onOpenProject(habit.projectId!)}
+                        className="max-w-[180px] truncate rounded-full bg-blue-50 px-2 py-1 text-left text-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
+                      >
+                        {linkedProject?.title ?? "Открыть проект"}
+                      </button>
                     ) : (
                       <span className="rounded-full bg-slate-100 px-2 py-1 dark:bg-slate-800">
                         Глобальная
