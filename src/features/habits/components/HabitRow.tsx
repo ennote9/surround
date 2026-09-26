@@ -1,4 +1,4 @@
-import { Check, Pencil, Trash2 } from "lucide-react"
+import { BarChart3, Check, Pencil, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
@@ -19,6 +19,7 @@ type HabitRowProps = {
   weekCompliance: number
   totalCompliance: number
   onToggleDate: (date: string) => void
+  onOpenDetails: () => void
   onEdit: () => void
   onDelete: () => void
 }
@@ -59,6 +60,7 @@ export function HabitRow({
   weekCompliance,
   totalCompliance,
   onToggleDate,
+  onOpenDetails,
   onEdit,
   onDelete,
 }: HabitRowProps) {
@@ -164,6 +166,16 @@ export function HabitRow({
       </td>
       <td className="whitespace-nowrap px-2 py-2 text-right sm:py-3">
         <div className="flex justify-end gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            className="min-h-10 min-w-10 text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100 sm:min-h-8 sm:min-w-8"
+            aria-label="История и анализ"
+            onClick={onOpenDetails}
+          >
+            <BarChart3 className="size-4" />
+          </Button>
           <Button
             type="button"
             variant="ghost"
