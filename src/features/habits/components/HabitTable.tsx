@@ -13,6 +13,7 @@ type HabitTableProps = {
   habits: Habit[]
   weekDates: string[]
   onToggleHabitDate: (habitId: string, date: string) => void
+  onOpenHabitDetails: (habitId: string) => void
   onEditHabit: (habitId: string) => void
   onDeleteHabit: (habitId: string) => void
 }
@@ -21,6 +22,7 @@ export function HabitTable({
   habits,
   weekDates,
   onToggleHabitDate,
+  onOpenHabitDetails,
   onEditHabit,
   onDeleteHabit,
 }: HabitTableProps) {
@@ -75,6 +77,7 @@ export function HabitTable({
               weekCompliance={getHabitWeeklyCompliance(habit, weekDates)}
               totalCompliance={getHabitTotalCompliance(habit)}
               onToggleDate={(date) => onToggleHabitDate(habit.id, date)}
+              onOpenDetails={() => onOpenHabitDetails(habit.id)}
               onEdit={() => onEditHabit(habit.id)}
               onDelete={() => onDeleteHabit(habit.id)}
             />
