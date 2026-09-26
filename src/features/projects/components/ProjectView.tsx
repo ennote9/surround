@@ -1,4 +1,4 @@
-import { Pencil, Plus, Trash2 } from "lucide-react"
+import { CheckCircle2, Flag, Pencil, Plus, Trash2 } from "lucide-react"
 import { useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
@@ -25,7 +25,13 @@ import {
   PROJECT_GROUPS_COLLAPSE_MODE_STORAGE_KEY,
 } from "@/shared/lib/storageKeys"
 import type { Project } from "@/store/appState.types"
-import { getGroupProgress, getProjectProgress, getProjectTaskStats } from "@/store/selectors"
+import {
+  getGroupProgress,
+  getProjectNextTask,
+  getProjectOverdueTaskCount,
+  getProjectProgress,
+  getProjectTaskStats,
+} from "@/store/selectors"
 import { TaskItem } from "./TaskItem"
 
 type ProjectViewProps = {
@@ -100,6 +106,8 @@ export function ProjectView({
 }: ProjectViewProps) {
   const progress = getProjectProgress(project)
   const stats = getProjectTaskStats(project)
+  const overdue = getProjectOverdueTaskCount(project)
+  const nextTask = getProjectNextTask(project)
   const sortedGroups = useMemo(
     () => [...project.groups].sort((a, b) => a.order - b.order),
     [project.groups],
@@ -300,20 +308,73 @@ export function ProjectView({
             onClick={onAddGroup}
           >
             <Plus className="mr-1 size-4" />
-            Добавить группу
+            Добавить этап
           </Button>
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-blue-200 bg-blue-50/70 p-4">
+        <div className="flex items-start gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white">
+            <Flag className="size-4" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-medium uppercase tracking-wide text-blue-700">
+              Следующий шаг
+            </p>
+            {nextTask ? (
+              <>
+                <p className="mt-1 break-words text-sm font-semibold text-slate-950">
+                  {nextTask.task.title}
+                </p>
+                <p className="mt-1 text-xs text-slate-600">
+                  Этап: {nextTask.group.title}
+                  {nextTask.task.deadline
+                    ? " · До " + formatDateOnly(nextTask.task.deadline)
+                    : ""}
+                </p>
+                <Button
+                  type="button"
+                  size="sm"
+                  className="mt-3 min-h-9 bg-blue-600 text-white hover:bg-blue-700"
+                  onClick={() =>
+                    onToggleTask(nextTask.group.id, nextTask.task.id)
+                  }
+                >
+                  <CheckCircle2 className="mr-1.5 size-4" />
+                  Отметить выполненной
+                </Button>
+              </>
+            ) : (
+              <>
+                <p className="mt-1 text-sm font-semibold text-slate-950">
+                  {stats.total > 0 ? "Все задачи выполнены" : "Задач пока нет"}
+                </p>
+                <p className="mt-1 text-xs text-slate-600">
+                  {stats.total > 0
+                    ? "Можно завершить проект или добавить следующий этап."
+                    : "Добавьте этап и первую задачу."}
+                </p>
+              </>
+            )}
+          </div>
+          {overdue > 0 ? (
+            <span className="shrink-0 rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-red-200">
+              {overdue} просрочено
+            </span>
+          ) : null}
         </div>
       </div>
 
       {sortedGroups.length === 0 ? (
         <div className="py-10 text-center">
-          <p className="text-sm text-slate-600">В проекте пока нет групп задач</p>
+          <p className="text-sm text-slate-600">В проекте пока нет этапов</p>
           <Button
             type="button"
             className="mt-4 min-h-10 w-full max-w-xs bg-blue-600 text-white hover:bg-blue-700 sm:w-auto"
             onClick={onAddGroup}
           >
-            Добавить группу
+            Добавить этап
           </Button>
         </div>
       ) : (
@@ -376,7 +437,7 @@ export function ProjectView({
                       onClick={() => onEditGroup(group.id)}
                     >
                       <Pencil className="mr-1 size-3.5" />
-                      Группа
+                      Этап
                     </Button>
                     <Button
                       type="button"
@@ -402,7 +463,7 @@ export function ProjectView({
                   {group.tasks.length === 0 ? (
                     <div className="py-6 text-center">
                       <p className="text-sm text-slate-600">
-                        В этой группе пока нет задач
+                        В этом этапе пока нет задач
                       </p>
                       <Button
                         type="button"
