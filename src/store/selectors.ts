@@ -296,6 +296,71 @@ export function getProjectTaskStats(project: Project): {
   }
 }
 
+export function getProjectOverdueTaskCount(project: Project): number {
+  const today = getTodayISO()
+  let overdue = 0
+
+  for (const group of project.groups) {
+    for (const task of group.tasks) {
+      if (!task.completed && task.deadline && task.deadline.slice(0, 10) < today) {
+        overdue += 1
+      }
+    }
+  }
+
+  return overdue
+}
+
+export type ProjectNextTask = {
+  task: Task
+  group: TaskGroup
+}
+
+export function getProjectNextTask(project: Project): ProjectNextTask | undefined {
+  const today = getTodayISO()
+  const priorityWeight: Record<NonNullable<Task["priority"]>, number> = {
+    high: 0,
+    medium: 1,
+    low: 2,
+  }
+
+  const candidates = project.groups.flatMap((group) =>
+    group.tasks
+      .filter((task) => !task.completed)
+      .map((task, taskIndex) => ({
+        task,
+        group,
+        taskIndex,
+        groupOrder: group.order,
+      })),
+  )
+
+  candidates.sort((a, b) => {
+    const aDeadline = a.task.deadline?.slice(0, 10)
+    const bDeadline = b.task.deadline?.slice(0, 10)
+    const aOverdue = Boolean(aDeadline && aDeadline < today)
+    const bOverdue = Boolean(bDeadline && bDeadline < today)
+
+    if (aOverdue !== bOverdue) return aOverdue ? -1 : 1
+
+    if (aDeadline && bDeadline && aDeadline !== bDeadline) {
+      return aDeadline.localeCompare(bDeadline)
+    }
+    if (aDeadline && !bDeadline) return -1
+    if (!aDeadline && bDeadline) return 1
+
+    const aPriority = a.task.priority ? priorityWeight[a.task.priority] : 3
+    const bPriority = b.task.priority ? priorityWeight[b.task.priority] : 3
+    if (aPriority !== bPriority) return aPriority - bPriority
+
+    if (a.groupOrder !== b.groupOrder) return a.groupOrder - b.groupOrder
+    return a.taskIndex - b.taskIndex
+  })
+
+  const next = candidates[0]
+  return next ? { task: next.task, group: next.group } : undefined
+}
+
 export function getProjectsForGoal(projects: Project[], goalId: string): Project[] {
   return projects.filter((project) => project.goalId === goalId)
 }
