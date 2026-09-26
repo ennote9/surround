@@ -200,6 +200,13 @@ export type HabitLogRow = {
   value: number | null
   note: string | null
   skipped: boolean
+  status: "planned" | "completed" | "partial" | "skipped" | "rescheduled"
+  reason: string | null
+  helped: string | null
+  rescheduled_to: string | null
+  recorded_at: string | null
+  energy: number | null
+  load: "low" | "normal" | "high" | null
   created_at: string
   updated_at: string
 }
@@ -213,6 +220,13 @@ export type HabitLogInsert = {
   value?: number | null
   note?: string | null
   skipped?: boolean
+  status?: "planned" | "completed" | "partial" | "skipped" | "rescheduled"
+  reason?: string | null
+  helped?: string | null
+  rescheduled_to?: string | null
+  recorded_at?: string | null
+  energy?: number | null
+  load?: "low" | "normal" | "high" | null
 }
 
 export type HabitLogUpdate = Partial<{
@@ -220,6 +234,13 @@ export type HabitLogUpdate = Partial<{
   value: number | null
   note: string | null
   skipped: boolean
+  status: "planned" | "completed" | "partial" | "skipped" | "rescheduled"
+  reason: string | null
+  helped: string | null
+  rescheduled_to: string | null
+  recorded_at: string | null
+  energy: number | null
+  load: "low" | "normal" | "high" | null
 }>
 
 export type MilestoneRow = {
