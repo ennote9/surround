@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import { addWeeks } from "date-fns"
 import { startOfWeek } from "date-fns"
@@ -21,6 +22,7 @@ import { useAppState } from "@/store/useAppState"
 
 export default function RoutinePage() {
   const { state, dispatch } = useAppState()
+  const navigate = useNavigate()
   const habits = state.habits
 
   const [weekStartDate, setWeekStartDate] = useState(() =>
@@ -148,6 +150,7 @@ export default function RoutinePage() {
     <div className="mx-auto min-w-0 w-full max-w-6xl">
       <MobileRoutineWorkspace
         habits={habits}
+        projects={state.projects}
         weekDates={weekDates}
         onPreviousWeek={() =>
           setWeekStartDate((d) => startOfWeek(addWeeks(d, -1), { weekStartsOn: 1 }))
@@ -166,6 +169,9 @@ export default function RoutinePage() {
           const h = habits.find((item) => item.id === habitId)
           if (h) setDetailHabit(h)
         }}
+        onOpenProject={(projectId) =>
+          navigate("/projects", { state: { openProjectId: projectId } })
+        }
         onEditHabit={openEditHabit}
         onDeleteHabit={(habitId) => {
           const h = habits.find((x) => x.id === habitId)
