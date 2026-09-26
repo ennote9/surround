@@ -8,6 +8,10 @@ import { HabitDetailDialog } from "@/features/habits/components/HabitDetailDialo
 import { HabitLogDialog } from "@/features/habits/components/HabitLogDialog"
 import { HabitTable } from "@/features/habits/components/HabitTable"
 import { HabitWeekControls } from "@/features/habits/components/HabitWeekControls"
+import {
+  RoutinePauseDialog,
+  type RoutinePauseValues,
+} from "@/features/habits/components/RoutinePauseDialog"
 import { MobileRoutineWorkspace } from "@/features/habits/components/MobileRoutineWorkspace"
 import { Button } from "@/components/ui/button"
 import { getWeekISODatesFromMonday } from "@/shared/lib/dates"
@@ -29,6 +33,7 @@ export default function RoutinePage() {
   )
 
   const [habitDialogOpen, setHabitDialogOpen] = useState(false)
+  const [routinePauseOpen, setRoutinePauseOpen] = useState(false)
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null)
 
   const [deletingHabit, setDeletingHabit] = useState<Habit | null>(null)
@@ -90,6 +95,36 @@ export default function RoutinePage() {
     setDeletingHabit(null)
   }
 
+  const handleRoutinePause = (values: RoutinePauseValues) => {
+    for (const habit of habits) {
+      const existingRanges = habit.settings?.period?.pauseRanges ?? []
+      const duplicate = existingRanges.some(
+        (range) =>
+          range.startDate === values.startDate &&
+          range.endDate === values.endDate &&
+          (range.reason ?? "") === (values.reason ?? ""),
+      )
+      if (duplicate) continue
+
+      dispatch({
+        type: "UPDATE_HABIT",
+        payload: {
+          id: habit.id,
+          patch: {
+            settings: {
+              ...(habit.settings ?? {}),
+              period: {
+                ...(habit.settings?.period ?? {}),
+                pauseRanges: [...existingRanges, values],
+              },
+            },
+          },
+        },
+      })
+    }
+    toast.success("Пауза рутины сохранена")
+  }
+
   const openHabitLog = (habitId: string, date: string) => {
     const habit = habits.find((item) => item.id === habitId)
     if (habit) {
@@ -124,6 +159,7 @@ export default function RoutinePage() {
           setWeekStartDate((d) => startOfWeek(addWeeks(d, 1), { weekStartsOn: 1 }))
         }
         onAddHabit={openAddHabit}
+        onPauseRoutine={() => setRoutinePauseOpen(true)}
         onToggleHabitDate={handleHabitDateAction}
         onOpenHabitLog={openHabitLog}
         onOpenHabitDetails={(habitId) => {
@@ -147,13 +183,23 @@ export default function RoutinePage() {
               Трекер привычек и ежедневных действий, влияющих на общий прогресс.
             </p>
           </header>
-          <Button
-            type="button"
-            className="min-h-10 w-full shrink-0 bg-blue-600 text-white hover:bg-blue-700 sm:w-auto sm:min-h-9"
-            onClick={openAddHabit}
-          >
-            Добавить привычку
-          </Button>
+          <div className="flex w-full shrink-0 gap-2 sm:w-auto">
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-10 flex-1 border-slate-300 dark:border-slate-700 dark:bg-slate-900 sm:flex-none sm:min-h-9"
+              onClick={() => setRoutinePauseOpen(true)}
+            >
+              Пауза рутины
+            </Button>
+            <Button
+              type="button"
+              className="min-h-10 flex-1 bg-blue-600 text-white hover:bg-blue-700 sm:flex-none sm:min-h-9"
+              onClick={openAddHabit}
+            >
+              Добавить привычку
+            </Button>
+          </div>
         </div>
 
         <HabitWeekControls
@@ -203,6 +249,12 @@ export default function RoutinePage() {
           />
         )}
       </div>
+
+      <RoutinePauseDialog
+        open={routinePauseOpen}
+        onOpenChange={setRoutinePauseOpen}
+        onSubmit={handleRoutinePause}
+      />
 
       <HabitDialog
         open={habitDialogOpen}
