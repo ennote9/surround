@@ -254,7 +254,7 @@ export default function ProjectsPage() {
           groupId: deleteTarget.groupId,
         },
       })
-      toast.success("Группа удалена")
+      toast.success("Этап удалён")
     } else {
       dispatch({
         type: "DELETE_TASK",
@@ -338,7 +338,7 @@ export default function ProjectsPage() {
             Проекты и задачи
           </h1>
           <p className="mt-2 text-pretty text-sm text-slate-600 dark:text-slate-400 sm:mt-3 sm:text-base">
-            Управление проектами, группами задач, дедлайнами и прогрессом.
+            Управление проектами, этапами, задачами, дедлайнами и прогрессом.
           </p>
         </header>
 
@@ -470,7 +470,7 @@ export default function ProjectsPage() {
           !deleteTarget
             ? ""
             : deleteTarget.kind === "project"
-              ? `Проект «${deleteTarget.name}» и все его группы и задачи будут удалены безвозвратно.`
+              ? `Проект «${deleteTarget.name}» и все его этапы и задачи будут удалены безвозвратно.`
               : deleteTarget.kind === "group"
                 ? `Этап «${deleteTarget.name}» и все задачи внутри него будут удалены.`
                 : `Задача «${deleteTarget.name}» будет удалена.`
