@@ -424,6 +424,17 @@ export function buildDailyEntriesFromHabitLogRows(
       ...(log.value !== null ? { value: Number(log.value) } : {}),
       ...(log.note ? { note: log.note } : {}),
       ...(log.skipped ? { skipped: true } : {}),
+      ...(log.status ? { status: log.status } : {}),
+      ...(log.reason
+        ? { reason: log.reason as NonNullable<Habit["dailyEntries"]>[string]["reason"] }
+        : {}),
+      ...(log.helped ? { helped: log.helped } : {}),
+      ...(log.rescheduled_to ? { rescheduledTo: log.rescheduled_to } : {}),
+      ...(log.recorded_at ? { recordedAt: log.recorded_at } : {}),
+      ...(log.energy != null && log.energy >= 1 && log.energy <= 5
+        ? { energy: log.energy as 1 | 2 | 3 | 4 | 5 }
+        : {}),
+      ...(log.load ? { load: log.load } : {}),
     }
   }
   return entries
