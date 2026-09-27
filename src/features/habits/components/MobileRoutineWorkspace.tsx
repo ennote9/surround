@@ -36,6 +36,7 @@ import {
   getHabitWeeklyCompliance,
   getHabitWeeklyTarget,
   isHabitActiveOnDate,
+  isHabitPlannedOnDate,
   isHabitScheduledOnDate,
 } from "@/store/selectors"
 
@@ -203,7 +204,7 @@ export function MobileRoutineWorkspace({
   }, [habits, weekDates])
 
   const todayHabits = habits.filter((habit) =>
-    isHabitScheduledOnDate(habit, todayISO),
+    isHabitPlannedOnDate(habit, todayISO),
   )
   const todayDone = todayHabits.filter(
     (habit) => habit.dailyStatus[todayISO] === true,
@@ -495,7 +496,7 @@ export function MobileRoutineWorkspace({
                       const entryStatus = getHabitEntryStatus(entry)
                       const isToday = date === todayISO
                       const active = isHabitActiveOnDate(habit, date)
-                      const scheduled = isHabitScheduledOnDate(habit, date)
+                      const scheduled = isHabitPlannedOnDate(habit, date)
                       const enabled = active && scheduled && date <= todayISO
 
                       return (
