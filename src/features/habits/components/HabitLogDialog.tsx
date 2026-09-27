@@ -26,8 +26,11 @@ import {
 import {
   getHabitCompletionType,
   getHabitMinimumValue,
+  getHabitScheduleMode,
   getHabitTargetValue,
   getHabitUnit,
+  isHabitActiveOnDate,
+  isHabitPlannedOnDate,
 } from "@/store/selectors"
 import type {
   Habit,
@@ -79,6 +82,7 @@ function LogFields({
   const minimum = getHabitMinimumValue(habit)
   const target = getHabitTargetValue(habit)
   const unit = getHabitUnit(habit)
+  const canReschedule = getHabitScheduleMode(habit) === "specific-days"
 
   const initialStatus = getHabitEntryStatus(existing)
   const [status, setStatus] = useState<HabitEntryStatus>(
@@ -133,12 +137,24 @@ function LogFields({
     }
 
     if (status === "rescheduled") {
+      if (!canReschedule) {
+        setError("Перенос доступен для привычек с конкретными днями недели.")
+        return
+      }
       if (!rescheduledTo) {
         setError("Выбери дату переноса.")
         return
       }
       if (rescheduledTo <= date) {
         setError("Перенос должен быть на более позднюю дату.")
+        return
+      }
+      if (!isHabitActiveOnDate(habit, rescheduledTo)) {
+        setError("Выбранная дата находится вне активного периода привычки.")
+        return
+      }
+      if (isHabitPlannedOnDate(habit, rescheduledTo)) {
+        setError("На эту дату привычка уже запланирована. Выбери свободный день.")
         return
       }
     }
@@ -188,7 +204,11 @@ function LogFields({
 
       <div className="max-h-[68vh] space-y-4 overflow-y-auto py-2 pr-0.5">
         <div className="grid grid-cols-2 gap-2">
-          {OUTCOMES.filter((item) => !futureDate || item.value === "rescheduled").map(({ value: outcome, label, icon: Icon }) => {
+          {OUTCOMES.filter(
+            (item) =>
+              (!futureDate || item.value === "rescheduled") &&
+              (canReschedule || item.value !== "rescheduled"),
+          ).map(({ value: outcome, label, icon: Icon }) => {
             const selected = status === outcome
             return (
               <button
@@ -261,7 +281,7 @@ function LogFields({
           </>
         ) : null}
 
-        {status === "rescheduled" ? (
+        {status === "rescheduled" && canReschedule ? (
           <div className="grid gap-2">
             <Label htmlFor="habit-rescheduled-to">Перенести на</Label>
             <Input
