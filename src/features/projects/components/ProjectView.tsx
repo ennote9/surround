@@ -12,6 +12,7 @@ import { getCharacterStatTitle } from "@/features/dashboard/characterStats"
 import { CharacterStatIcon } from "@/shared/components/CharacterStatIcon"
 import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
 import { formatDateOnly } from "@/shared/lib/dateFormat"
+import { getHabitTimingLabel } from "@/shared/lib/habitEntries"
 import {
   DEFAULT_PROJECT_GROUPS_COLLAPSE_MODE,
   normalizeProjectGroupsCollapseMode,
@@ -24,9 +25,10 @@ import {
   COLLAPSED_PROJECT_GROUPS_STORAGE_KEY,
   PROJECT_GROUPS_COLLAPSE_MODE_STORAGE_KEY,
 } from "@/shared/lib/storageKeys"
-import type { Project } from "@/store/appState.types"
+import type { Habit, Project } from "@/store/appState.types"
 import {
   getGroupProgress,
+  getHabitTotalCompliance,
   getProjectNextTask,
   getProjectOverdueTaskCount,
   getProjectProgress,
@@ -36,6 +38,7 @@ import { TaskItem } from "./TaskItem"
 
 type ProjectViewProps = {
   project: Project
+  habits: Habit[]
   /** Подпись цели из `getProjectGoalLabel` — «Без цели» или название цели */
   goalContextLabel: string
   onEditProject: () => void
@@ -93,6 +96,7 @@ const NO_GOAL_LABEL = "Без цели"
 
 export function ProjectView({
   project,
+  habits,
   goalContextLabel,
   onEditProject,
   onDeleteProject,
@@ -108,6 +112,10 @@ export function ProjectView({
   const stats = getProjectTaskStats(project)
   const overdue = getProjectOverdueTaskCount(project)
   const nextTask = getProjectNextTask(project)
+  const linkedHabits = useMemo(
+    () => habits.filter((habit) => habit.projectId === project.id),
+    [habits, project.id],
+  )
   const sortedGroups = useMemo(
     () => [...project.groups].sort((a, b) => a.order - b.order),
     [project.groups],
@@ -365,6 +373,46 @@ export function ProjectView({
           ) : null}
         </div>
       </div>
+
+      {linkedHabits.length > 0 ? (
+        <section className="mt-4 rounded-2xl border border-slate-200 bg-slate-50/70 p-4 dark:border-slate-800 dark:bg-slate-950/40">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                Поддержка проекта
+              </p>
+              <h3 className="mt-1 text-base font-semibold text-slate-950 dark:text-slate-100">
+                Связанные привычки
+              </h3>
+            </div>
+            <span className="text-xs text-slate-400">
+              {linkedHabits.length}
+            </span>
+          </div>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {linkedHabits.map((habit) => (
+              <div
+                key={habit.id}
+                className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-slate-950 dark:text-slate-100">
+                      {habit.name}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                      {getHabitTimingLabel(habit)}
+                    </p>
+                  </div>
+                  <span className="shrink-0 text-sm font-semibold text-blue-600 dark:text-blue-400">
+                    {getHabitTotalCompliance(habit)}%
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {sortedGroups.length === 0 ? (
         <div className="py-10 text-center">
