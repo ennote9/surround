@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { format, parseISO } from "date-fns"
 import { ru } from "date-fns/locale"
 import {
@@ -178,12 +178,9 @@ export function MobileRoutineWorkspace({
     ? todayISO
     : (weekDates[0] ?? todayISO)
   const [selectedDate, setSelectedDate] = useState(initialSelectedDate)
-
-  useEffect(() => {
-    if (!weekDates.includes(selectedDate)) {
-      setSelectedDate(weekDates.includes(todayISO) ? todayISO : (weekDates[0] ?? todayISO))
-    }
-  }, [selectedDate, todayISO, weekDates])
+  const effectiveSelectedDate = weekDates.includes(selectedDate)
+    ? selectedDate
+    : initialSelectedDate
 
   const weeklyStats = useMemo(() => {
     const possible = habits.reduce(
@@ -263,7 +260,7 @@ export function MobileRoutineWorkspace({
         <RoutineTodayPanel
           habits={habits}
           weekDates={weekDates}
-          selectedDate={selectedDate}
+          selectedDate={effectiveSelectedDate}
           todayISO={todayISO}
           onSelectDate={setSelectedDate}
           onQuickToggle={onToggleHabitDate}
@@ -429,8 +426,8 @@ export function MobileRoutineWorkspace({
                       >
                         <DropdownMenuItem
                           className="gap-2 px-2.5 py-2"
-                          onSelect={() => onOpenHabitLog(habit.id, selectedDate)}
-                          disabled={selectedDate > todayISO}
+                          onSelect={() => onOpenHabitLog(habit.id, effectiveSelectedDate)}
+                          disabled={effectiveSelectedDate > todayISO}
                         >
                           <Check className="size-4" aria-hidden />
                           Отметка выбранного дня
