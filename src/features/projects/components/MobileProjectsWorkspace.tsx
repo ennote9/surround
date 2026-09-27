@@ -28,10 +28,12 @@ import {
   getProjectPhaseBadgeClassName,
   getProjectPhaseTitle,
 } from "@/shared/lib/projectPhases"
+import { getHabitTimingLabel } from "@/shared/lib/habitEntries"
 import { getProjectGoalLabel } from "@/shared/lib/selectedGoal"
-import type { Goal, Project, Task } from "@/store/appState.types"
+import type { Goal, Habit, Project, Task } from "@/store/appState.types"
 import {
   getGroupProgress,
+  getHabitTotalCompliance,
   getProjectNextTask,
   getProjectOverdueTaskCount,
   getProjectProgress,
@@ -41,6 +43,7 @@ import { TaskItem } from "./TaskItem"
 
 type MobileProjectsWorkspaceProps = {
   projects: Project[]
+  habits: Habit[]
   goals: Goal[]
   selectedGoalTitle: string
   onSelectProject: (projectId: string) => void
@@ -160,6 +163,7 @@ function sortProjects(projects: Project[]) {
 
 export function MobileProjectsWorkspace({
   projects,
+  habits,
   goals,
   selectedGoalTitle,
   onSelectProject,
@@ -372,6 +376,7 @@ export function MobileProjectsWorkspace({
   const selectedOverdue = getProjectOverdueTaskCount(detailProject)
   const nextTask = getProjectNextTask(detailProject)
   const goalLabel = getProjectGoalLabel(detailProject, goals)
+  const linkedHabits = habits.filter((habit) => habit.projectId === detailProject.id)
 
   return (
     <div className="space-y-5 md:hidden">
@@ -569,6 +574,41 @@ export function MobileProjectsWorkspace({
           </div>
         )}
       </section>
+
+      {linkedHabits.length > 0 ? (
+        <section className="space-y-3">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-400">
+              Поддержка
+            </p>
+            <h2 className="mt-0.5 text-xl font-semibold tracking-tight text-slate-950 dark:text-white">
+              Связанные привычки
+            </h2>
+          </div>
+          <div className="space-y-2">
+            {linkedHabits.map((habit) => (
+              <div
+                key={habit.id}
+                className="rounded-[20px] border border-slate-200 bg-white p-3.5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-slate-950 dark:text-slate-100">
+                      {habit.name}
+                    </p>
+                    <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                      {getHabitTimingLabel(habit)}
+                    </p>
+                  </div>
+                  <span className="shrink-0 text-sm font-semibold text-blue-600 dark:text-blue-400">
+                    {getHabitTotalCompliance(habit)}%
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="space-y-3">
         <div className="flex items-end justify-between gap-3">
