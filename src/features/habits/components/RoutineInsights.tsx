@@ -34,6 +34,15 @@ export function RoutineInsights({ habits, todayISO }: RoutineInsightsProps) {
     let skipped = 0
     let rescheduled = 0
     let comments = 0
+    const loadStats = {
+      low: { total: 0, completed: 0 },
+      normal: { total: 0, completed: 0 },
+      high: { total: 0, completed: 0 },
+    }
+    const energyStats = {
+      low: { total: 0, completed: 0 },
+      high: { total: 0, completed: 0 },
+    }
 
     for (const habit of habits) {
       for (const entry of Object.values(habit.dailyEntries ?? {})) {
@@ -45,6 +54,17 @@ export function RoutineInsights({ habits, todayISO }: RoutineInsightsProps) {
         if (entry.note?.trim()) comments += 1
         if (entry.reason) {
           reasonCounts.set(entry.reason, (reasonCounts.get(entry.reason) ?? 0) + 1)
+        }
+        if (entry.load) {
+          loadStats[entry.load].total += 1
+          if (status === "completed") loadStats[entry.load].completed += 1
+        }
+        if (entry.energy != null) {
+          const bucket = entry.energy <= 2 ? energyStats.low : entry.energy >= 4 ? energyStats.high : null
+          if (bucket) {
+            bucket.total += 1
+            if (status === "completed") bucket.completed += 1
+          }
         }
       }
     }
@@ -85,6 +105,38 @@ export function RoutineInsights({ habits, todayISO }: RoutineInsightsProps) {
       .filter((item) => item.rate !== null)
       .sort((a, b) => (a.rate ?? 0) - (b.rate ?? 0))[0]
 
+    const highLoadRate =
+      loadStats.high.total >= 2
+        ? Math.round((loadStats.high.completed / loadStats.high.total) * 100)
+        : undefined
+    const normalLoadRate =
+      loadStats.normal.total >= 2
+        ? Math.round((loadStats.normal.completed / loadStats.normal.total) * 100)
+        : undefined
+    const lowEnergyRate =
+      energyStats.low.total >= 2
+        ? Math.round((energyStats.low.completed / energyStats.low.total) * 100)
+        : undefined
+    const highEnergyRate =
+      energyStats.high.total >= 2
+        ? Math.round((energyStats.high.completed / energyStats.high.total) * 100)
+        : undefined
+
+    let contextInsight: string | undefined
+    if (
+      highLoadRate !== undefined &&
+      normalLoadRate !== undefined &&
+      highLoadRate + 15 <= normalLoadRate
+    ) {
+      contextInsight = `При высокой нагрузке выполнение падает до ${highLoadRate}% против ${normalLoadRate}% при обычной.`
+    } else if (
+      lowEnergyRate !== undefined &&
+      highEnergyRate !== undefined &&
+      lowEnergyRate + 15 <= highEnergyRate
+    ) {
+      contextInsight = `При низкой энергии выполнение около ${lowEnergyRate}%, при высокой — ${highEnergyRate}%.`
+    }
+
     return {
       completed,
       partial,
@@ -94,6 +146,7 @@ export function RoutineInsights({ habits, todayISO }: RoutineInsightsProps) {
       topReason,
       weakestDay: weakest ? weekdayLabels[weakest.index] : undefined,
       weakestRate: weakest?.rate ?? undefined,
+      contextInsight,
     }
   }, [habits, todayISO])
 
@@ -177,6 +230,22 @@ export function RoutineInsights({ habits, todayISO }: RoutineInsightsProps) {
               </p>
               <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                 За последние 4 недели выполнено около {insights.weakestRate}% фиксированного плана этого дня.
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {insights.contextInsight ? (
+        <div className="rounded-[22px] border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+          <div className="flex items-start gap-3">
+            <BarChart3 className="mt-0.5 size-4 shrink-0 text-blue-600 dark:text-blue-400" aria-hidden />
+            <div>
+              <p className="text-xs font-semibold text-slate-950 dark:text-slate-100">
+                Контекст выполнения
+              </p>
+              <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                {insights.contextInsight}
               </p>
             </div>
           </div>
