@@ -37,7 +37,6 @@ import {
   getHabitWeeklyTarget,
   isHabitActiveOnDate,
   isHabitPlannedOnDate,
-  isHabitScheduledOnDate,
 } from "@/store/selectors"
 
 type MobileRoutineWorkspaceProps = {
