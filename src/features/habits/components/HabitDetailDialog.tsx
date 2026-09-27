@@ -20,9 +20,9 @@ import {
 } from "@/shared/lib/habitEntries"
 import type { Habit, HabitEntryReason } from "@/store/appState.types"
 import {
+  getHabitIncomingRescheduleSourceDate,
   getHabitTotalCompliance,
-  isHabitActiveOnDate,
-  isHabitScheduledOnDate,
+  isHabitPlannedOnDate,
 } from "@/store/selectors"
 
 type HabitDetailDialogProps = {
@@ -171,9 +171,7 @@ export function HabitDetailDialog({
                 <div className="mt-3 grid grid-cols-7 gap-1.5">
                   {data.days.map((date) => {
                     const status = getHabitEntryStatus(habit.dailyEntries?.[date])
-                    const scheduled =
-                      isHabitActiveOnDate(habit, date) &&
-                      isHabitScheduledOnDate(habit, date)
+                    const scheduled = isHabitPlannedOnDate(habit, date)
                     return (
                       <div
                         key={date}
@@ -235,6 +233,10 @@ export function HabitDetailDialog({
                   <div className="mt-3 space-y-2">
                     {data.entries.map(([date, entry]) => {
                       const status = getHabitEntryStatus(entry)
+                      const rescheduledFrom = getHabitIncomingRescheduleSourceDate(
+                        habit,
+                        date,
+                      )
                       return (
                         <div
                           key={date}
@@ -256,6 +258,11 @@ export function HabitDetailDialog({
                           {entry.helped ? (
                             <p className="mt-1 text-xs text-emerald-700 dark:text-emerald-300">
                               Помогло: {entry.helped}
+                            </p>
+                          ) : null}
+                          {rescheduledFrom ? (
+                            <p className="mt-1 text-xs text-violet-700 dark:text-violet-300">
+                              Перенесено с {format(parseISO(rescheduledFrom), "d MMMM", { locale: ru })}
                             </p>
                           ) : null}
                           {entry.note ? (
