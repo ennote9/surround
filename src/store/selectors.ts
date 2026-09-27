@@ -132,6 +132,33 @@ export function isHabitScheduledOnDate(habit: Habit, date: string): boolean {
   return true
 }
 
+export function getHabitIncomingRescheduleSourceDate(
+  habit: Habit,
+  date: string,
+): string | undefined {
+  return Object.entries(habit.dailyEntries ?? {}).find(
+    ([sourceDate, entry]) =>
+      sourceDate !== date &&
+      entry.status === "rescheduled" &&
+      entry.rescheduledTo === date,
+  )?.[0]
+}
+
+export function isHabitPlannedOnDate(habit: Habit, date: string): boolean {
+  if (!isHabitActiveOnDate(habit, date)) return false
+
+  const ownEntry = habit.dailyEntries?.[date]
+  if (ownEntry?.status === "rescheduled" && ownEntry.rescheduledTo) {
+    return false
+  }
+
+  if (getHabitIncomingRescheduleSourceDate(habit, date)) {
+    return true
+  }
+
+  return isHabitScheduledOnDate(habit, date)
+}
+
 export function getHabitWeeklyTarget(
   habit: Habit,
   weekDates: string[],
@@ -141,9 +168,8 @@ export function getHabitWeeklyTarget(
   if (activeDates.length === 0) return 0
 
   const mode = getHabitScheduleMode(habit)
-  if (mode === "daily") return activeDates.length
-  if (mode === "specific-days") {
-    return activeDates.filter((date) => isHabitScheduledOnDate(habit, date)).length
+  if (mode === "daily" || mode === "specific-days") {
+    return activeDates.filter((date) => isHabitPlannedOnDate(habit, date)).length
   }
   return Math.min(getHabitTargetPerWeek(habit), activeDates.length)
 }
@@ -156,7 +182,7 @@ export function getHabitWeeklyCompleted(
   return weekDates.filter((date) => {
     if (!isHabitActiveOnDate(habit, date)) return false
     if (mode === "specific-days" || mode === "daily") {
-      if (!isHabitScheduledOnDate(habit, date)) return false
+      if (!isHabitPlannedOnDate(habit, date)) return false
     }
     return habit.dailyStatus[date] === true
   }).length
@@ -192,9 +218,8 @@ function expectedForElapsedWeek(
   if (elapsedDates.length === 0) return 0
   const mode = getHabitScheduleMode(habit)
   const activeDates = elapsedDates.filter((date) => isHabitActiveOnDate(habit, date))
-  if (mode === "daily") return activeDates.length
-  if (mode === "specific-days") {
-    return activeDates.filter((date) => isHabitScheduledOnDate(habit, date)).length
+  if (mode === "daily" || mode === "specific-days") {
+    return activeDates.filter((date) => isHabitPlannedOnDate(habit, date)).length
   }
   const weeklyTarget = getHabitTargetPerWeek(habit)
   return Math.min(
