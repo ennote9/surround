@@ -55,7 +55,7 @@ function getStreakStats(habit: Habit) {
   let cursor = new Date(today.getFullYear(), today.getMonth(), today.getDate())
   while (cursor >= startDate) {
     const date = toISO(cursor)
-    if (isHabitActiveOnDate(habit, date) && isHabitScheduledOnDate(habit, date)) {
+    if (isHabitPlannedOnDate(habit, date)) {
       if (habit.dailyStatus[date] === true) {
         current += 1
       } else if (date < toISO(today)) {
@@ -73,7 +73,7 @@ function getStreakStats(habit: Habit) {
     day = addDays(day, 1)
   ) {
     const date = toISO(day)
-    if (!isHabitActiveOnDate(habit, date) || !isHabitScheduledOnDate(habit, date)) {
+    if (!isHabitPlannedOnDate(habit, date)) {
       continue
     }
     if (habit.dailyStatus[date] === true) {
