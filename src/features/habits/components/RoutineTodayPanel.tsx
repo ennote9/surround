@@ -17,8 +17,8 @@ import {
 import type { Habit } from "@/store/appState.types"
 import {
   getHabitCompletionType,
-  isHabitActiveOnDate,
-  isHabitScheduledOnDate,
+  getHabitIncomingRescheduleSourceDate,
+  isHabitPlannedOnDate,
 } from "@/store/selectors"
 
 type RoutineTodayPanelProps = {
@@ -43,11 +43,7 @@ export function RoutineTodayPanel({
   onOpenLog,
 }: RoutineTodayPanelProps) {
   const planned = habits
-    .filter(
-      (habit) =>
-        isHabitActiveOnDate(habit, selectedDate) &&
-        isHabitScheduledOnDate(habit, selectedDate),
-    )
+    .filter((habit) => isHabitPlannedOnDate(habit, selectedDate))
     .sort((a, b) => getHabitTimingOrder(a) - getHabitTimingOrder(b))
 
   const pending = planned.filter((habit) => {
@@ -149,6 +145,10 @@ export function RoutineTodayPanel({
             const status = getHabitEntryStatus(entry)
             const done = status === "completed"
             const completionType = getHabitCompletionType(habit)
+            const rescheduledFrom = getHabitIncomingRescheduleSourceDate(
+              habit,
+              selectedDate,
+            )
 
             return (
               <div
@@ -174,6 +174,7 @@ export function RoutineTodayPanel({
                       ? getHabitTimingLabel(habit)
                       : HABIT_STATUS_LABELS[status]}
                     {entry?.rescheduledTo ? ` · на ${entry.rescheduledTo}` : ""}
+                    {rescheduledFrom ? ` · перенесено с ${rescheduledFrom}` : ""}
                   </p>
                 </div>
 
