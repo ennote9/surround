@@ -273,6 +273,7 @@ export default function ProjectsPage() {
     <div className="mx-auto min-w-0 w-full max-w-6xl">
       <MobileProjectsWorkspace
         projects={scopedProjects}
+        habits={state.habits}
         goals={state.goals}
         selectedGoalTitle={getSelectedGoalTitle(selectedGoalId, state.goals)}
         onSelectProject={setSelectedProjectId}
@@ -355,6 +356,7 @@ export default function ProjectsPage() {
             {scopedProjects.length > 0 && selectedProject ? (
               <ProjectView
                 project={selectedProject}
+                habits={state.habits}
                 goalContextLabel={getProjectGoalLabel(
                   selectedProject,
                   state.goals,
