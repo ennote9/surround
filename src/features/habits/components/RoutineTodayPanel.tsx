@@ -18,6 +18,7 @@ import type { Habit } from "@/store/appState.types"
 import {
   getHabitCompletionType,
   getHabitIncomingRescheduleSourceDate,
+  getHabitScheduleMode,
   isHabitPlannedOnDate,
 } from "@/store/selectors"
 
@@ -195,7 +196,9 @@ export function RoutineTodayPanel({
                       "Отметить"
                     )}
                   </Button>
-                ) : future && status === "planned" ? (
+                ) : future &&
+                  status === "planned" &&
+                  getHabitScheduleMode(habit) === "specific-days" ? (
                   <Button
                     type="button"
                     variant="outline"
@@ -205,6 +208,10 @@ export function RoutineTodayPanel({
                   >
                     Перенести
                   </Button>
+                ) : future && status === "planned" ? (
+                  <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                    Запланировано
+                  </span>
                 ) : (
                   <Button
                     type="button"
