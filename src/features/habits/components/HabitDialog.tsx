@@ -89,6 +89,61 @@ function clampTargetPerWeek(value: number) {
   return Math.max(1, Math.min(7, Math.round(value)))
 }
 
+const HABIT_TEMPLATES = [
+  {
+    id: "language",
+    title: "Язык",
+    name: "Занятие языком",
+    description: "Регулярная практика языка без перегруза.",
+    type: "duration" as HabitCompletionType,
+    target: "30",
+    minimum: "10",
+    unit: "мин",
+    scheduleMode: "specific-days" as HabitScheduleMode,
+    days: [1, 3, 5],
+    time: "evening" as HabitTimePreference,
+  },
+  {
+    id: "reading",
+    title: "Чтение",
+    name: "Чтение",
+    description: "Небольшая ежедневная сессия чтения.",
+    type: "duration" as HabitCompletionType,
+    target: "20",
+    minimum: "10",
+    unit: "мин",
+    scheduleMode: "daily" as HabitScheduleMode,
+    days: [] as number[],
+    time: "evening" as HabitTimePreference,
+  },
+  {
+    id: "training",
+    title: "Тренировка",
+    name: "Тренировка",
+    description: "Регулярная физическая активность.",
+    type: "duration" as HabitCompletionType,
+    target: "45",
+    minimum: "20",
+    unit: "мин",
+    scheduleMode: "specific-days" as HabitScheduleMode,
+    days: [2, 4, 6],
+    time: "evening" as HabitTimePreference,
+  },
+  {
+    id: "walk",
+    title: "Прогулка",
+    name: "Прогулка",
+    description: "Ежедневно выходить на прогулку.",
+    type: "duration" as HabitCompletionType,
+    target: "30",
+    minimum: "10",
+    unit: "мин",
+    scheduleMode: "daily" as HabitScheduleMode,
+    days: [] as number[],
+    time: "day" as HabitTimePreference,
+  },
+] as const
+
 function HabitDialogFields({
   initialHabit,
   projects,
@@ -168,6 +223,28 @@ function HabitDialogFields({
     () => projects.find((project) => project.id === projectId),
     [projectId, projects],
   )
+
+  const applyTemplate = (template: (typeof HABIT_TEMPLATES)[number]) => {
+    setName(template.name)
+    setDescription(template.description)
+    setCompletionType(template.type)
+    setTargetValue(template.target)
+    setMinimumValue(template.minimum)
+    setUnit(template.unit)
+    setScheduleMode(template.scheduleMode)
+    setDaysOfWeek([...template.days])
+    setTargetPerWeek(
+      template.scheduleMode === "daily"
+        ? 7
+        : template.days.length > 0
+          ? template.days.length
+          : 3,
+    )
+    setTimePreference(template.time)
+    setStartTime("")
+    setEndTime("")
+    setError(null)
+  }
 
   const setType = (type: HabitCompletionType) => {
     if (type === completionType) return
@@ -309,6 +386,36 @@ function HabitDialogFields({
 
       <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain py-2 pr-0.5">
         <div className="space-y-5">
+          {!initialHabit ? (
+            <section className="space-y-2.5">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-400">
+                  Быстрый старт
+                </p>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  Выбери шаблон или настрой привычку с нуля.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {HABIT_TEMPLATES.map((template) => (
+                  <button
+                    key={template.id}
+                    type="button"
+                    onClick={() => applyTemplate(template)}
+                    className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-left transition hover:border-blue-300 hover:bg-blue-50/60 dark:border-slate-800 dark:bg-slate-950/55 dark:hover:border-blue-500/30 dark:hover:bg-blue-500/10"
+                  >
+                    <p className="text-sm font-semibold text-slate-950 dark:text-slate-100">
+                      {template.title}
+                    </p>
+                    <p className="mt-0.5 text-[10px] text-slate-500 dark:text-slate-400">
+                      {template.minimum}–{template.target} {template.unit}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
           <section className="space-y-3">
             <div className="grid min-w-0 gap-2">
               <Label htmlFor="habit-name">Название</Label>
