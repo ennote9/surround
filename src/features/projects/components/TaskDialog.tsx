@@ -10,13 +10,17 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import type { Task, TaskPriority } from "@/store/appState.types"
+import { TASK_STATUS_OPTIONS } from "@/shared/lib/workManagement"
+import type { Task, TaskPriority, TaskStatus } from "@/store/appState.types"
 
 export type TaskFormValues = {
   title: string
   deadline?: string
   notes?: string
   priority?: TaskPriority
+  status?: TaskStatus
+  assignee?: string
+  followUpDate?: string
 }
 
 type TaskDialogProps = {
@@ -41,6 +45,11 @@ function TaskDialogFields({
   const [priority, setPriority] = useState<TaskPriority | "">(
     initialTask?.priority ?? "",
   )
+  const [status, setStatus] = useState<TaskStatus>(
+    initialTask?.status ?? (initialTask?.completed ? "done" : "planned"),
+  )
+  const [assignee, setAssignee] = useState(initialTask?.assignee ?? "")
+  const [followUpDate, setFollowUpDate] = useState(initialTask?.followUpDate ?? "")
 
   const handleSubmit = () => {
     const t = title.trim()
@@ -50,6 +59,9 @@ function TaskDialogFields({
       deadline: deadline.trim() || undefined,
       notes: notes.trim() || undefined,
       priority: priority === "" ? undefined : priority,
+      status,
+      assignee: assignee.trim() || undefined,
+      followUpDate: followUpDate.trim() || undefined,
     })
     onOpenChange(false)
   }
@@ -96,6 +108,43 @@ function TaskDialogFields({
             <option value="medium">Средний</option>
             <option value="high">Высокий</option>
           </select>
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="task-status">Статус</Label>
+          <select
+            id="task-status"
+            value={status}
+            onChange={(e) => setStatus(e.target.value as TaskStatus)}
+            className="h-9 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+          >
+            {TASK_STATUS_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-2">
+            <Label htmlFor="task-assignee">Ответственный</Label>
+            <Input
+              id="task-assignee"
+              value={assignee}
+              onChange={(e) => setAssignee(e.target.value)}
+              placeholder="Имя или роль"
+              className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="task-follow-up">Дата контроля</Label>
+            <Input
+              id="task-follow-up"
+              type="date"
+              value={followUpDate}
+              onChange={(e) => setFollowUpDate(e.target.value)}
+              className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+            />
+          </div>
         </div>
         <div className="grid gap-2">
           <Label htmlFor="task-notes">Заметки</Label>
