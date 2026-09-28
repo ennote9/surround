@@ -591,6 +591,18 @@ export default function WorkPage() {
     setFocusCandidate("")
   }
 
+  const isNextActionEligible = (item: WorkTaskRef) => {
+    const status = getTaskStatus(item.task)
+    const deferredFuture =
+      item.task.deferredUntil !== undefined && item.task.deferredUntil > todayISO
+    return (
+      !deferredFuture &&
+      status !== "waiting" &&
+      status !== "delegated" &&
+      status !== "done"
+    )
+  }
+
   const setProjectNextAction = (projectId: string, taskId: string) => {
     const projectTasks = activeTasks.filter((item) => item.projectId === projectId)
     const current = projectTasks.find((item) => item.task.isNextAction)
@@ -600,7 +612,7 @@ export default function WorkPage() {
     }
 
     const next = projectTasks.find((item) => item.task.id === taskId)
-    if (next) {
+    if (next && isNextActionEligible(next)) {
       updateTask(next, { isNextAction: true })
     }
   }
@@ -608,6 +620,10 @@ export default function WorkPage() {
   const toggleNextAction = (item: WorkTaskRef) => {
     if (item.task.isNextAction) {
       updateTask(item, { isNextAction: false })
+      return
+    }
+    if (!isNextActionEligible(item)) {
+      toast.info("Следующий шаг должен быть задачей, которую можно выполнять сейчас.")
       return
     }
     setProjectNextAction(item.projectId, item.task.id)
@@ -917,7 +933,8 @@ export default function WorkPage() {
         <div className="mt-4 grid gap-2 md:grid-cols-2">
           {activeWorkProjects.map((project) => {
             const openTasks = getProjectOpenTasks(project)
-            const current = openTasks.find((item) => item.task.isNextAction)
+            const actionableTasks = openTasks.filter(isNextActionEligible)
+            const current = actionableTasks.find((item) => item.task.isNextAction)
             return (
               <div
                 key={project.id}
@@ -926,8 +943,10 @@ export default function WorkPage() {
                 <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
                   {project.title}
                 </p>
-                {openTasks.length === 0 ? (
-                  <p className="mt-2 text-xs text-slate-400">Открытых задач нет.</p>
+                {actionableTasks.length === 0 ? (
+                  <p className="mt-2 text-xs text-slate-400">
+                    Нет задачи, которую можно назначить следующим шагом.
+                  </p>
                 ) : (
                   <select
                     value={current?.task.id ?? ""}
@@ -941,7 +960,7 @@ export default function WorkPage() {
                     className="mt-2 h-9 w-full rounded-lg border border-slate-300 bg-white px-2.5 text-xs dark:border-slate-700 dark:bg-slate-950"
                   >
                     <option value="">Не выбран</option>
-                    {openTasks.map((item) => (
+                    {actionableTasks.map((item) => (
                       <option key={item.task.id} value={item.task.id}>
                         {item.task.title}
                       </option>
@@ -1067,9 +1086,21 @@ export default function WorkPage() {
                 onAssigneeChange={(assignee) => updateTask(item, { assignee })}
                 onToggleFocus={() => toggleFocus(item.task.id)}
                 onSetNextAction={() => toggleNextAction(item)}
-                onDeferredChange={(deferredUntil) =>
-                  updateTask(item, { deferredUntil })
-                }
+                onDeferredChange={(deferredUntil) => {
+                  updateTask(item, {
+                    deferredUntil,
+                    ...(deferredUntil && deferredUntil > todayISO
+                      ? { isNextAction: false }
+                      : {}),
+                  })
+                  if (
+                    deferredUntil &&
+                    deferredUntil > todayISO &&
+                    activeFocusIds.includes(item.task.id)
+                  ) {
+                    setFocus(activeFocusIds.filter((id) => id !== item.task.id))
+                  }
+                }}
                 onDeferReasonChange={(deferReason) =>
                   updateTask(item, { deferReason })
                 }
