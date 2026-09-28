@@ -32,6 +32,7 @@ function sanitizeAddProjectPayload(
     goalId,
     title,
     description: payload.description?.trim() || undefined,
+    context: payload.context ?? "personal",
     targetDate: payload.targetDate?.trim() || undefined,
     showOnDashboard: payload.showOnDashboard ?? true,
     statType: payload.statType,
@@ -57,6 +58,7 @@ function sanitizeUpdateProjectPatch(
   if ("description" in patch) {
     next.description = patch.description?.trim() || undefined
   }
+  if ("context" in patch) next.context = patch.context ?? "personal"
   if (patch.showOnDashboard !== undefined) {
     next.showOnDashboard = patch.showOnDashboard
   }
