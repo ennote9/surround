@@ -87,6 +87,18 @@ function formatShortDate(value: string): string {
   return format(new Date(`${value}T12:00:00`), "d MMM", { locale: ru })
 }
 
+function offsetISO(value: string, days: number): string {
+  const date = new Date(`${value}T12:00:00`)
+  date.setDate(date.getDate() + days)
+  return format(date, "yyyy-MM-dd")
+}
+
+function priorityWeight(priority?: Task["priority"]): number {
+  if (priority === "high") return 3
+  if (priority === "medium") return 2
+  return 1
+}
+
 function getProjectOpenTasks(project: Project): WorkTaskRef[] {
   return project.groups.flatMap((group) =>
     group.tasks
@@ -311,6 +323,8 @@ export default function WorkPage() {
     state.settings.workDayClosures?.[todayISO]?.note ?? "",
   )
   const [inboxTargets, setInboxTargets] = useState<Record<string, string>>({})
+  const [inboxDeadlines, setInboxDeadlines] = useState<Record<string, string>>({})
+  const [inboxPriorities, setInboxPriorities] = useState<Record<string, Task["priority"]>>({})
 
   const savedWeeklyReview = state.settings.workWeeklyReviews?.[weekStartISO]
   const [reviewWins, setReviewWins] = useState(savedWeeklyReview?.wins ?? "")
@@ -382,9 +396,19 @@ export default function WorkPage() {
     .slice(0, 3)
 
   const activeFocusIds = focusTasks.map((item) => item.task.id)
-  const focusCandidates = focusEligibleTasks.filter(
-    (item) => !activeFocusIds.includes(item.task.id),
-  )
+  const focusCandidates = focusEligibleTasks
+    .filter((item) => !activeFocusIds.includes(item.task.id))
+    .sort((a, b) => {
+      if (a.task.isNextAction !== b.task.isNextAction) {
+        return a.task.isNextAction ? -1 : 1
+      }
+      const priorityDelta =
+        priorityWeight(b.task.priority) - priorityWeight(a.task.priority)
+      if (priorityDelta !== 0) return priorityDelta
+      return (a.task.deadline ?? "9999-99-99").localeCompare(
+        b.task.deadline ?? "9999-99-99",
+      )
+    })
   const inboxItems = state.settings.workInbox ?? []
   const dayClosure = state.settings.workDayClosures?.[todayISO]
 
@@ -437,6 +461,37 @@ export default function WorkPage() {
         b.task.deadline ?? "9999-99-99",
       )
     })
+
+  const dueTodayTasks = activeTasks.filter(
+    (item) => item.task.deadline === todayISO,
+  )
+
+  const attentionIds = new Set<string>([
+    ...activeTasks
+      .filter((item) => item.task.deadline && item.task.deadline < todayISO)
+      .map((item) => item.task.id),
+    ...dueTodayTasks.map((item) => item.task.id),
+    ...dueControlTasks.map((item) => item.task.id),
+    ...deferredDueTasks.map((item) => item.task.id),
+  ])
+
+  const attentionTasks = activeTasks
+    .filter((item) => attentionIds.has(item.task.id))
+    .sort((a, b) => {
+      const deadlineDelta = (a.task.deadline ?? "9999-99-99").localeCompare(
+        b.task.deadline ?? "9999-99-99",
+      )
+      if (deadlineDelta !== 0) return deadlineDelta
+      return priorityWeight(b.task.priority) - priorityWeight(a.task.priority)
+    })
+
+  const controlLaneTasks = activeTasks
+    .filter((item) => CONTROL_STATUSES.has(getTaskStatus(item.task)))
+    .sort((a, b) =>
+      (a.task.followUpDate ?? "9999-99-99").localeCompare(
+        b.task.followUpDate ?? "9999-99-99",
+      ),
+    )
 
   const staleInProgress = inProgressTasks.filter((item) => {
     const since = dateOnly(item.task.statusChangedAt ?? item.task.updatedAt)
@@ -543,11 +598,29 @@ export default function WorkPage() {
 
   const removeInboxItem = (id: string) => {
     updateSettings({ workInbox: inboxItems.filter((item) => item.id !== id) })
+    setInboxTargets((current) => {
+      const next = { ...current }
+      delete next[id]
+      return next
+    })
+    setInboxDeadlines((current) => {
+      const next = { ...current }
+      delete next[id]
+      return next
+    })
+    setInboxPriorities((current) => {
+      const next = { ...current }
+      delete next[id]
+      return next
+    })
   }
 
-  const convertInboxItem = (item: WorkInboxItem) => {
+  const convertInboxItem = (item: WorkInboxItem, deadlineOverride?: string) => {
     const target = inboxTargets[item.id]
-    if (!target) return
+    if (!target) {
+      toast.info("Сначала выбери проект и этап.")
+      return
+    }
     const [projectId, groupId] = target.split("::")
     if (!projectId || !groupId) return
 
@@ -558,9 +631,12 @@ export default function WorkPage() {
         groupId,
         title: item.title,
         status: "planned",
+        priority: inboxPriorities[item.id] ?? "medium",
+        deadline: deadlineOverride ?? inboxDeadlines[item.id] || undefined,
       },
     })
     removeInboxItem(item.id)
+    toast.success("Входящее превращено в задачу")
   }
 
   const setFocus = (nextIds: string[]) => {
@@ -588,6 +664,25 @@ export default function WorkPage() {
     if (!focusCandidate || activeFocusIds.length >= 3) return
     toggleFocus(focusCandidate)
     setFocusCandidate("")
+  }
+
+  const moveFocus = (taskId: string, direction: -1 | 1) => {
+    const index = activeFocusIds.indexOf(taskId)
+    if (index < 0) return
+    const targetIndex = index + direction
+    if (targetIndex < 0 || targetIndex >= activeFocusIds.length) return
+    const next = [...activeFocusIds]
+    ;[next[index], next[targetIndex]] = [next[targetIndex], next[index]]
+    setFocus(next)
+  }
+
+  const startFirstFocusTask = () => {
+    const first = focusTasks[0]
+    if (!first) {
+      toast.info("Сначала добавь задачу в план дня.")
+      return
+    }
+    changeTaskStatus(first, "in_progress")
   }
 
   const isNextActionEligible = (item: WorkTaskRef) => {
@@ -682,17 +777,9 @@ export default function WorkPage() {
         </div>
 
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          <div className="rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-center dark:border-slate-800 dark:bg-slate-900">
-            <p className="text-lg font-semibold text-slate-950 dark:text-white">{activeTasks.length}</p>
-            <p className="text-[10px] text-slate-500">активных</p>
-          </div>
-          <div className="rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-center dark:border-slate-800 dark:bg-slate-900">
-            <p className="text-lg font-semibold text-slate-950 dark:text-white">{overdue}</p>
-            <p className="text-[10px] text-slate-500">просрочено</p>
-          </div>
-          <div className="rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-center dark:border-slate-800 dark:bg-slate-900">
-            <p className="text-lg font-semibold text-slate-950 dark:text-white">{dueControlTasks.length}</p>
-            <p className="text-[10px] text-slate-500">контроль</p>
+          <div className="rounded-2xl border border-blue-200 bg-blue-50/70 px-3 py-2.5 text-center dark:border-blue-500/20 dark:bg-blue-500/10">
+            <p className="text-lg font-semibold text-slate-950 dark:text-white">{focusTasks.length}/3</p>
+            <p className="text-[10px] text-slate-500">план дня</p>
           </div>
           <div
             className={
@@ -704,121 +791,327 @@ export default function WorkPage() {
             <p className="text-lg font-semibold text-slate-950 dark:text-white">
               {inProgressTasks.length}/{wipLimit}
             </p>
-            <p className="text-[10px] text-slate-500">WIP</p>
+            <p className="text-[10px] text-slate-500">в работе</p>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-center dark:border-slate-800 dark:bg-slate-900">
+            <p className="text-lg font-semibold text-slate-950 dark:text-white">{controlLaneTasks.length}</p>
+            <p className="text-[10px] text-slate-500">жду / контроль</p>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-center dark:border-slate-800 dark:bg-slate-900">
+            <p className="text-lg font-semibold text-slate-950 dark:text-white">{overdue}</p>
+            <p className="text-[10px] text-slate-500">просрочено</p>
           </div>
         </div>
       </header>
 
+      <section
+        id="work-inbox"
+        className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5"
+      >
+        <div className="flex items-center gap-2">
+          <Inbox className="size-5 text-slate-600 dark:text-slate-300" aria-hidden />
+          <div className="min-w-0 flex-1">
+            <h2 className="font-semibold text-slate-950 dark:text-white">Inbox</h2>
+            <p className="text-xs text-slate-500">
+              Быстро зафиксируй входящее. Разобрать по проектам можно сразу или позже.
+            </p>
+          </div>
+          {inboxItems.length > 0 ? (
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+              {inboxItems.length}
+            </span>
+          ) : null}
+        </div>
+
+        <div className="mt-4 flex gap-2">
+          <Input
+            value={inboxTitle}
+            onChange={(event) => setInboxTitle(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") addInboxItem()
+            }}
+            placeholder="Быстро записать задачу, запрос или идею…"
+            className="min-w-0 flex-1"
+          />
+          <Button type="button" onClick={addInboxItem} disabled={!inboxTitle.trim()}>
+            <Plus className="size-4" aria-hidden />
+            Добавить
+          </Button>
+        </div>
+
+        {inboxItems.length > 0 ? (
+          <details className="mt-3 rounded-xl border border-slate-200 bg-slate-50/60 dark:border-slate-800 dark:bg-slate-950/40">
+            <summary className="cursor-pointer px-3 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300">
+              Разобрать входящие · {inboxItems.length}
+            </summary>
+            <div className="space-y-2 border-t border-slate-200 p-3 dark:border-slate-800">
+              {inboxItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900"
+                >
+                  <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                    {item.title}
+                  </p>
+                  <p className="mt-0.5 text-[10px] text-slate-400">
+                    {format(new Date(item.createdAt), "d MMM, HH:mm", { locale: ru })}
+                  </p>
+                  <div className="mt-3 grid gap-2 lg:grid-cols-[minmax(220px,1fr)_120px_150px_auto]">
+                    <select
+                      value={inboxTargets[item.id] ?? ""}
+                      onChange={(event) =>
+                        setInboxTargets((current) => ({
+                          ...current,
+                          [item.id]: event.target.value,
+                        }))
+                      }
+                      className="h-9 min-w-0 rounded-lg border border-slate-300 bg-white px-2.5 text-xs dark:border-slate-700 dark:bg-slate-950"
+                    >
+                      <option value="">Проект и этап…</option>
+                      {workProjects.flatMap((project) =>
+                        project.groups.map((group) => (
+                          <option
+                            key={`${project.id}::${group.id}`}
+                            value={`${project.id}::${group.id}`}
+                          >
+                            {project.title} — {group.title}
+                          </option>
+                        )),
+                      )}
+                    </select>
+                    <select
+                      value={inboxPriorities[item.id] ?? "medium"}
+                      onChange={(event) =>
+                        setInboxPriorities((current) => ({
+                          ...current,
+                          [item.id]: event.target.value as Task["priority"],
+                        }))
+                      }
+                      className="h-9 rounded-lg border border-slate-300 bg-white px-2.5 text-xs dark:border-slate-700 dark:bg-slate-950"
+                      aria-label="Приоритет"
+                    >
+                      <option value="low">Низкий</option>
+                      <option value="medium">Средний</option>
+                      <option value="high">Высокий</option>
+                    </select>
+                    <Input
+                      type="date"
+                      value={inboxDeadlines[item.id] ?? ""}
+                      onChange={(event) =>
+                        setInboxDeadlines((current) => ({
+                          ...current,
+                          [item.id]: event.target.value,
+                        }))
+                      }
+                      className="h-9 text-xs"
+                      aria-label="Дедлайн"
+                    />
+                    <div className="flex gap-1.5">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => convertInboxItem(item)}
+                        disabled={!inboxTargets[item.id]}
+                      >
+                        <Send className="size-3.5" aria-hidden />
+                        В задачу
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => convertInboxItem(item, offsetISO(todayISO, 1))}
+                        disabled={!inboxTargets[item.id]}
+                      >
+                        Завтра
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => removeInboxItem(item.id)}
+                      >
+                        Удалить
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </details>
+        ) : null}
+      </section>
+
       <section className="grid gap-4 xl:grid-cols-[1.35fr_0.65fr]">
         <div className="rounded-[24px] border border-blue-200 bg-blue-50/60 p-4 dark:border-blue-500/20 dark:bg-blue-500/5 sm:p-5">
           <div className="flex items-center gap-2">
-            <CalendarRange className="size-5 text-blue-600 dark:text-blue-400" aria-hidden />
+            <ListChecks className="size-5 text-blue-600 dark:text-blue-400" aria-hidden />
             <div className="min-w-0 flex-1">
-              <h2 className="font-semibold text-slate-950 dark:text-white">Сегодня</h2>
+              <h2 className="font-semibold text-slate-950 dark:text-white">План дня</h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Фокус + дедлайны + наступивший контроль + отложенное, которое вернулось.
+                До трёх результатов в явном порядке. Первая задача — главный фокус.
               </p>
             </div>
             <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-blue-700 shadow-sm dark:bg-slate-900 dark:text-blue-300">
-              {todayQueue.length}
+              {focusTasks.length}/3
             </span>
           </div>
 
           <div className="mt-4 space-y-2">
-            {todayQueue.length === 0 ? (
-              <p className="rounded-xl border border-dashed border-blue-200 p-3 text-sm text-slate-500 dark:border-blue-500/20 dark:text-slate-400">
-                На сегодня нет задач, требующих немедленного внимания.
-              </p>
+            {focusTasks.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-blue-200 p-4 text-sm text-slate-500 dark:border-blue-500/20 dark:text-slate-400">
+                План дня пока пуст. Выбери первую задачу ниже — она станет главным фокусом.
+              </div>
             ) : (
-              todayQueue.map((item) => {
-                const status = getTaskStatus(item.task)
-                return (
-                  <div
-                    key={item.task.id}
-                    className="flex flex-col gap-2 rounded-xl bg-white p-3 shadow-sm dark:bg-slate-900 sm:flex-row sm:items-center"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-slate-950 dark:text-white">
-                        {item.task.title}
-                      </p>
-                      <div className="mt-1 flex flex-wrap gap-1.5 text-[10px] text-slate-500">
-                        <span>{item.projectTitle}</span>
-                        <span>·</span>
-                        <span>{getTaskStatusLabel(item.task)}</span>
-                        {activeFocusIds.includes(item.task.id) ? (
-                          <span className="rounded-full bg-blue-50 px-1.5 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">
-                            Фокус
-                          </span>
-                        ) : null}
-                        {item.task.followUpDate && item.task.followUpDate <= todayISO ? (
-                          <span className="rounded-full bg-amber-50 px-1.5 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
-                            Контроль
-                          </span>
-                        ) : null}
-                      </div>
-                    </div>
-                    <div className="flex shrink-0 gap-1.5">
-                      {status !== "in_progress" ? (
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          onClick={() => changeTaskStatus(item, "in_progress")}
-                        >
-                          <ArrowRight className="size-3.5" aria-hidden />
-                          В работу
-                        </Button>
+              focusTasks.map((item, index) => (
+                <div
+                  key={item.task.id}
+                  className={
+                    index === 0
+                      ? "flex items-center gap-3 rounded-xl border border-blue-200 bg-white p-3 shadow-sm dark:border-blue-500/20 dark:bg-slate-900"
+                      : "flex items-center gap-3 rounded-xl bg-white/80 p-3 dark:bg-slate-900"
+                  }
+                >
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+                    {index + 1}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {index === 0 ? (
+                        <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">
+                          Главный фокус
+                        </span>
                       ) : null}
-                      <Button
-                        type="button"
-                        size="sm"
-                        onClick={() => changeTaskStatus(item, "done")}
-                      >
-                        Готово
-                      </Button>
+                      {item.task.deadline ? (
+                        <span className="text-[10px] text-slate-400">
+                          дедлайн {formatShortDate(item.task.deadline)}
+                        </span>
+                      ) : null}
                     </div>
+                    <p className="mt-0.5 truncate text-sm font-semibold text-slate-950 dark:text-white">
+                      {item.task.title}
+                    </p>
+                    <p className="truncate text-xs text-slate-500">{item.projectTitle}</p>
                   </div>
-                )
-              })
+                  <div className="flex shrink-0 items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => moveFocus(item.task.id, -1)}
+                      disabled={index === 0}
+                      className="flex size-8 items-center justify-center rounded-lg text-sm text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-20 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                      aria-label="Поднять выше"
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => moveFocus(item.task.id, 1)}
+                      disabled={index === focusTasks.length - 1}
+                      className="flex size-8 items-center justify-center rounded-lg text-sm text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-20 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                      aria-label="Опустить ниже"
+                    >
+                      ↓
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => toggleFocus(item.task.id)}
+                      className="px-2 text-xs font-medium text-slate-400 hover:text-red-500"
+                    >
+                      убрать
+                    </button>
+                  </div>
+                </div>
+              ))
             )}
           </div>
+
+          {focusTasks.length < 3 && focusCandidates.length > 0 ? (
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+              <select
+                value={focusCandidate}
+                onChange={(event) => setFocusCandidate(event.target.value)}
+                className="h-10 min-w-0 flex-1 rounded-xl border border-blue-200 bg-white px-3 text-sm text-slate-800 dark:border-blue-500/20 dark:bg-slate-950 dark:text-slate-100"
+              >
+                <option value="">Добавить задачу в план…</option>
+                {focusCandidates.map((item) => (
+                  <option key={item.task.id} value={item.task.id}>
+                    {item.projectTitle} — {item.task.title}
+                  </option>
+                ))}
+              </select>
+              <Button
+                type="button"
+                onClick={addSelectedFocus}
+                disabled={!focusCandidate}
+                className="bg-blue-600 text-white hover:bg-blue-700"
+              >
+                Добавить
+              </Button>
+            </div>
+          ) : null}
         </div>
 
-        <div
-          className={
-            wipOverBy > 0 || projectsWithoutNextAction.length > 0 || staleInProgress.length > 0
-              ? "rounded-[24px] border border-amber-200 bg-amber-50/70 p-4 dark:border-amber-500/20 dark:bg-amber-500/5 sm:p-5"
-              : "rounded-[24px] border border-emerald-200 bg-emerald-50/60 p-4 dark:border-emerald-500/20 dark:bg-emerald-500/5 sm:p-5"
-          }
-        >
+        <div className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
           <div className="flex items-center gap-2">
             <Gauge className="size-5 text-slate-600 dark:text-slate-300" aria-hidden />
-            <div>
-              <h2 className="font-semibold text-slate-950 dark:text-white">Нагрузка</h2>
-              <p className="text-xs text-slate-500">Сигналы, что система начинает перегружаться.</p>
+            <div className="min-w-0 flex-1">
+              <h2 className="font-semibold text-slate-950 dark:text-white">В работе сейчас</h2>
+              <p className="text-xs text-slate-500">Только то, что реально начато.</p>
             </div>
+            <span className="text-xs font-semibold text-slate-500">
+              {inProgressTasks.length}/{wipLimit}
+            </span>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            <div className="rounded-xl bg-white p-3 dark:bg-slate-900">
-              <p className="text-lg font-semibold">{inProgressTasks.length}</p>
-              <p className="text-[10px] text-slate-500">в работе</p>
-            </div>
-            <div className="rounded-xl bg-white p-3 dark:bg-slate-900">
-              <p className="text-lg font-semibold">{staleInProgress.length}</p>
-              <p className="text-[10px] text-slate-500">зависли 3+ дня</p>
-            </div>
-            <div className="rounded-xl bg-white p-3 dark:bg-slate-900">
-              <p className="text-lg font-semibold">{projectsWithoutNextAction.length}</p>
-              <p className="text-[10px] text-slate-500">без след. шага</p>
-            </div>
-            <div className="rounded-xl bg-white p-3 dark:bg-slate-900">
-              <p className="text-lg font-semibold">{inboxItems.length}</p>
-              <p className="text-[10px] text-slate-500">не разобрано</p>
-            </div>
+          <div className="mt-4 space-y-2">
+            {inProgressTasks.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-slate-200 p-3 dark:border-slate-800">
+                <p className="text-sm text-slate-500">Сейчас ничего не выполняется.</p>
+                {focusTasks.length > 0 ? (
+                  <Button type="button" size="sm" className="mt-3" onClick={startFirstFocusTask}>
+                    <ArrowRight className="size-3.5" aria-hidden />
+                    Начать №1
+                  </Button>
+                ) : null}
+              </div>
+            ) : (
+              inProgressTasks.map((item) => (
+                <div
+                  key={item.task.id}
+                  className="rounded-xl border border-slate-200 p-3 dark:border-slate-800"
+                >
+                  <p className="text-sm font-semibold text-slate-950 dark:text-white">
+                    {item.task.title}
+                  </p>
+                  <p className="mt-0.5 text-xs text-slate-500">{item.projectTitle}</p>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    <Button type="button" size="sm" onClick={() => changeTaskStatus(item, "done")}>
+                      Готово
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => changeTaskStatus(item, "waiting")}
+                    >
+                      Жду
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => changeTaskStatus(item, "control")}
+                    >
+                      На контроль
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
 
-          <div className="mt-3 flex items-center gap-2">
+          <div className="mt-3 flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2 dark:bg-slate-950/60">
             <span className="text-xs text-slate-500">WIP-лимит</span>
             <Input
               type="number"
@@ -835,355 +1128,311 @@ export default function WorkPage() {
               className="h-8 w-20"
             />
           </div>
-
           {wipOverBy > 0 ? (
-            <p className="mt-3 text-xs font-medium text-amber-700 dark:text-amber-300">
-              Лимит превышен на {wipOverBy}. Новые задачи в «В работе» блокируются.
+            <p className="mt-2 text-xs font-medium text-amber-700 dark:text-amber-300">
+              WIP превышен на {wipOverBy}. Новые задачи в работу временно блокируются.
             </p>
           ) : null}
         </div>
       </section>
 
-      <section className="rounded-[24px] border border-blue-200 bg-blue-50/60 p-4 dark:border-blue-500/20 dark:bg-blue-500/5 sm:p-5">
-        <div className="flex items-center gap-2">
-          <ListChecks className="size-5 text-blue-600 dark:text-blue-400" aria-hidden />
-          <div>
-            <h2 className="font-semibold text-slate-950 dark:text-white">3 результата дня</h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Не больше трёх задач, которые действительно должны сдвинуть день.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-4 space-y-2">
-          {focusTasks.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-blue-200 p-3 text-sm text-slate-500 dark:border-blue-500/20 dark:text-slate-400">
-              Фокус на сегодня ещё не выбран.
-            </p>
-          ) : (
-            focusTasks.map((item, index) => (
-              <div
-                key={item.task.id}
-                className="flex items-center gap-3 rounded-xl bg-white p-3 shadow-sm dark:bg-slate-900"
-              >
-                <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
-                  {index + 1}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-slate-950 dark:text-white">
-                    {item.task.title}
-                  </p>
-                  <p className="truncate text-xs text-slate-500">{item.projectTitle}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => toggleFocus(item.task.id)}
-                  className="text-xs font-medium text-slate-400 hover:text-red-500"
-                >
-                  убрать
-                </button>
-              </div>
-            ))
-          )}
-        </div>
-
-        {focusTasks.length < 3 && focusCandidates.length > 0 ? (
-          <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-            <select
-              value={focusCandidate}
-              onChange={(event) => setFocusCandidate(event.target.value)}
-              className="h-10 min-w-0 flex-1 rounded-xl border border-blue-200 bg-white px-3 text-sm text-slate-800 dark:border-blue-500/20 dark:bg-slate-950 dark:text-slate-100"
-            >
-              <option value="">Выбрать задачу…</option>
-              {focusCandidates.map((item) => (
-                <option key={item.task.id} value={item.task.id}>
-                  {item.projectTitle} — {item.task.title}
-                </option>
-              ))}
-            </select>
-            <Button
-              type="button"
-              onClick={addSelectedFocus}
-              disabled={!focusCandidate}
-              className="bg-blue-600 text-white hover:bg-blue-700"
-            >
-              Добавить в фокус
-            </Button>
-          </div>
-        ) : null}
-      </section>
-
-      <section className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
-        <div className="flex items-center gap-2">
-          <Star className="size-5 text-violet-600 dark:text-violet-400" aria-hidden />
-          <div className="min-w-0 flex-1">
-            <h2 className="font-semibold text-slate-950 dark:text-white">Следующие задачи проектов</h2>
-            <p className="text-xs text-slate-500">
-              У каждого активного рабочего проекта должна быть одна конкретная следующая задача.
-            </p>
-          </div>
-          {projectsWithoutNextAction.length > 0 ? (
-            <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
-              без следующей задачи: {projectsWithoutNextAction.length}
-            </span>
-          ) : null}
-        </div>
-
-        <div className="mt-4 grid gap-2 md:grid-cols-2">
-          {activeWorkProjects.map((project) => {
-            const openTasks = getProjectOpenTasks(project)
-            const actionableTasks = openTasks.filter(isNextActionEligible)
-            const current = actionableTasks.find((item) => item.task.isNextAction)
-            return (
-              <div
-                key={project.id}
-                className="rounded-xl border border-slate-200 p-3 dark:border-slate-800"
-              >
-                <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
-                  {project.title}
-                </p>
-                {actionableTasks.length === 0 ? (
-                  <p className="mt-2 text-xs text-slate-400">
-                    Нет задачи, которую сейчас можно назначить следующей задачей проекта.
-                  </p>
-                ) : (
-                  <select
-                    value={current?.task.id ?? ""}
-                    onChange={(event) => {
-                      if (!event.target.value) {
-                        if (current) updateTask(current, { isNextAction: false })
-                        return
-                      }
-                      setProjectNextAction(project.id, event.target.value)
-                    }}
-                    className="mt-2 h-9 w-full rounded-lg border border-slate-300 bg-white px-2.5 text-xs dark:border-slate-700 dark:bg-slate-950"
-                  >
-                    <option value="">Не выбран</option>
-                    {actionableTasks.map((item) => (
-                      <option key={item.task.id} value={item.task.id}>
-                        {item.task.title}
-                      </option>
-                    ))}
-                  </select>
-                )}
-              </div>
-            )
-          })}
-        </div>
-      </section>
-
-      <section className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
-        <div className="flex items-center gap-2">
-          <Inbox className="size-5 text-slate-500" aria-hidden />
-          <div className="min-w-0 flex-1">
-            <h2 className="font-semibold text-slate-950 dark:text-white">Inbox</h2>
-            <p className="text-xs text-slate-500">Сначала зафиксировать, потом разобрать.</p>
-          </div>
-          {inboxItems.length > 0 ? (
-            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-500 dark:bg-slate-800">
-              {inboxItems.length}
-            </span>
-          ) : null}
-        </div>
-
-        <div className="mt-4 flex gap-2">
-          <Input
-            value={inboxTitle}
-            onChange={(event) => setInboxTitle(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") addInboxItem()
-            }}
-            placeholder="Например: проверить зависшие возвраты"
-            className="min-w-0 flex-1"
-          />
-          <Button type="button" onClick={addInboxItem} disabled={!inboxTitle.trim()}>
-            <Plus className="size-4" aria-hidden />
-            <span className="hidden sm:inline">Добавить</span>
-          </Button>
-        </div>
-
-        <div className="mt-4 space-y-2">
-          {inboxItems.length === 0 ? (
-            <p className="text-sm text-slate-400">Входящих нет.</p>
-          ) : (
-            inboxItems.map((item) => (
-              <div
-                key={item.id}
-                className="rounded-xl border border-slate-200 p-3 dark:border-slate-800"
-              >
-                <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
-                  {item.title}
-                </p>
-                <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-                  <select
-                    value={inboxTargets[item.id] ?? ""}
-                    onChange={(event) =>
-                      setInboxTargets((current) => ({
-                        ...current,
-                        [item.id]: event.target.value,
-                      }))
-                    }
-                    className="h-9 min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-2.5 text-xs dark:border-slate-700 dark:bg-slate-950"
-                  >
-                    <option value="">Выбрать проект и этап…</option>
-                    {workProjects.flatMap((project) =>
-                      project.groups.map((group) => (
-                        <option
-                          key={`${project.id}::${group.id}`}
-                          value={`${project.id}::${group.id}`}
-                        >
-                          {project.title} — {group.title}
-                        </option>
-                      )),
-                    )}
-                  </select>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => convertInboxItem(item)}
-                    disabled={!inboxTargets[item.id]}
-                  >
-                    <Send className="size-3.5" aria-hidden />
-                    В задачу
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => removeInboxItem(item.id)}
-                  >
-                    Удалить
-                  </Button>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </section>
-
-      {deferredFutureTasks.length > 0 ? (
-        <section className="space-y-2.5">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-semibold text-slate-950 dark:text-white">Отложено</h2>
+      {attentionTasks.length > 0 ? (
+        <section className="rounded-[24px] border border-amber-200 bg-amber-50/70 p-4 dark:border-amber-500/20 dark:bg-amber-500/5 sm:p-5">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="size-5 text-amber-600" aria-hidden />
+            <div className="min-w-0 flex-1">
+              <h2 className="font-semibold text-slate-950 dark:text-white">Требует реакции</h2>
               <p className="text-xs text-slate-500">
-                Эти задачи не участвуют в текущем фокусе до назначенной даты.
+                Только исключения: дедлайн, просрочка, наступивший контроль или вернувшийся перенос.
               </p>
             </div>
-            <span className="text-xs text-slate-400">{deferredFutureTasks.length}</span>
+            <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-amber-700 dark:bg-slate-900 dark:text-amber-300">
+              {attentionTasks.length}
+            </span>
           </div>
-          <div className="grid gap-2.5 xl:grid-cols-2">
-            {deferredFutureTasks.map((item) => (
-              <TaskRow
-                key={item.task.id}
-                item={item}
-                todayISO={todayISO}
-                focused={activeFocusIds.includes(item.task.id)}
-                onStatusChange={(status) => changeTaskStatus(item, status)}
-                onFollowUpChange={(followUpDate) => updateTask(item, { followUpDate })}
-                onAssigneeChange={(assignee) => updateTask(item, { assignee })}
-                onToggleFocus={() => toggleFocus(item.task.id)}
-                onSetNextAction={() => toggleNextAction(item)}
-                onDeferredChange={(deferredUntil) => {
-                  updateTask(item, {
-                    deferredUntil,
-                    ...(deferredUntil && deferredUntil > todayISO
-                      ? { isNextAction: false }
-                      : {}),
-                  })
-                  if (
-                    deferredUntil &&
-                    deferredUntil > todayISO &&
-                    activeFocusIds.includes(item.task.id)
-                  ) {
-                    setFocus(activeFocusIds.filter((id) => id !== item.task.id))
-                  }
-                }}
-                onDeferReasonChange={(deferReason) =>
-                  updateTask(item, { deferReason })
-                }
-                onDeferNoteChange={(deferNote) =>
-                  updateTask(item, { deferNote })
-                }
-                onDelegationNoteChange={(delegationNote) =>
-                  updateTask(item, { delegationNote })
-                }
-              />
-            ))}
+          <div className="mt-4 grid gap-2 md:grid-cols-2">
+            {attentionTasks.map((item) => {
+              const status = getTaskStatus(item.task)
+              return (
+                <div
+                  key={item.task.id}
+                  className="rounded-xl border border-amber-200/80 bg-white p-3 dark:border-amber-500/20 dark:bg-slate-900"
+                >
+                  <p className="text-sm font-semibold text-slate-950 dark:text-white">
+                    {item.task.title}
+                  </p>
+                  <p className="mt-0.5 text-xs text-slate-500">{item.projectTitle}</p>
+                  <div className="mt-2 flex flex-wrap gap-1.5 text-[10px]">
+                    {item.task.deadline && item.task.deadline < todayISO ? (
+                      <span className="rounded-full bg-red-50 px-2 py-0.5 font-medium text-red-700 dark:bg-red-500/10 dark:text-red-300">
+                        Просрочено
+                      </span>
+                    ) : item.task.deadline === todayISO ? (
+                      <span className="rounded-full bg-amber-100 px-2 py-0.5 font-medium text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">
+                        Дедлайн сегодня
+                      </span>
+                    ) : null}
+                    {CONTROL_STATUSES.has(status) &&
+                    item.task.followUpDate &&
+                    item.task.followUpDate <= todayISO ? (
+                      <span className="rounded-full bg-amber-100 px-2 py-0.5 font-medium text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">
+                        Контроль
+                      </span>
+                    ) : null}
+                    {item.task.deferredUntil && item.task.deferredUntil <= todayISO ? (
+                      <span className="rounded-full bg-blue-50 px-2 py-0.5 font-medium text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">
+                        Вернулась из переноса
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </section>
       ) : null}
 
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-lg font-semibold text-slate-950 dark:text-white">Рабочий поток</h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Ожидания и делегирование остаются в системе, но возвращаются в оперативное внимание по дате контроля.
-          </p>
+      <section className="grid gap-4 xl:grid-cols-2">
+        <div className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
+          <div className="flex items-center gap-2">
+            <Clock3 className="size-5 text-slate-500" aria-hidden />
+            <div className="min-w-0 flex-1">
+              <h2 className="font-semibold text-slate-950 dark:text-white">Жду / контроль</h2>
+              <p className="text-xs text-slate-500">Не занимает текущий фокус, но не должно потеряться.</p>
+            </div>
+            <span className="text-xs font-semibold text-slate-400">{controlLaneTasks.length}</span>
+          </div>
+          <div className="mt-4 space-y-2">
+            {controlLaneTasks.length === 0 ? (
+              <p className="rounded-xl border border-dashed border-slate-200 p-3 text-sm text-slate-400 dark:border-slate-800">
+                Ожиданий и задач на контроле нет.
+              </p>
+            ) : (
+              controlLaneTasks.map((item) => (
+                <div
+                  key={item.task.id}
+                  className="flex items-start gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-800"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-slate-950 dark:text-white">{item.task.title}</p>
+                    <p className="mt-0.5 text-xs text-slate-500">
+                      {item.projectTitle} · {getTaskStatusLabel(item.task)}
+                    </p>
+                  </div>
+                  <div className="shrink-0 text-right text-[10px] text-slate-400">
+                    {item.task.assignee ? <p>{item.task.assignee}</p> : null}
+                    {item.task.followUpDate ? (
+                      <p>контроль {formatShortDate(item.task.followUpDate)}</p>
+                    ) : (
+                      <p className="text-amber-600">без даты</p>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
 
-        {workProjects.length === 0 ? (
-          <div className="rounded-[24px] border border-dashed border-slate-300 p-5 text-sm text-slate-500 dark:border-slate-700">
-            Рабочих проектов пока нет. Создай проект и выбери для него контекст «Работа».
+        <div className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
+          <div className="flex items-center gap-2">
+            <Star className="size-5 text-violet-600 dark:text-violet-400" aria-hidden />
+            <div className="min-w-0 flex-1">
+              <h2 className="font-semibold text-slate-950 dark:text-white">Следующие задачи проектов</h2>
+              <p className="text-xs text-slate-500">Куда двигается каждый активный проект дальше.</p>
+            </div>
+            {projectsWithoutNextAction.length > 0 ? (
+              <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
+                без задачи: {projectsWithoutNextAction.length}
+              </span>
+            ) : null}
           </div>
-        ) : (
-          statusSections.map((section) => {
-            const items = operationalTasks.filter(
-              (item) => getTaskStatus(item.task) === section.status,
-            )
-            if (items.length === 0) return null
-            return (
-              <div key={section.status} className="space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                    {section.title}
-                  </h3>
-                  <span className="text-xs text-slate-400">{items.length}</span>
+
+          <div className="mt-4 space-y-2">
+            {activeWorkProjects
+              .map((project) => {
+                const openTasks = getProjectOpenTasks(project)
+                const current = openTasks.find(
+                  (item) => item.task.isNextAction && isNextActionEligible(item),
+                )
+                return current ? { project, current } : null
+              })
+              .filter(
+                (
+                  item,
+                ): item is {
+                  project: Project
+                  current: WorkTaskRef
+                } => Boolean(item),
+              )
+              .map(({ project, current }) => (
+                <div
+                  key={project.id}
+                  className="rounded-xl border border-slate-200 p-3 dark:border-slate-800"
+                >
+                  <p className="text-xs font-semibold text-slate-500">{project.title}</p>
+                  <p className="mt-1 text-sm font-medium text-slate-950 dark:text-white">
+                    → {current.task.title}
+                  </p>
                 </div>
-                <div className="grid gap-2.5 xl:grid-cols-2">
-                  {items.map((item) => (
-                    <TaskRow
-                      key={item.task.id}
-                      item={item}
-                      todayISO={todayISO}
-                      focused={activeFocusIds.includes(item.task.id)}
-                      onStatusChange={(status) => changeTaskStatus(item, status)}
-                      onFollowUpChange={(followUpDate) =>
-                        updateTask(item, { followUpDate })
-                      }
-                      onAssigneeChange={(assignee) => updateTask(item, { assignee })}
-                      onToggleFocus={() => toggleFocus(item.task.id)}
-                      onSetNextAction={() => toggleNextAction(item)}
-                      onDeferredChange={(deferredUntil) => {
-                        updateTask(item, {
-                          deferredUntil,
-                          ...(deferredUntil ? { isNextAction: false } : {}),
-                        })
-                        if (
-                          deferredUntil &&
-                          activeFocusIds.includes(item.task.id)
-                        ) {
-                          setFocus(activeFocusIds.filter((id) => id !== item.task.id))
-                        }
-                      }}
-                      onDeferReasonChange={(deferReason) =>
-                        updateTask(item, { deferReason })
-                      }
-                      onDeferNoteChange={(deferNote) =>
-                        updateTask(item, { deferNote })
-                      }
-                      onDelegationNoteChange={(delegationNote) =>
-                        updateTask(item, { delegationNote })
-                      }
-                    />
-                  ))}
-                </div>
+              ))}
+          </div>
+
+          {activeWorkProjects.length > 0 ? (
+            <details className="mt-3 rounded-xl border border-slate-200 dark:border-slate-800">
+              <summary className="cursor-pointer px-3 py-2.5 text-xs font-medium text-slate-500">
+                Изменить следующие задачи проектов
+              </summary>
+              <div className="grid gap-2 border-t border-slate-200 p-3 dark:border-slate-800">
+                {activeWorkProjects.map((project) => {
+                  const actionableTasks = getProjectOpenTasks(project).filter(isNextActionEligible)
+                  const current = actionableTasks.find((item) => item.task.isNextAction)
+                  return (
+                    <div key={project.id}>
+                      <p className="mb-1 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        {project.title}
+                      </p>
+                      {actionableTasks.length === 0 ? (
+                        <p className="text-xs text-slate-400">Нет доступной задачи.</p>
+                      ) : (
+                        <select
+                          value={current?.task.id ?? ""}
+                          onChange={(event) => {
+                            if (!event.target.value) {
+                              if (current) updateTask(current, { isNextAction: false })
+                              return
+                            }
+                            setProjectNextAction(project.id, event.target.value)
+                          }}
+                          className="h-9 w-full rounded-lg border border-slate-300 bg-white px-2.5 text-xs dark:border-slate-700 dark:bg-slate-950"
+                        >
+                          <option value="">Не выбрана</option>
+                          {actionableTasks.map((item) => (
+                            <option key={item.task.id} value={item.task.id}>
+                              {item.task.title}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
-            )
-          })
-        )}
+            </details>
+          ) : null}
+        </div>
       </section>
+
+      <details className="rounded-[24px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <summary className="cursor-pointer list-none p-4 sm:p-5">
+          <div className="flex items-center gap-2">
+            <BriefcaseBusiness className="size-5 text-slate-500" aria-hidden />
+            <div className="min-w-0 flex-1">
+              <h2 className="font-semibold text-slate-950 dark:text-white">Все рабочие задачи</h2>
+              <p className="text-xs text-slate-500">
+                Полный операционный список по статусам. Открывай, когда нужно разбирать детали.
+              </p>
+            </div>
+            <span className="text-xs font-semibold text-slate-400">{activeTasks.length}</span>
+          </div>
+        </summary>
+        <div className="space-y-5 border-t border-slate-200 p-4 dark:border-slate-800 sm:p-5">
+          {deferredFutureTasks.length > 0 ? (
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Отложено</h3>
+                <span className="text-xs text-slate-400">{deferredFutureTasks.length}</span>
+              </div>
+              <div className="grid gap-2.5 xl:grid-cols-2">
+                {deferredFutureTasks.map((item) => (
+                  <TaskRow
+                    key={item.task.id}
+                    item={item}
+                    todayISO={todayISO}
+                    focused={activeFocusIds.includes(item.task.id)}
+                    onStatusChange={(status) => changeTaskStatus(item, status)}
+                    onFollowUpChange={(followUpDate) => updateTask(item, { followUpDate })}
+                    onAssigneeChange={(assignee) => updateTask(item, { assignee })}
+                    onToggleFocus={() => toggleFocus(item.task.id)}
+                    onSetNextAction={() => toggleNextAction(item)}
+                    onDeferredChange={(deferredUntil) => {
+                      updateTask(item, {
+                        deferredUntil,
+                        ...(deferredUntil && deferredUntil > todayISO
+                          ? { isNextAction: false }
+                          : {}),
+                      })
+                      if (
+                        deferredUntil &&
+                        deferredUntil > todayISO &&
+                        activeFocusIds.includes(item.task.id)
+                      ) {
+                        setFocus(activeFocusIds.filter((id) => id !== item.task.id))
+                      }
+                    }}
+                    onDeferReasonChange={(deferReason) => updateTask(item, { deferReason })}
+                    onDeferNoteChange={(deferNote) => updateTask(item, { deferNote })}
+                    onDelegationNoteChange={(delegationNote) =>
+                      updateTask(item, { delegationNote })
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {workProjects.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700">
+              Рабочих проектов пока нет.
+            </div>
+          ) : (
+            statusSections.map((section) => {
+              const items = operationalTasks.filter(
+                (item) => getTaskStatus(item.task) === section.status,
+              )
+              if (items.length === 0) return null
+              return (
+                <div key={section.status} className="space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                      {section.title}
+                    </h3>
+                    <span className="text-xs text-slate-400">{items.length}</span>
+                  </div>
+                  <div className="grid gap-2.5 xl:grid-cols-2">
+                    {items.map((item) => (
+                      <TaskRow
+                        key={item.task.id}
+                        item={item}
+                        todayISO={todayISO}
+                        focused={activeFocusIds.includes(item.task.id)}
+                        onStatusChange={(status) => changeTaskStatus(item, status)}
+                        onFollowUpChange={(followUpDate) => updateTask(item, { followUpDate })}
+                        onAssigneeChange={(assignee) => updateTask(item, { assignee })}
+                        onToggleFocus={() => toggleFocus(item.task.id)}
+                        onSetNextAction={() => toggleNextAction(item)}
+                        onDeferredChange={(deferredUntil) => {
+                          updateTask(item, {
+                            deferredUntil,
+                            ...(deferredUntil ? { isNextAction: false } : {}),
+                          })
+                          if (deferredUntil && activeFocusIds.includes(item.task.id)) {
+                            setFocus(activeFocusIds.filter((id) => id !== item.task.id))
+                          }
+                        }}
+                        onDeferReasonChange={(deferReason) => updateTask(item, { deferReason })}
+                        onDeferNoteChange={(deferNote) => updateTask(item, { deferNote })}
+                        onDelegationNoteChange={(delegationNote) =>
+                          updateTask(item, { delegationNote })
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
+              )
+            })
+          )}
+        </div>
+      </details>
 
       <section className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
         <div className="flex items-center gap-2">
