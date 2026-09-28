@@ -55,7 +55,6 @@ import {
   getTaskStatusLabel,
 } from "@/shared/lib/workManagement"
 import type {
-  Habit,
   LifeContext,
   Project,
   Task,
@@ -478,21 +477,22 @@ export default function DashboardPage() {
     (habit) => habit.dailyStatus[todayISO] === true,
   ).length
 
-  const weekDays = useMemo(() => getLastDays(todayISO, 7), [todayISO])
-  const weeklyRoutine = useMemo(() => {
-    let completed = 0
-    let expected = 0
-    for (const habit of personalHabits) {
-      const target = getHabitWeeklyTarget(habit, weekDays)
-      expected += target
-      completed += Math.min(getHabitWeeklyCompleted(habit, weekDays), target)
-    }
-    return {
-      completed,
-      expected,
-      progress: expected === 0 ? 0 : Math.round((completed / expected) * 100),
-    }
-  }, [personalHabits, weekDays])
+  const weekDays = getLastDays(todayISO, 7)
+  let weeklyCompleted = 0
+  let weeklyExpected = 0
+  for (const habit of personalHabits) {
+    const target = getHabitWeeklyTarget(habit, weekDays)
+    weeklyExpected += target
+    weeklyCompleted += Math.min(getHabitWeeklyCompleted(habit, weekDays), target)
+  }
+  const weeklyRoutine = {
+    completed: weeklyCompleted,
+    expected: weeklyExpected,
+    progress:
+      weeklyExpected === 0
+        ? 0
+        : Math.round((weeklyCompleted / weeklyExpected) * 100),
+  }
 
   const personalProgress = getOverallProgress(activePersonalProjects)
   const personalDashboardProjects = activePersonalProjects
@@ -527,29 +527,24 @@ export default function DashboardPage() {
       } => Boolean(item),
     )
 
-  const statsToShow = useMemo(
-    () =>
-      CHARACTER_STATS.filter((stat) => visibleStatIds.includes(stat.id))
-        .map((stat) => ({
-          stat,
-          progressData: getCharacterStatProgress(
-            personalProjects,
-            stat.id,
-            personalHabits,
-            weekDays,
-          ),
-        }))
-        .filter(
-          ({ progressData }) =>
-            progressData.linkedProjects + progressData.linkedHabits > 0,
-        )
-        .sort(
-          (a, b) =>
-            b.progressData.progress - a.progressData.progress,
-        )
-        .slice(0, 4),
-    [personalProjects, personalHabits, visibleStatIds, weekDays],
+  const statsToShow = CHARACTER_STATS.filter((stat) =>
+    visibleStatIds.includes(stat.id),
   )
+    .map((stat) => ({
+      stat,
+      progressData: getCharacterStatProgress(
+        personalProjects,
+        stat.id,
+        personalHabits,
+        weekDays,
+      ),
+    }))
+    .filter(
+      ({ progressData }) =>
+        progressData.linkedProjects + progressData.linkedHabits > 0,
+    )
+    .sort((a, b) => b.progressData.progress - a.progressData.progress)
+    .slice(0, 4)
 
   const workCurrent = workInProgress[0] ?? workFocusTasks[0]
   const personalCurrent = personalQueue[0]
