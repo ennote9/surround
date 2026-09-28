@@ -126,7 +126,7 @@ export async function toggleTaskCompleted(
 
   const { data, error } = await supabase
     .from("tasks")
-    .update({ completed })
+    .update({ completed, status: completed ? "done" : "planned" })
     .eq("id", taskId)
     .eq("user_id", userId)
     .select("*")
