@@ -622,7 +622,7 @@ export default function WorkPage() {
       return
     }
     if (!isNextActionEligible(item)) {
-      toast.info("Следующая задача проекта должен быть задачей, которую можно выполнять сейчас.")
+      toast.info("Следующей задачей проекта можно назначить только задачу, которую можно выполнять сейчас.")
       return
     }
     setProjectNextAction(item.projectId, item.task.id)
@@ -917,9 +917,9 @@ export default function WorkPage() {
         <div className="flex items-center gap-2">
           <Star className="size-5 text-violet-600 dark:text-violet-400" aria-hidden />
           <div className="min-w-0 flex-1">
-            <h2 className="font-semibold text-slate-950 dark:text-white">Следующая задача проекта проектов</h2>
+            <h2 className="font-semibold text-slate-950 dark:text-white">Следующие задачи проектов</h2>
             <p className="text-xs text-slate-500">
-              У каждого активного рабочего проекта должен быть один понятный следующую конкретную задачу.
+              У каждого активного рабочего проекта должна быть одна конкретная следующая задача.
             </p>
           </div>
           {projectsWithoutNextAction.length > 0 ? (
