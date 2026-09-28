@@ -89,6 +89,24 @@ function parseTaskPriorityFromDb(value: unknown): TaskPriority | undefined {
   return undefined
 }
 
+function parseTaskStatusFromDb(value: unknown): Task["status"] {
+  if (
+    value === "planned" ||
+    value === "in_progress" ||
+    value === "waiting" ||
+    value === "delegated" ||
+    value === "control" ||
+    value === "done"
+  ) {
+    return value
+  }
+  return "planned"
+}
+
+function parseProjectContextFromDb(value: unknown): Project["context"] {
+  return value === "work" ? "work" : "personal"
+}
+
 function mapStatTypeFromDb(value: unknown): Project["statType"] {
   if (value == null) {
     return undefined
@@ -279,6 +297,7 @@ export function projectRowToProjectBase(row: ProjectRow): Project {
     goalId: row.goal_id ?? undefined,
     title: row.title,
     description: row.description ?? undefined,
+    context: parseProjectContextFromDb(row.context),
     statType: mapStatTypeFromDb(row.stat_type),
     phase: mapPhaseFromDb(row.phase),
     targetDate: row.target_date ?? undefined,
@@ -300,6 +319,7 @@ export function projectToProjectInsert(
     goal_id: goalId,
     title: project.title,
     description: project.description ?? null,
+    context: project.context ?? "personal",
     stat_type: project.statType ?? null,
     phase: project.phase ?? null,
     target_date: project.targetDate ?? null,
@@ -312,6 +332,7 @@ export function projectToProjectUpdate(patch: Partial<Project>): ProjectUpdate {
   if ("goalId" in patch) o.goal_id = patch.goalId?.trim() || null
   if ("title" in patch && patch.title !== undefined) o.title = patch.title
   if ("description" in patch) o.description = patch.description ?? null
+  if ("context" in patch) o.context = patch.context ?? "personal"
   if ("statType" in patch) o.stat_type = patch.statType ?? null
   if ("phase" in patch) o.phase = patch.phase ?? null
   if ("targetDate" in patch) o.target_date = patch.targetDate ?? null
@@ -371,10 +392,13 @@ export function taskRowToTask(row: TaskRow): Task {
     groupId: row.group_id,
     projectId: row.project_id,
     title: row.title,
-    completed: row.completed,
+    completed: row.completed || row.status === "done",
+    status: parseTaskStatusFromDb(row.status),
     deadline: row.deadline ?? undefined,
     notes: row.notes ?? undefined,
     priority: parseTaskPriorityFromDb(row.priority),
+    assignee: row.assignee ?? undefined,
+    followUpDate: row.follow_up_date ?? undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
@@ -394,9 +418,12 @@ export function taskToTaskInsert(
     group_id: groupId,
     title: task.title,
     completed: task.completed,
+    status: task.status ?? (task.completed ? "done" : "planned"),
     deadline: task.deadline ?? null,
     notes: task.notes ?? null,
     priority: task.priority ?? null,
+    assignee: task.assignee ?? null,
+    follow_up_date: task.followUpDate ?? null,
     sort_order: sortOrder,
   }
 }
@@ -414,6 +441,9 @@ export function taskToTaskUpdate(patch: Partial<Task>): TaskUpdate {
   if ("deadline" in patch) o.deadline = patch.deadline ?? null
   if ("notes" in patch) o.notes = patch.notes ?? null
   if ("priority" in patch) o.priority = patch.priority ?? null
+  if ("status" in patch) o.status = patch.status ?? "planned"
+  if ("assignee" in patch) o.assignee = patch.assignee ?? null
+  if ("followUpDate" in patch) o.follow_up_date = patch.followUpDate ?? null
   return o
 }
 
