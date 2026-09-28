@@ -18,6 +18,7 @@ export type AddProjectPayload = {
   title: string
   goalId?: string
   description?: string
+  context?: Project["context"]
   showOnDashboard?: boolean
   statType?: CharacterStatType
   phase?: ProjectPhase
@@ -34,6 +35,7 @@ export type UpdateProjectPayload = {
       | "title"
       | "goalId"
       | "description"
+      | "context"
       | "showOnDashboard"
       | "statType"
       | "phase"
@@ -86,6 +88,9 @@ export type AddTaskPayload = {
   deadline?: string
   notes?: string
   priority?: Task["priority"]
+  status?: Task["status"]
+  assignee?: string
+  followUpDate?: string
   createdAt?: string
   updatedAt?: string
 }
@@ -95,7 +100,17 @@ export type UpdateTaskPayload = {
   groupId: string
   taskId: string
   patch: Partial<
-    Pick<Task, "title" | "completed" | "deadline" | "notes" | "priority">
+    Pick<
+      Task,
+      | "title"
+      | "completed"
+      | "deadline"
+      | "notes"
+      | "priority"
+      | "status"
+      | "assignee"
+      | "followUpDate"
+    >
   >
 }
 
