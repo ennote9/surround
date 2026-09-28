@@ -24,6 +24,8 @@ export type WorkInboxItem = {
   id: string
   title: string
   createdAt: string
+  /** Контекст входящего. У старых записей отсутствие значения трактуется как work. */
+  context?: LifeContext
 }
 
 export type WorkDayClosure = {
