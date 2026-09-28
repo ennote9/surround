@@ -6,6 +6,7 @@ import type {
   Milestone,
   Project,
   Task,
+  TaskDeferReason,
   TaskGroup,
   TaskPriority,
 } from "@/store/appState.types"
@@ -84,6 +85,20 @@ function parseGoalStatusFromDb(value: unknown): Goal["status"] {
 
 function parseTaskPriorityFromDb(value: unknown): TaskPriority | undefined {
   if (value === "low" || value === "medium" || value === "high") {
+    return value
+  }
+  return undefined
+}
+
+function parseTaskDeferReasonFromDb(value: unknown): TaskDeferReason | undefined {
+  if (
+    value === "priority_changed" ||
+    value === "dependency" ||
+    value === "capacity" ||
+    value === "blocked" ||
+    value === "deadline_changed" ||
+    value === "other"
+  ) {
     return value
   }
   return undefined
@@ -399,7 +414,8 @@ export function taskRowToTask(row: TaskRow): Task {
     priority: parseTaskPriorityFromDb(row.priority),
     assignee: row.assignee ?? undefined,
     followUpDate: row.follow_up_date ?? undefined,
-    deferReason: row.defer_reason ?? undefined,
+    deferReason: parseTaskDeferReasonFromDb(row.defer_reason),
+    deferNote: row.defer_note ?? undefined,
     deferredUntil: row.deferred_until ?? undefined,
     delegationNote: row.delegation_note ?? undefined,
     delegatedAt: row.delegated_at ?? undefined,
@@ -432,6 +448,7 @@ export function taskToTaskInsert(
     assignee: task.assignee ?? null,
     follow_up_date: task.followUpDate ?? null,
     defer_reason: task.deferReason ?? null,
+    defer_note: task.deferNote ?? null,
     deferred_until: task.deferredUntil ?? null,
     delegation_note: task.delegationNote ?? null,
     delegated_at: task.delegatedAt ?? null,
@@ -459,6 +476,7 @@ export function taskToTaskUpdate(patch: Partial<Task>): TaskUpdate {
   if ("assignee" in patch) o.assignee = patch.assignee ?? null
   if ("followUpDate" in patch) o.follow_up_date = patch.followUpDate ?? null
   if ("deferReason" in patch) o.defer_reason = patch.deferReason ?? null
+  if ("deferNote" in patch) o.defer_note = patch.deferNote ?? null
   if ("deferredUntil" in patch) o.deferred_until = patch.deferredUntil ?? null
   if ("delegationNote" in patch) o.delegation_note = patch.delegationNote ?? null
   if ("delegatedAt" in patch) o.delegated_at = patch.delegatedAt ?? null
