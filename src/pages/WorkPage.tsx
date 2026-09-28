@@ -180,8 +180,8 @@ function TaskRow({
                 ? "flex size-8 items-center justify-center rounded-lg bg-violet-100 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300"
                 : "flex size-8 items-center justify-center rounded-lg bg-slate-100 text-slate-400 hover:text-violet-600 dark:bg-slate-800"
             }
-            title="Сделать следующим шагом проекта"
-            aria-label="Сделать следующим шагом проекта"
+            title="Назначить следующей задачей проекта"
+            aria-label="Назначить следующей задачей проекта"
           >
             <Star className="size-3.5" aria-hidden />
           </button>
@@ -944,7 +944,7 @@ export default function WorkPage() {
                 </p>
                 {actionableTasks.length === 0 ? (
                   <p className="mt-2 text-xs text-slate-400">
-                    Нет задачи, которую можно назначить следующим шагом.
+                    Нет задачи, которую сейчас можно назначить следующей задачей проекта.
                   </p>
                 ) : (
                   <select
@@ -1338,7 +1338,7 @@ export default function WorkPage() {
               <p>В работе без смены статуса 3+ дня: {staleInProgress.length}.</p>
             ) : null}
             {projectsWithoutNextAction.length > 0 ? (
-              <p>Активных проектов без следующего шага: {projectsWithoutNextAction.length}.</p>
+              <p>Активных проектов без следующей задачи: {projectsWithoutNextAction.length}.</p>
             ) : null}
             {dueControlTasks.length > 0 ? (
               <p>Задач, у которых наступила дата контроля: {dueControlTasks.length}.</p>
