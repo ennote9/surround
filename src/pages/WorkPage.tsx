@@ -1155,11 +1155,23 @@ export default function WorkPage() {
                       onAssigneeChange={(assignee) => updateTask(item, { assignee })}
                       onToggleFocus={() => toggleFocus(item.task.id)}
                       onSetNextAction={() => toggleNextAction(item)}
-                      onDeferredChange={(deferredUntil) =>
-                        updateTask(item, { deferredUntil })
-                      }
+                      onDeferredChange={(deferredUntil) => {
+                        updateTask(item, {
+                          deferredUntil,
+                          ...(deferredUntil ? { isNextAction: false } : {}),
+                        })
+                        if (
+                          deferredUntil &&
+                          activeFocusIds.includes(item.task.id)
+                        ) {
+                          setFocus(activeFocusIds.filter((id) => id !== item.task.id))
+                        }
+                      }}
                       onDeferReasonChange={(deferReason) =>
                         updateTask(item, { deferReason })
+                      }
+                      onDeferNoteChange={(deferNote) =>
+                        updateTask(item, { deferNote })
                       }
                       onDelegationNoteChange={(delegationNote) =>
                         updateTask(item, { delegationNote })
