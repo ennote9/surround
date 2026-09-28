@@ -23,6 +23,14 @@ export type WorkDayClosure = {
   note?: string
 }
 
+export type WorkWeeklyReview = {
+  reviewedAt: string
+  wins?: string
+  blockers?: string
+  decisions?: string
+  nextWeek?: string
+}
+
 export type CharacterStatType =
   | "intelligence"
   | "language"
@@ -50,6 +58,8 @@ export type AppSettings = {
   workInbox: WorkInboxItem[]
   dailyFocus: Record<string, string[]>
   workDayClosures: Record<string, WorkDayClosure>
+  workWipLimit: number
+  workWeeklyReviews: Record<string, WorkWeeklyReview>
 }
 
 export type GoalStatus = "active" | "later" | "archived"
@@ -77,6 +87,13 @@ export type Task = {
   priority?: TaskPriority
   assignee?: string
   followUpDate?: string
+  deferReason?: string
+  deferredUntil?: string
+  delegationNote?: string
+  delegatedAt?: string
+  isNextAction?: boolean
+  statusChangedAt?: string
+  completedAt?: string
   createdAt: string
   updatedAt: string
 }
