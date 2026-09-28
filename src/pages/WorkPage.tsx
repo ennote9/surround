@@ -402,7 +402,8 @@ export default function WorkPage() {
         b.task.deadline ?? "9999-99-99",
       )
     })
-  const inboxItems = state.settings.workInbox ?? []
+  const allInboxItems = state.settings.workInbox ?? []
+  const inboxItems = allInboxItems.filter((item) => item.context !== "personal")
   const dayClosure = state.settings.workDayClosures?.[todayISO]
 
   const overdue = activeTasks.filter(
@@ -555,13 +556,14 @@ export default function WorkPage() {
       id: makeId(),
       title,
       createdAt: new Date().toISOString(),
+      context: "work",
     }
-    updateSettings({ workInbox: [item, ...inboxItems] })
+    updateSettings({ workInbox: [item, ...allInboxItems] })
     setInboxTitle("")
   }
 
   const removeInboxItem = (id: string) => {
-    updateSettings({ workInbox: inboxItems.filter((item) => item.id !== id) })
+    updateSettings({ workInbox: allInboxItems.filter((item) => item.id !== id) })
     setInboxTargets((current) => {
       const next = { ...current }
       delete next[id]

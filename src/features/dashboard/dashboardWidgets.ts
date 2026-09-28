@@ -14,26 +14,26 @@ export type DashboardWidgetConfig = {
 export const DEFAULT_DASHBOARD_WIDGETS: DashboardWidgetConfig[] = [
   {
     id: "overallProgress",
-    title: "Текущий прогресс",
-    description: "Прогресс по проектам фазы «Сейчас».",
+    title: "Сводка дня",
+    description: "Компактные показатели текущего контекста.",
     enabled: true,
   },
   {
     id: "todayRoutines",
-    title: "Ритм недели",
-    description: "Выполнение недельной нормы привычек.",
+    title: "Рутины",
+    description: "Сегодняшние привычки и недельный ритм.",
     enabled: true,
   },
   {
     id: "projects",
     title: "Проекты",
-    description: "Карточки направлений подготовки.",
+    description: "Компактный список активных проектов и следующих действий.",
     enabled: true,
   },
   {
     id: "metrics",
     title: "Статы персонажа",
-    description: "Универсальные RPG-статы, которые прокачиваются через проекты.",
+    description: "Компактные показатели личного развития на Главной.",
     enabled: true,
   },
 ]

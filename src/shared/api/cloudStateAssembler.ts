@@ -47,7 +47,13 @@ function resolveSettings(settings: Record<string, unknown> | null): AppSettings 
           typeof item.createdAt === "string" && item.createdAt.trim()
             ? item.createdAt
             : new Date().toISOString()
-        return id && title ? [{ id, title, createdAt }] : []
+        const context: "personal" | "work" | undefined =
+          item.context === "personal" || item.context === "work"
+            ? item.context
+            : undefined
+        return id && title
+          ? [{ id, title, createdAt, ...(context ? { context } : {}) }]
+          : []
       })
     : []
 
