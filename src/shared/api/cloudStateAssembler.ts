@@ -61,6 +61,33 @@ function resolveSettings(settings: Record<string, unknown> | null): AppSettings 
     }
   }
 
+  const workWipLimit =
+    typeof merged.workWipLimit === "number" && Number.isFinite(merged.workWipLimit)
+      ? Math.max(1, Math.min(12, Math.round(merged.workWipLimit)))
+      : 4
+
+  const workWeeklyReviews: AppSettings["workWeeklyReviews"] = {}
+  if (isRecord(merged.workWeeklyReviews)) {
+    for (const [week, value] of Object.entries(merged.workWeeklyReviews)) {
+      if (!isRecord(value) || typeof value.reviewedAt !== "string") continue
+      workWeeklyReviews[week] = {
+        reviewedAt: value.reviewedAt,
+        ...(typeof value.wins === "string" && value.wins.trim()
+          ? { wins: value.wins.trim() }
+          : {}),
+        ...(typeof value.blockers === "string" && value.blockers.trim()
+          ? { blockers: value.blockers.trim() }
+          : {}),
+        ...(typeof value.decisions === "string" && value.decisions.trim()
+          ? { decisions: value.decisions.trim() }
+          : {}),
+        ...(typeof value.nextWeek === "string" && value.nextWeek.trim()
+          ? { nextWeek: value.nextWeek.trim() }
+          : {}),
+      }
+    }
+  }
+
   const workDayClosures: AppSettings["workDayClosures"] = {}
   if (isRecord(merged.workDayClosures)) {
     for (const [date, value] of Object.entries(merged.workDayClosures)) {
@@ -81,6 +108,8 @@ function resolveSettings(settings: Record<string, unknown> | null): AppSettings 
     workInbox,
     dailyFocus,
     workDayClosures,
+    workWipLimit,
+    workWeeklyReviews,
   }
 }
 
