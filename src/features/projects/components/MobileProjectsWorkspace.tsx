@@ -564,12 +564,18 @@ export function MobileProjectsWorkspace({
           <div className="rounded-[22px] border border-dashed border-slate-300 p-5 text-center dark:border-slate-700">
             <CheckCircle2 className="mx-auto size-7 text-slate-300 dark:text-slate-600" aria-hidden />
             <p className="mt-2 text-sm font-semibold text-slate-950 dark:text-slate-100">
-              {selectedStats.total > 0 ? "Все задачи выполнены" : "Следующего шага пока нет"}
+              {selectedStats.total === 0
+                ? "Задач пока нет"
+                : selectedStats.pending === 0
+                  ? "Все задачи выполнены"
+                  : "Следующая задача проекта не выбрана"}
             </p>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              {selectedStats.total > 0
-                ? "Можно завершить проект или добавить следующий этап."
-                : "Добавь этап и первую задачу, чтобы начать движение."}
+              {selectedStats.total === 0
+                ? "Добавь этап и первую задачу, чтобы начать движение."
+                : selectedStats.pending === 0
+                  ? "Можно завершить проект или добавить следующий этап."
+                  : "Открой нужную задачу и включи «Следующая задача проекта»."}
             </p>
           </div>
         )}
