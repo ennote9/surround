@@ -26,6 +26,7 @@ import {
   SELECTED_GOAL_STORAGE_KEY,
   SELECTED_PROJECT_STORAGE_KEY,
 } from "@/shared/lib/storageKeys"
+import { projectMatchesWorkspaceMode } from "@/shared/lib/workManagement"
 import type { Project, Task, TaskGroup } from "@/store/appState.types"
 import { useAppState } from "@/store/useAppState"
 
@@ -55,7 +56,7 @@ export default function ProjectsPage() {
   const selectedGoalId = normalizeSelectedGoalId(rawSelectedGoalId, state.goals)
   const selectableGoals = getSelectableGoals(state.goals)
 
-  const scopedProjects = useMemo(
+  const goalScopedProjects = useMemo(
     () =>
       getScopedProjectsForSelectedGoal(
         state.projects,
@@ -63,6 +64,13 @@ export default function ProjectsPage() {
         state.goals,
       ),
     [state.projects, state.goals, selectedGoalId],
+  )
+  const scopedProjects = useMemo(
+    () =>
+      goalScopedProjects.filter((project) =>
+        projectMatchesWorkspaceMode(project, state.settings.workspaceMode ?? "all"),
+      ),
+    [goalScopedProjects, state.settings.workspaceMode],
   )
 
   const defaultGoalId =
@@ -130,6 +138,7 @@ export default function ProjectsPage() {
             title: values.title,
             goalId: values.goalId === "" ? undefined : values.goalId,
             description: values.description,
+            context: values.context,
             showOnDashboard: values.showOnDashboard,
             statType: values.statType,
             phase: values.phase,
@@ -147,6 +156,7 @@ export default function ProjectsPage() {
           title: values.title,
           goalId: nextGoalId,
           description: values.description,
+          context: values.context,
           showOnDashboard: values.showOnDashboard ?? true,
           statType: values.statType,
           phase: values.phase ?? "active",
@@ -218,6 +228,9 @@ export default function ProjectsPage() {
             deadline: values.deadline,
             notes: values.notes,
             priority: values.priority,
+            status: values.status,
+            assignee: values.assignee,
+            followUpDate: values.followUpDate,
           },
         },
       })
@@ -232,6 +245,9 @@ export default function ProjectsPage() {
           deadline: values.deadline,
           notes: values.notes,
           priority: values.priority,
+          status: values.status,
+          assignee: values.assignee,
+          followUpDate: values.followUpDate,
         },
       })
       toast.success("Задача создана")
@@ -437,6 +453,7 @@ export default function ProjectsPage() {
         initialProject={editingProject ?? undefined}
         goals={selectableGoals}
         defaultGoalId={defaultGoalId}
+        defaultContext={state.settings.workspaceMode === "work" ? "work" : "personal"}
         onSubmit={handleProjectSubmit}
       />
 
