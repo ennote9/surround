@@ -45,7 +45,8 @@ function sanitizeNewTaskPayload(payload: AddTaskAction["payload"]): Task | null 
     priority: payload.priority,
     assignee: payload.assignee?.trim() || undefined,
     followUpDate: payload.followUpDate?.trim() || undefined,
-    deferReason: payload.deferReason?.trim() || undefined,
+    deferReason: payload.deferReason,
+    deferNote: payload.deferNote?.trim() || undefined,
     deferredUntil: payload.deferredUntil?.trim() || undefined,
     delegationNote: payload.delegationNote?.trim() || undefined,
     delegatedAt:
@@ -102,7 +103,8 @@ function sanitizeTaskPatch(
   if ("followUpDate" in patch) {
     next.followUpDate = patch.followUpDate?.trim() || undefined
   }
-  if ("deferReason" in patch) next.deferReason = patch.deferReason?.trim() || undefined
+  if ("deferReason" in patch) next.deferReason = patch.deferReason
+  if ("deferNote" in patch) next.deferNote = patch.deferNote?.trim() || undefined
   if ("deferredUntil" in patch) {
     next.deferredUntil = patch.deferredUntil?.trim() || undefined
   }
