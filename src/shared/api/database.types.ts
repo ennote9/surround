@@ -136,6 +136,7 @@ export type TaskRow = {
   assignee: string | null
   follow_up_date: string | null
   defer_reason: string | null
+  defer_note: string | null
   deferred_until: string | null
   delegation_note: string | null
   delegated_at: string | null
@@ -161,6 +162,7 @@ export type TaskInsert = {
   assignee: string | null
   follow_up_date: string | null
   defer_reason: string | null
+  defer_note: string | null
   deferred_until: string | null
   delegation_note: string | null
   delegated_at: string | null
@@ -182,6 +184,7 @@ export type TaskUpdate = Partial<{
   assignee: string | null
   follow_up_date: string | null
   defer_reason: string | null
+  defer_note: string | null
   deferred_until: string | null
   delegation_note: string | null
   delegated_at: string | null
