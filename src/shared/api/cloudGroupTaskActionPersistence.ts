@@ -97,7 +97,13 @@ function sanitizeTaskPatch(
     if (patch.status === "delegated" && patch.delegatedAt === undefined) {
       next.delegatedAt = changedAt
     }
-    if (patch.status === "done") next.isNextAction = false
+    if (
+      patch.status === "done" ||
+      patch.status === "waiting" ||
+      patch.status === "delegated"
+    ) {
+      next.isNextAction = false
+    }
   }
   if ("assignee" in patch) next.assignee = patch.assignee?.trim() || undefined
   if ("followUpDate" in patch) {
@@ -107,6 +113,7 @@ function sanitizeTaskPatch(
   if ("deferNote" in patch) next.deferNote = patch.deferNote?.trim() || undefined
   if ("deferredUntil" in patch) {
     next.deferredUntil = patch.deferredUntil?.trim() || undefined
+    if (next.deferredUntil) next.isNextAction = false
   }
   if ("delegationNote" in patch) {
     next.delegationNote = patch.delegationNote?.trim() || undefined
