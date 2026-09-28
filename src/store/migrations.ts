@@ -15,6 +15,68 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null
 }
 
+function sanitizeAppSettings(rawSettings: unknown): AppState["settings"] {
+  const raw = isRecord(rawSettings) ? rawSettings : {}
+
+  const theme =
+    raw.theme === "dark" || raw.theme === "system" || raw.theme === "light"
+      ? raw.theme
+      : initialAppState.settings.theme
+  const accentColor =
+    typeof raw.accentColor === "string" && raw.accentColor.trim()
+      ? raw.accentColor
+      : initialAppState.settings.accentColor
+  const workspaceMode =
+    raw.workspaceMode === "work" || raw.workspaceMode === "personal"
+      ? raw.workspaceMode
+      : "all"
+
+  const workInbox = Array.isArray(raw.workInbox)
+    ? raw.workInbox.flatMap((item) => {
+        if (!isRecord(item)) return []
+        const id = typeof item.id === "string" ? item.id.trim() : ""
+        const title = typeof item.title === "string" ? item.title.trim() : ""
+        const createdAt =
+          typeof item.createdAt === "string" && item.createdAt.trim()
+            ? item.createdAt
+            : new Date().toISOString()
+        return id && title ? [{ id, title, createdAt }] : []
+      })
+    : []
+
+  const dailyFocus: Record<string, string[]> = {}
+  if (isRecord(raw.dailyFocus)) {
+    for (const [date, ids] of Object.entries(raw.dailyFocus)) {
+      if (!Array.isArray(ids)) continue
+      dailyFocus[date] = [
+        ...new Set(ids.filter((id): id is string => typeof id === "string" && id.trim() !== "")),
+      ].slice(0, 3)
+    }
+  }
+
+  const workDayClosures: AppState["settings"]["workDayClosures"] = {}
+  if (isRecord(raw.workDayClosures)) {
+    for (const [date, value] of Object.entries(raw.workDayClosures)) {
+      if (!isRecord(value) || typeof value.closedAt !== "string") continue
+      workDayClosures[date] = {
+        closedAt: value.closedAt,
+        ...(typeof value.note === "string" && value.note.trim()
+          ? { note: value.note.trim() }
+          : {}),
+      }
+    }
+  }
+
+  return {
+    theme,
+    accentColor,
+    workspaceMode,
+    workInbox,
+    dailyFocus,
+    workDayClosures,
+  }
+}
+
 function looksLikeBaseAppState(raw: Record<string, unknown>): boolean {
   return (
     Array.isArray(raw.projects) &&
@@ -286,7 +348,7 @@ export function migrateAppState(raw: unknown): AppState {
 
   return {
     version: 2,
-    settings: base.settings,
+    settings: sanitizeAppSettings(base.settings),
     goals,
     projects: sanitizeProjects(base.projects, validGoalIds, fallbackGoalId),
     habits: base.habits,
