@@ -231,6 +231,10 @@ export default function ProjectsPage() {
             status: values.status,
             assignee: values.assignee,
             followUpDate: values.followUpDate,
+            deferReason: values.deferReason,
+            deferredUntil: values.deferredUntil,
+            delegationNote: values.delegationNote,
+            isNextAction: values.isNextAction,
           },
         },
       })
@@ -248,6 +252,10 @@ export default function ProjectsPage() {
           status: values.status,
           assignee: values.assignee,
           followUpDate: values.followUpDate,
+          deferReason: values.deferReason,
+          deferredUntil: values.deferredUntil,
+          delegationNote: values.delegationNote,
+          isNextAction: values.isNextAction,
         },
       })
       toast.success("Задача создана")
