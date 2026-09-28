@@ -27,13 +27,16 @@ import { getTodayISO } from "@/shared/lib/dates"
 import { SELECTED_PROJECT_STORAGE_KEY } from "@/shared/lib/storageKeys"
 import {
   getProjectContext,
+  getTaskDeferReasonLabel,
   getTaskStatus,
   getTaskStatusLabel,
+  TASK_DEFER_REASON_OPTIONS,
   TASK_STATUS_OPTIONS,
 } from "@/shared/lib/workManagement"
 import type {
   Project,
   Task,
+  TaskDeferReason,
   TaskStatus,
   WorkInboxItem,
   WorkWeeklyReview,
@@ -110,6 +113,7 @@ function TaskRow({
   onSetNextAction,
   onDeferredChange,
   onDeferReasonChange,
+  onDeferNoteChange,
   onDelegationNoteChange,
 }: {
   item: WorkTaskRef
@@ -121,7 +125,8 @@ function TaskRow({
   onToggleFocus: () => void
   onSetNextAction: () => void
   onDeferredChange: (value?: string) => void
-  onDeferReasonChange: (value?: string) => void
+  onDeferReasonChange: (value?: TaskDeferReason) => void
+  onDeferNoteChange: (value?: string) => void
   onDelegationNoteChange: (value?: string) => void
 }) {
   const status = getTaskStatus(item.task)
@@ -245,16 +250,33 @@ function TaskRow({
               className="h-9 text-xs"
               aria-label="Отложить до"
             />
-            <Input
-              defaultValue={item.task.deferReason ?? ""}
-              onBlur={(event) =>
-                onDeferReasonChange(event.target.value.trim() || undefined)
+            <select
+              value={item.task.deferReason ?? ""}
+              onChange={(event) =>
+                onDeferReasonChange(
+                  (event.target.value || undefined) as TaskDeferReason | undefined,
+                )
               }
-              className="h-9 text-xs"
-              placeholder="Причина переноса"
+              className="h-9 min-w-0 rounded-lg border border-slate-300 bg-white px-2.5 text-xs text-slate-800 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
               aria-label="Причина переноса"
-            />
+            >
+              <option value="">Причина не указана</option>
+              {TASK_DEFER_REASON_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
           </div>
+          <Input
+            defaultValue={item.task.deferNote ?? ""}
+            onBlur={(event) =>
+              onDeferNoteChange(event.target.value.trim() || undefined)
+            }
+            className="h-9 text-xs"
+            placeholder="Комментарий: что изменилось и когда вернуться"
+            aria-label="Комментарий к переносу"
+          />
           <Textarea
             defaultValue={item.task.delegationNote ?? ""}
             onBlur={(event) =>
@@ -435,6 +457,21 @@ export default function WorkPage() {
   const delegatedTasks = activeTasks.filter(
     (item) => getTaskStatus(item.task) === "delegated",
   )
+
+  const deferReasonCounts = deferredFutureTasks.reduce<
+    Partial<Record<TaskDeferReason, number>>
+  >((acc, item) => {
+    const reason = item.task.deferReason
+    if (reason) acc[reason] = (acc[reason] ?? 0) + 1
+    return acc
+  }, {})
+  const deferReasonSummary = TASK_DEFER_REASON_OPTIONS
+    .map((option) => ({
+      label: option.label,
+      count: deferReasonCounts[option.value] ?? 0,
+    }))
+    .filter((item) => item.count > 0)
+    .sort((a, b) => b.count - a.count)
 
   const operationalTasks = activeTasks.filter(
     (item) =>
@@ -1036,6 +1073,9 @@ export default function WorkPage() {
                 onDeferReasonChange={(deferReason) =>
                   updateTask(item, { deferReason })
                 }
+                onDeferNoteChange={(deferNote) =>
+                  updateTask(item, { deferNote })
+                }
                 onDelegationNoteChange={(delegationNote) =>
                   updateTask(item, { delegationNote })
                 }
@@ -1132,6 +1172,20 @@ export default function WorkPage() {
             <p className="text-[10px] text-slate-500">просрочено</p>
           </div>
         </div>
+
+        {deferReasonSummary.length > 0 ? (
+          <div className="mt-3 flex flex-wrap gap-2">
+            <span className="text-xs text-slate-500">Причины переносов:</span>
+            {deferReasonSummary.map((item) => (
+              <span
+                key={item.label}
+                className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+              >
+                {item.label}: {item.count}
+              </span>
+            ))}
+          </div>
+        ) : null}
 
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           <Textarea
