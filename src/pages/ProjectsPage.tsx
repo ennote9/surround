@@ -26,7 +26,11 @@ import {
   SELECTED_GOAL_STORAGE_KEY,
   SELECTED_PROJECT_STORAGE_KEY,
 } from "@/shared/lib/storageKeys"
-import { projectMatchesWorkspaceMode } from "@/shared/lib/workManagement"
+import {
+  getProjectContext,
+  getTaskStatus,
+  projectMatchesWorkspaceMode,
+} from "@/shared/lib/workManagement"
 import type { Project, Task, TaskGroup } from "@/store/appState.types"
 import { useAppState } from "@/store/useAppState"
 
@@ -216,6 +220,36 @@ export default function ProjectsPage() {
 
   const handleTaskSubmit = (values: TaskFormValues) => {
     if (!taskDialogProjectId || !taskDialogGroupId) return
+
+    const taskProject = state.projects.find(
+      (project) => project.id === taskDialogProjectId,
+    )
+    const movingIntoWork =
+      getProjectContext(taskProject ?? ({ context: "personal" } as Project)) === "work" &&
+      values.status === "in_progress" &&
+      getTaskStatus(
+        editingTask ??
+          ({
+            completed: false,
+            status: "planned",
+          } as Task),
+      ) !== "in_progress"
+
+    if (movingIntoWork) {
+      const currentWip = state.projects
+        .filter((project) => getProjectContext(project) === "work")
+        .flatMap((project) => project.groups)
+        .flatMap((group) => group.tasks)
+        .filter((task) => getTaskStatus(task) === "in_progress").length
+      const limit = state.settings.workWipLimit ?? 4
+      if (currentWip >= limit) {
+        toast.warning(
+          `WIP-лимит ${limit} уже достигнут. Сначала заверши или выведи из работы одну из текущих задач.`,
+        )
+        return
+      }
+    }
+
     if (editingTask) {
       dispatch({
         type: "UPDATE_TASK",
