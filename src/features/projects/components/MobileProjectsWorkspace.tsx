@@ -516,7 +516,7 @@ export function MobileProjectsWorkspace({
               Фокус
             </p>
             <h2 className="mt-0.5 text-xl font-semibold tracking-tight text-slate-950 dark:text-white">
-              Следующий шаг
+              Следующая задача проекта
             </h2>
           </div>
         </div>
