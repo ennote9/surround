@@ -10,6 +10,7 @@ import ProjectsPage from "@/pages/ProjectsPage"
 import RoutinePage from "@/pages/RoutinePage"
 import ProfilePage from "@/pages/ProfilePage"
 import SettingsPage from "@/pages/SettingsPage"
+import WorkPage from "@/pages/WorkPage"
 
 export const router = createBrowserRouter([
   { path: "/auth", element: <AuthPage /> },
@@ -20,6 +21,7 @@ export const router = createBrowserRouter([
       { index: true, element: <DashboardPage /> },
       { path: "goals", element: <GoalsPage /> },
       { path: "projects", element: <ProjectsPage /> },
+      { path: "work", element: <WorkPage /> },
       { path: "routine", element: <RoutinePage /> },
       { path: "analytics", element: <AnalyticsPage /> },
       { path: "guide", element: <GuidePage /> },
