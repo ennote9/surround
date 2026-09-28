@@ -299,15 +299,26 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
           if (proj.id !== projectId) return proj
           return {
             ...proj,
-            groups: proj.groups.map((g) =>
-              g.id === groupId
-                ? {
-                    ...g,
-                    tasks: [...g.tasks, task],
-                    updatedAt: t,
-                  }
-                : g,
-            ),
+            groups: proj.groups.map((g) => ({
+              ...g,
+              tasks:
+                g.id === groupId
+                  ? [
+                      ...g.tasks.map((existing) =>
+                        task.isNextAction
+                          ? { ...existing, isNextAction: false }
+                          : existing,
+                      ),
+                      task,
+                    ]
+                  : task.isNextAction
+                    ? g.tasks.map((existing) => ({
+                        ...existing,
+                        isNextAction: false,
+                      }))
+                    : g.tasks,
+              updatedAt: g.id === groupId ? t : g.updatedAt,
+            })),
             updatedAt: t,
           }
         }),
@@ -342,18 +353,19 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
           if (proj.id !== projectId) return proj
           return {
             ...proj,
-            groups: proj.groups.map((g) => {
-              if (g.id !== groupId) return g
-              return {
-                ...g,
-                tasks: g.tasks.map((task) =>
-                  task.id === taskId
-                    ? { ...task, ...normalizedPatch, updatedAt: t }
-                    : task,
-                ),
-                updatedAt: t,
-              }
-            }),
+            groups: proj.groups.map((g) => ({
+              ...g,
+              tasks: g.tasks.map((task) => {
+                if (task.id === taskId) {
+                  return { ...task, ...normalizedPatch, updatedAt: t }
+                }
+                if (normalizedPatch.isNextAction === true) {
+                  return { ...task, isNextAction: false }
+                }
+                return task
+              }),
+              updatedAt: g.id === groupId ? t : g.updatedAt,
+            })),
             updatedAt: t,
           }
         }),
