@@ -278,6 +278,18 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
         priority,
         assignee,
         followUpDate,
+        deferReason: action.payload.deferReason,
+        deferredUntil: action.payload.deferredUntil,
+        delegationNote: action.payload.delegationNote,
+        delegatedAt:
+          action.payload.delegatedAt ??
+          (taskStatus === "delegated" ? t : undefined),
+        isNextAction:
+          taskStatus === "done" ? false : (action.payload.isNextAction ?? false),
+        statusChangedAt: action.payload.statusChangedAt ?? t,
+        completedAt:
+          action.payload.completedAt ??
+          (taskStatus === "done" ? t : undefined),
         createdAt: action.payload.createdAt ?? t,
         updatedAt: action.payload.updatedAt ?? t,
       }
@@ -307,8 +319,22 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
       const normalizedPatch: Partial<Task> = { ...patch }
       if (patch.status !== undefined) {
         normalizedPatch.completed = patch.status === "done"
+        normalizedPatch.statusChangedAt = patch.statusChangedAt ?? t
+        normalizedPatch.completedAt =
+          patch.status === "done" ? (patch.completedAt ?? t) : undefined
+        if (patch.status === "delegated" && patch.delegatedAt === undefined) {
+          normalizedPatch.delegatedAt = t
+        }
+        if (patch.status === "done") {
+          normalizedPatch.isNextAction = false
+        }
       } else if (patch.completed !== undefined) {
         normalizedPatch.status = patch.completed ? "done" : "planned"
+        normalizedPatch.statusChangedAt = patch.statusChangedAt ?? t
+        normalizedPatch.completedAt = patch.completed ? (patch.completedAt ?? t) : undefined
+        if (patch.completed) {
+          normalizedPatch.isNextAction = false
+        }
       }
       return {
         ...state,
@@ -356,6 +382,9 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
                     ...task,
                     completed,
                     status: completed ? "done" : "planned",
+                    statusChangedAt: t,
+                    completedAt: completed ? t : undefined,
+                    isNextAction: completed ? false : task.isNextAction,
                     updatedAt: t,
                   }
                 }),
