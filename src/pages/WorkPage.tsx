@@ -170,14 +170,18 @@ export default function WorkPage() {
   )
 
   const activeTasks = workTasks.filter((item) => getTaskStatus(item.task) !== "done")
+  const focusEligibleTasks = activeTasks.filter((item) => {
+    const status = getTaskStatus(item.task)
+    return status === "planned" || status === "in_progress" || status === "control"
+  })
   const focusIds = state.settings.dailyFocus?.[todayISO] ?? []
   const focusTasks = focusIds
-    .map((id) => activeTasks.find((item) => item.task.id === id))
+    .map((id) => focusEligibleTasks.find((item) => item.task.id === id))
     .filter((item): item is WorkTaskRef => Boolean(item))
     .slice(0, 3)
 
   const activeFocusIds = focusTasks.map((item) => item.task.id)
-  const focusCandidates = activeTasks.filter(
+  const focusCandidates = focusEligibleTasks.filter(
     (item) => !activeFocusIds.includes(item.task.id),
   )
   const inboxItems = state.settings.workInbox ?? []
