@@ -6,6 +6,7 @@ import { ProjectTargetDatesCard } from "@/features/analytics/components/ProjectT
 import { ProjectProgressChart } from "@/features/analytics/components/ProjectProgressChart"
 import { TaskStatusChart } from "@/features/analytics/components/TaskStatusChart"
 import { UpcomingDeadlines } from "@/features/analytics/components/UpcomingDeadlines"
+import { WorkloadAnalyticsCard } from "@/features/analytics/components/WorkloadAnalyticsCard"
 import {
   getAnalyticsSummary,
   getMilestoneSummary,
@@ -119,6 +120,15 @@ export default function AnalyticsPage() {
         weekDates={weekDates}
       />
 
+      {state.settings.workspaceMode === "work" ? (
+        <div className="mt-4 md:hidden">
+          <WorkloadAnalyticsCard
+            projects={scopedProjects}
+            wipLimit={state.settings.workWipLimit ?? 4}
+          />
+        </div>
+      ) : null}
+
       <div className="hidden space-y-6 md:block lg:space-y-8">
         <header className="min-w-0">
           <h1 className="text-balance break-words text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-100 sm:text-3xl">
@@ -139,6 +149,13 @@ export default function AnalyticsPage() {
           overallProgress={analytics.currentProgress}
           averageHabitCompliance={analytics.habits.progress}
         />
+
+        {state.settings.workspaceMode === "work" ? (
+          <WorkloadAnalyticsCard
+            projects={scopedProjects}
+            wipLimit={state.settings.workWipLimit ?? 4}
+          />
+        ) : null}
 
         <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2 xl:gap-4">
           <ProjectProgressChart projects={scopedProjects} />
