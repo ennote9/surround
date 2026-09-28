@@ -6,6 +6,7 @@ import {
   updateProjectGroup,
 } from "./repositories/projectGroupsRepository"
 import {
+  clearProjectNextActions,
   createTask,
   deleteTask,
   toggleTaskCompleted,
@@ -44,6 +45,18 @@ function sanitizeNewTaskPayload(payload: AddTaskAction["payload"]): Task | null 
     priority: payload.priority,
     assignee: payload.assignee?.trim() || undefined,
     followUpDate: payload.followUpDate?.trim() || undefined,
+    deferReason: payload.deferReason,
+    deferNote: payload.deferNote?.trim() || undefined,
+    deferredUntil: payload.deferredUntil?.trim() || undefined,
+    delegationNote: payload.delegationNote?.trim() || undefined,
+    delegatedAt:
+      payload.delegatedAt ??
+      (payload.status === "delegated" ? now : undefined),
+    isNextAction: payload.status === "done" ? false : (payload.isNextAction ?? false),
+    statusChangedAt: payload.statusChangedAt ?? now,
+    completedAt:
+      payload.completedAt ??
+      (payload.status === "done" ? now : undefined),
     createdAt: payload.createdAt ?? now,
     updatedAt: payload.updatedAt ?? now,
   }
@@ -63,6 +76,11 @@ function sanitizeTaskPatch(
   if (patch.completed !== undefined) {
     next.completed = patch.completed
     next.status = patch.completed ? "done" : "planned"
+    next.statusChangedAt = patch.statusChangedAt ?? new Date().toISOString()
+    next.completedAt = patch.completed
+      ? (patch.completedAt ?? new Date().toISOString())
+      : undefined
+    if (patch.completed) next.isNextAction = false
   }
   if ("deadline" in patch) {
     next.deadline = patch.deadline?.trim() || undefined
@@ -70,12 +88,47 @@ function sanitizeTaskPatch(
   if ("notes" in patch) next.notes = patch.notes?.trim() || undefined
   if ("priority" in patch) next.priority = patch.priority
   if ("status" in patch) {
+    const changedAt = patch.statusChangedAt ?? new Date().toISOString()
     next.status = patch.status
     next.completed = patch.status === "done"
+    next.statusChangedAt = changedAt
+    next.completedAt =
+      patch.status === "done" ? (patch.completedAt ?? changedAt) : undefined
+    if (patch.status === "delegated" && patch.delegatedAt === undefined) {
+      next.delegatedAt = changedAt
+    }
+    if (
+      patch.status === "done" ||
+      patch.status === "waiting" ||
+      patch.status === "delegated"
+    ) {
+      next.isNextAction = false
+    }
   }
   if ("assignee" in patch) next.assignee = patch.assignee?.trim() || undefined
   if ("followUpDate" in patch) {
     next.followUpDate = patch.followUpDate?.trim() || undefined
+  }
+  if ("deferReason" in patch) next.deferReason = patch.deferReason
+  if ("deferNote" in patch) next.deferNote = patch.deferNote?.trim() || undefined
+  if ("deferredUntil" in patch) {
+    next.deferredUntil = patch.deferredUntil?.trim() || undefined
+    if (next.deferredUntil) next.isNextAction = false
+  }
+  if ("delegationNote" in patch) {
+    next.delegationNote = patch.delegationNote?.trim() || undefined
+  }
+  if ("delegatedAt" in patch && next.delegatedAt === undefined) {
+    next.delegatedAt = patch.delegatedAt
+  }
+  if ("isNextAction" in patch && next.isNextAction === undefined) {
+    next.isNextAction = patch.isNextAction === true
+  }
+  if ("statusChangedAt" in patch && next.statusChangedAt === undefined) {
+    next.statusChangedAt = patch.statusChangedAt
+  }
+  if ("completedAt" in patch && next.completedAt === undefined) {
+    next.completedAt = patch.completedAt
   }
 
   return next
@@ -139,6 +192,14 @@ async function persistTaskAction(
       return repositoryFailure("Не удалось сохранить задачу: отсутствует id задачи.")
     }
 
+    if (task.isNextAction) {
+      const cleared = await clearProjectNextActions(
+        userId,
+        action.payload.projectId,
+      )
+      if (cleared.error) return repositoryFailure(cleared.error)
+    }
+
     const result = await createTask(
       userId,
       action.payload.projectId,
@@ -152,6 +213,15 @@ async function persistTaskAction(
     const patch = sanitizeTaskPatch(action.payload.patch)
     if (Object.keys(patch).length === 0) {
       return repositorySuccess(null)
+    }
+
+    if (patch.isNextAction === true) {
+      const cleared = await clearProjectNextActions(
+        userId,
+        action.payload.projectId,
+        action.payload.taskId,
+      )
+      if (cleared.error) return repositoryFailure(cleared.error)
     }
 
     const result = await updateTask(userId, action.payload.taskId, patch)

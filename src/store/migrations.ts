@@ -54,6 +54,33 @@ function sanitizeAppSettings(rawSettings: unknown): AppState["settings"] {
     }
   }
 
+  const workWipLimit =
+    typeof raw.workWipLimit === "number" && Number.isFinite(raw.workWipLimit)
+      ? Math.max(1, Math.min(12, Math.round(raw.workWipLimit)))
+      : 4
+
+  const workWeeklyReviews: AppState["settings"]["workWeeklyReviews"] = {}
+  if (isRecord(raw.workWeeklyReviews)) {
+    for (const [week, value] of Object.entries(raw.workWeeklyReviews)) {
+      if (!isRecord(value) || typeof value.reviewedAt !== "string") continue
+      workWeeklyReviews[week] = {
+        reviewedAt: value.reviewedAt,
+        ...(typeof value.wins === "string" && value.wins.trim()
+          ? { wins: value.wins.trim() }
+          : {}),
+        ...(typeof value.blockers === "string" && value.blockers.trim()
+          ? { blockers: value.blockers.trim() }
+          : {}),
+        ...(typeof value.decisions === "string" && value.decisions.trim()
+          ? { decisions: value.decisions.trim() }
+          : {}),
+        ...(typeof value.nextWeek === "string" && value.nextWeek.trim()
+          ? { nextWeek: value.nextWeek.trim() }
+          : {}),
+      }
+    }
+  }
+
   const workDayClosures: AppState["settings"]["workDayClosures"] = {}
   if (isRecord(raw.workDayClosures)) {
     for (const [date, value] of Object.entries(raw.workDayClosures)) {
@@ -74,6 +101,8 @@ function sanitizeAppSettings(rawSettings: unknown): AppState["settings"] {
     workInbox,
     dailyFocus,
     workDayClosures,
+    workWipLimit,
+    workWeeklyReviews,
   }
 }
 

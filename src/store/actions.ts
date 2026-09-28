@@ -91,6 +91,14 @@ export type AddTaskPayload = {
   status?: Task["status"]
   assignee?: string
   followUpDate?: string
+  deferReason?: Task["deferReason"]
+  deferNote?: string
+  deferredUntil?: string
+  delegationNote?: string
+  delegatedAt?: string
+  isNextAction?: boolean
+  statusChangedAt?: string
+  completedAt?: string
   createdAt?: string
   updatedAt?: string
 }
@@ -110,6 +118,14 @@ export type UpdateTaskPayload = {
       | "status"
       | "assignee"
       | "followUpDate"
+      | "deferReason"
+      | "deferNote"
+      | "deferredUntil"
+      | "delegationNote"
+      | "delegatedAt"
+      | "isNextAction"
+      | "statusChangedAt"
+      | "completedAt"
     >
   >
 }

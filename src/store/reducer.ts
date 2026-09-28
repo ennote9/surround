@@ -278,6 +278,19 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
         priority,
         assignee,
         followUpDate,
+        deferReason: action.payload.deferReason,
+        deferNote: action.payload.deferNote,
+        deferredUntil: action.payload.deferredUntil,
+        delegationNote: action.payload.delegationNote,
+        delegatedAt:
+          action.payload.delegatedAt ??
+          (taskStatus === "delegated" ? t : undefined),
+        isNextAction:
+          taskStatus === "done" ? false : (action.payload.isNextAction ?? false),
+        statusChangedAt: action.payload.statusChangedAt ?? t,
+        completedAt:
+          action.payload.completedAt ??
+          (taskStatus === "done" ? t : undefined),
         createdAt: action.payload.createdAt ?? t,
         updatedAt: action.payload.updatedAt ?? t,
       }
@@ -287,15 +300,26 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
           if (proj.id !== projectId) return proj
           return {
             ...proj,
-            groups: proj.groups.map((g) =>
-              g.id === groupId
-                ? {
-                    ...g,
-                    tasks: [...g.tasks, task],
-                    updatedAt: t,
-                  }
-                : g,
-            ),
+            groups: proj.groups.map((g) => ({
+              ...g,
+              tasks:
+                g.id === groupId
+                  ? [
+                      ...g.tasks.map((existing) =>
+                        task.isNextAction
+                          ? { ...existing, isNextAction: false }
+                          : existing,
+                      ),
+                      task,
+                    ]
+                  : task.isNextAction
+                    ? g.tasks.map((existing) => ({
+                        ...existing,
+                        isNextAction: false,
+                      }))
+                    : g.tasks,
+              updatedAt: g.id === groupId ? t : g.updatedAt,
+            })),
             updatedAt: t,
           }
         }),
@@ -307,8 +331,29 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
       const normalizedPatch: Partial<Task> = { ...patch }
       if (patch.status !== undefined) {
         normalizedPatch.completed = patch.status === "done"
+        normalizedPatch.statusChangedAt = patch.statusChangedAt ?? t
+        normalizedPatch.completedAt =
+          patch.status === "done" ? (patch.completedAt ?? t) : undefined
+        if (patch.status === "delegated" && patch.delegatedAt === undefined) {
+          normalizedPatch.delegatedAt = t
+        }
+        if (
+          patch.status === "done" ||
+          patch.status === "waiting" ||
+          patch.status === "delegated"
+        ) {
+          normalizedPatch.isNextAction = false
+        }
       } else if (patch.completed !== undefined) {
         normalizedPatch.status = patch.completed ? "done" : "planned"
+        normalizedPatch.statusChangedAt = patch.statusChangedAt ?? t
+        normalizedPatch.completedAt = patch.completed ? (patch.completedAt ?? t) : undefined
+        if (patch.completed) {
+          normalizedPatch.isNextAction = false
+        }
+      }
+      if (patch.deferredUntil) {
+        normalizedPatch.isNextAction = false
       }
       return {
         ...state,
@@ -316,18 +361,19 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
           if (proj.id !== projectId) return proj
           return {
             ...proj,
-            groups: proj.groups.map((g) => {
-              if (g.id !== groupId) return g
-              return {
-                ...g,
-                tasks: g.tasks.map((task) =>
-                  task.id === taskId
-                    ? { ...task, ...normalizedPatch, updatedAt: t }
-                    : task,
-                ),
-                updatedAt: t,
-              }
-            }),
+            groups: proj.groups.map((g) => ({
+              ...g,
+              tasks: g.tasks.map((task) => {
+                if (task.id === taskId) {
+                  return { ...task, ...normalizedPatch, updatedAt: t }
+                }
+                if (normalizedPatch.isNextAction === true) {
+                  return { ...task, isNextAction: false }
+                }
+                return task
+              }),
+              updatedAt: g.id === groupId ? t : g.updatedAt,
+            })),
             updatedAt: t,
           }
         }),
@@ -356,6 +402,9 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
                     ...task,
                     completed,
                     status: completed ? "done" : "planned",
+                    statusChangedAt: t,
+                    completedAt: completed ? t : undefined,
+                    isNextAction: completed ? false : task.isNextAction,
                     updatedAt: t,
                   }
                 }),

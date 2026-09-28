@@ -2,6 +2,7 @@ import type {
   Habit,
   Project,
   Task,
+  TaskDeferReason,
   TaskStatus,
   WorkspaceMode,
 } from "@/store/appState.types"
@@ -17,6 +18,25 @@ export const TASK_STATUS_OPTIONS: ReadonlyArray<{
   { value: "control", label: "На контроле" },
   { value: "done", label: "Готово" },
 ]
+
+export const TASK_DEFER_REASON_OPTIONS: ReadonlyArray<{
+  value: TaskDeferReason
+  label: string
+}> = [
+  { value: "priority_changed", label: "Сменился приоритет" },
+  { value: "dependency", label: "Жду зависимость" },
+  { value: "capacity", label: "Не хватает ресурса" },
+  { value: "blocked", label: "Есть блокер" },
+  { value: "deadline_changed", label: "Изменился срок" },
+  { value: "other", label: "Другое" },
+]
+
+export function getTaskDeferReasonLabel(
+  reason?: TaskDeferReason,
+): string | undefined {
+  if (!reason) return undefined
+  return TASK_DEFER_REASON_OPTIONS.find((item) => item.value === reason)?.label
+}
 
 export function getProjectContext(project: Project): "personal" | "work" {
   return project.context === "work" ? "work" : "personal"

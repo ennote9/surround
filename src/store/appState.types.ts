@@ -12,6 +12,14 @@ export type TaskStatus =
   | "control"
   | "done"
 
+export type TaskDeferReason =
+  | "priority_changed"
+  | "dependency"
+  | "capacity"
+  | "blocked"
+  | "deadline_changed"
+  | "other"
+
 export type WorkInboxItem = {
   id: string
   title: string
@@ -21,6 +29,14 @@ export type WorkInboxItem = {
 export type WorkDayClosure = {
   closedAt: string
   note?: string
+}
+
+export type WorkWeeklyReview = {
+  reviewedAt: string
+  wins?: string
+  blockers?: string
+  decisions?: string
+  nextWeek?: string
 }
 
 export type CharacterStatType =
@@ -50,6 +66,8 @@ export type AppSettings = {
   workInbox: WorkInboxItem[]
   dailyFocus: Record<string, string[]>
   workDayClosures: Record<string, WorkDayClosure>
+  workWipLimit: number
+  workWeeklyReviews: Record<string, WorkWeeklyReview>
 }
 
 export type GoalStatus = "active" | "later" | "archived"
@@ -77,6 +95,14 @@ export type Task = {
   priority?: TaskPriority
   assignee?: string
   followUpDate?: string
+  deferReason?: TaskDeferReason
+  deferNote?: string
+  deferredUntil?: string
+  delegationNote?: string
+  delegatedAt?: string
+  isNextAction?: boolean
+  statusChangedAt?: string
+  completedAt?: string
   createdAt: string
   updatedAt: string
 }

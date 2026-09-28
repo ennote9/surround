@@ -9,6 +9,34 @@ import {
   type RepositoryResult,
 } from "../repositoryResult"
 
+export async function clearProjectNextActions(
+  userId: string,
+  projectId: string,
+  exceptTaskId?: string,
+): Promise<RepositoryResult<null>> {
+  if (!supabase) {
+    return repositoryFailure("Supabase не настроен.")
+  }
+
+  let query = supabase
+    .from("tasks")
+    .update({ is_next_action: false })
+    .eq("user_id", userId)
+    .eq("project_id", projectId)
+    .eq("is_next_action", true)
+
+  if (exceptTaskId) {
+    query = query.neq("id", exceptTaskId)
+  }
+
+  const { error } = await query
+
+  if (error) {
+    return repositoryFailure(getRepositoryErrorMessage(error))
+  }
+  return repositorySuccess(null)
+}
+
 export async function createTask(
   userId: string,
   projectId: string,
@@ -124,9 +152,16 @@ export async function toggleTaskCompleted(
     return repositoryFailure("Supabase не настроен.")
   }
 
+  const now = new Date().toISOString()
   const { data, error } = await supabase
     .from("tasks")
-    .update({ completed, status: completed ? "done" : "planned" })
+    .update({
+      completed,
+      status: completed ? "done" : "planned",
+      status_changed_at: now,
+      completed_at: completed ? now : null,
+      ...(completed ? { is_next_action: false } : {}),
+    })
     .eq("id", taskId)
     .eq("user_id", userId)
     .select("*")

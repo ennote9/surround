@@ -7,6 +7,8 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
   workInbox: [],
   dailyFocus: {},
   workDayClosures: {},
+  workWipLimit: 4,
+  workWeeklyReviews: {},
 }
 
 export const initialAppState: AppState = {
