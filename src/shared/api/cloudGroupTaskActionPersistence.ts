@@ -60,13 +60,19 @@ function sanitizeTaskPatch(
       next.title = title
     }
   }
-  if (patch.completed !== undefined) next.completed = patch.completed
+  if (patch.completed !== undefined) {
+    next.completed = patch.completed
+    next.status = patch.completed ? "done" : "planned"
+  }
   if ("deadline" in patch) {
     next.deadline = patch.deadline?.trim() || undefined
   }
   if ("notes" in patch) next.notes = patch.notes?.trim() || undefined
   if ("priority" in patch) next.priority = patch.priority
-  if ("status" in patch) next.status = patch.status
+  if ("status" in patch) {
+    next.status = patch.status
+    next.completed = patch.status === "done"
+  }
   if ("assignee" in patch) next.assignee = patch.assignee?.trim() || undefined
   if ("followUpDate" in patch) {
     next.followUpDate = patch.followUpDate?.trim() || undefined
