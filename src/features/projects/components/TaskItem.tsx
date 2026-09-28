@@ -54,11 +54,19 @@ export function TaskItem({ task, onToggle, onEdit, onDelete }: TaskItemProps) {
               </span>
             ) : null}
             <span className="shrink-0">Статус: {getTaskStatusLabel(task)}</span>
+            {task.isNextAction ? (
+              <span className="shrink-0 font-medium text-violet-600 dark:text-violet-400">
+                Следующий шаг
+              </span>
+            ) : null}
             {task.assignee ? (
               <span className="shrink-0">Ответственный: {task.assignee}</span>
             ) : null}
             {task.followUpDate ? (
               <span className="shrink-0">Контроль: {task.followUpDate}</span>
+            ) : null}
+            {task.deferredUntil ? (
+              <span className="shrink-0">Отложено до: {task.deferredUntil}</span>
             ) : null}
           </div>
         </div>
