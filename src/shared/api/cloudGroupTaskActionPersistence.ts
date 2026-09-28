@@ -6,6 +6,7 @@ import {
   updateProjectGroup,
 } from "./repositories/projectGroupsRepository"
 import {
+  clearProjectNextActions,
   createTask,
   deleteTask,
   toggleTaskCompleted,
@@ -182,6 +183,14 @@ async function persistTaskAction(
       return repositoryFailure("Не удалось сохранить задачу: отсутствует id задачи.")
     }
 
+    if (task.isNextAction) {
+      const cleared = await clearProjectNextActions(
+        userId,
+        action.payload.projectId,
+      )
+      if (cleared.error) return repositoryFailure(cleared.error)
+    }
+
     const result = await createTask(
       userId,
       action.payload.projectId,
@@ -195,6 +204,15 @@ async function persistTaskAction(
     const patch = sanitizeTaskPatch(action.payload.patch)
     if (Object.keys(patch).length === 0) {
       return repositorySuccess(null)
+    }
+
+    if (patch.isNextAction === true) {
+      const cleared = await clearProjectNextActions(
+        userId,
+        action.payload.projectId,
+        action.payload.taskId,
+      )
+      if (cleared.error) return repositoryFailure(cleared.error)
     }
 
     const result = await updateTask(userId, action.payload.taskId, patch)
