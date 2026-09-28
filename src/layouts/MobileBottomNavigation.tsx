@@ -3,6 +3,7 @@ import { NavLink, useLocation } from "react-router-dom"
 import {
   BarChart3,
   BookOpen,
+  BriefcaseBusiness,
   CalendarCheck,
   FolderKanban,
   Home,
@@ -32,6 +33,12 @@ const mainItems: MainItem[] = [
 
 const moreItems = [
   {
+    to: "/work",
+    label: "Работа",
+    caption: "Фокус, Inbox и контроль",
+    icon: BriefcaseBusiness,
+  },
+  {
     to: "/analytics",
     label: "Аналитика",
     caption: "Прогресс и состояние",
@@ -59,6 +66,7 @@ const moreItems = [
 
 function isMoreRouteActive(pathname: string): boolean {
   return (
+    pathname.startsWith("/work") ||
     pathname.startsWith("/analytics") ||
     pathname.startsWith("/guide") ||
     pathname.startsWith("/settings") ||
