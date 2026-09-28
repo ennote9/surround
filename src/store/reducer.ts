@@ -337,7 +337,11 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
         if (patch.status === "delegated" && patch.delegatedAt === undefined) {
           normalizedPatch.delegatedAt = t
         }
-        if (patch.status === "done") {
+        if (
+          patch.status === "done" ||
+          patch.status === "waiting" ||
+          patch.status === "delegated"
+        ) {
           normalizedPatch.isNextAction = false
         }
       } else if (patch.completed !== undefined) {
@@ -347,6 +351,9 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
         if (patch.completed) {
           normalizedPatch.isNextAction = false
         }
+      }
+      if (patch.deferredUntil) {
+        normalizedPatch.isNextAction = false
       }
       return {
         ...state,
