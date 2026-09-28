@@ -1,6 +1,7 @@
 import {
   BarChart3,
   BookOpen,
+  BriefcaseBusiness,
   CalendarCheck,
   Clock3,
   Check,
@@ -95,6 +96,12 @@ const appSections = [
     text: "Рабочее пространство с группами и задачами. Фаза проекта определяет, относится ли он к текущей работе, будущему или стратегии.",
   },
   {
+    icon: BriefcaseBusiness,
+    title: "Работа",
+    caption: "Фокус, Inbox и контроль",
+    text: "Рабочий центр с быстрым Inbox, тремя результатами дня, статусами ожидания и делегирования, ответственными, датами контроля и закрытием рабочего дня.",
+  },
+  {
     icon: CalendarCheck,
     title: "Рутина",
     caption: "Что нужно повторять",
@@ -150,7 +157,7 @@ const habitTrackingTypes = [
 const workCycles = [
   {
     title: "Каждый день",
-    text: "Откройте Главную, выберите контекст цели, выполните текущие задачи и внесите фактические результаты привычек.",
+    text: "Выберите «Личное» или «Работа». Для работы разберите Inbox, выберите до трёх результатов дня и проверьте задачи, у которых наступила дата контроля.",
     icon: ListChecks,
   },
   {
@@ -485,6 +492,20 @@ export function MobileGuideWorkspace() {
               <p><strong className="text-blue-600 dark:text-blue-400">Сейчас</strong> — активное жизненное направление.</p>
               <p><strong className="text-amber-600 dark:text-amber-400">Позже</strong> — важное, но не в текущем фокусе.</p>
               <p><strong className="text-slate-600 dark:text-slate-300">Архив</strong> — завершённое или неактуальное.</p>
+            </div>
+          </div>
+
+          <div className="rounded-[22px] border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="flex items-center gap-2">
+              <BriefcaseBusiness className="size-4 text-blue-600 dark:text-blue-400" aria-hidden />
+              <h3 className="text-sm font-semibold text-slate-950 dark:text-slate-100">Рабочие задачи</h3>
+            </div>
+            <div className="mt-3 space-y-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
+              <p><strong className="text-slate-700 dark:text-slate-200">Запланировано</strong> — ждёт очереди.</p>
+              <p><strong className="text-blue-600 dark:text-blue-400">В работе</strong> — выполняется сейчас.</p>
+              <p><strong className="text-amber-600 dark:text-amber-400">Жду / Делегировано</strong> — следующий ход не за вами.</p>
+              <p><strong className="text-indigo-600 dark:text-indigo-400">На контроле</strong> — вернуться в назначенную дату.</p>
+              <p><strong className="text-emerald-600 dark:text-emerald-400">Готово</strong> — завершено.</p>
             </div>
           </div>
 

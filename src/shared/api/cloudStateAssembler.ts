@@ -33,8 +33,55 @@ function resolveSettings(settings: Record<string, unknown> | null): AppSettings 
     typeof merged.accentColor === "string" && merged.accentColor.trim() !== ""
       ? merged.accentColor
       : initialAppState.settings.accentColor
+  const workspaceMode =
+    merged.workspaceMode === "work" || merged.workspaceMode === "personal"
+      ? merged.workspaceMode
+      : "all"
 
-  return { theme, accentColor }
+  const workInbox = Array.isArray(merged.workInbox)
+    ? merged.workInbox.flatMap((item) => {
+        if (!isRecord(item)) return []
+        const id = typeof item.id === "string" ? item.id.trim() : ""
+        const title = typeof item.title === "string" ? item.title.trim() : ""
+        const createdAt =
+          typeof item.createdAt === "string" && item.createdAt.trim()
+            ? item.createdAt
+            : new Date().toISOString()
+        return id && title ? [{ id, title, createdAt }] : []
+      })
+    : []
+
+  const dailyFocus: Record<string, string[]> = {}
+  if (isRecord(merged.dailyFocus)) {
+    for (const [date, ids] of Object.entries(merged.dailyFocus)) {
+      if (!Array.isArray(ids)) continue
+      dailyFocus[date] = [
+        ...new Set(ids.filter((id): id is string => typeof id === "string" && id.trim() !== "")),
+      ].slice(0, 3)
+    }
+  }
+
+  const workDayClosures: AppSettings["workDayClosures"] = {}
+  if (isRecord(merged.workDayClosures)) {
+    for (const [date, value] of Object.entries(merged.workDayClosures)) {
+      if (!isRecord(value) || typeof value.closedAt !== "string") continue
+      workDayClosures[date] = {
+        closedAt: value.closedAt,
+        ...(typeof value.note === "string" && value.note.trim()
+          ? { note: value.note.trim() }
+          : {}),
+      }
+    }
+  }
+
+  return {
+    theme,
+    accentColor,
+    workspaceMode,
+    workInbox,
+    dailyFocus,
+    workDayClosures,
+  }
 }
 
 export async function loadCloudAppState(

@@ -2,9 +2,11 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SidebarGoalSwitcher } from "@/layouts/SidebarGoalSwitcher"
+import { WorkspaceContextSwitcher } from "@/shared/components/WorkspaceContextSwitcher"
 import {
   BarChart3,
   BookOpen,
+  BriefcaseBusiness,
   CalendarCheck,
   CircleUserRound,
   FolderKanban,
@@ -29,6 +31,7 @@ const items: NavItem[] = [
   { to: "/", label: "Главная", icon: Home, end: true },
   { to: "/goals", label: "Цели", icon: Target },
   { to: "/projects", label: "Проекты", icon: FolderKanban },
+  { to: "/work", label: "Работа", icon: BriefcaseBusiness },
   { to: "/routine", label: "Рутина", icon: CalendarCheck },
   { to: "/analytics", label: "Аналитика", icon: BarChart3 },
   { to: "/guide", label: "Справочник", icon: BookOpen },
@@ -123,6 +126,7 @@ export function Sidebar({ collapsed, onToggleCollapsed }: SidebarProps) {
         </div>
 
         <SidebarGoalSwitcher collapsed={collapsed} />
+        {!collapsed ? <WorkspaceContextSwitcher /> : null}
 
         <Separator className="shrink-0 bg-slate-200 dark:bg-slate-800" />
 

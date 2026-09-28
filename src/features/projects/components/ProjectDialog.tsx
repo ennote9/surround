@@ -25,6 +25,7 @@ export type ProjectFormValues = {
   title: string
   goalId?: string
   description?: string
+  context: NonNullable<Project["context"]>
   showOnDashboard: boolean
   statType?: CharacterStatType
   phase: ProjectPhase
@@ -37,6 +38,7 @@ type ProjectDialogProps = {
   initialProject?: Project
   goals: Goal[]
   defaultGoalId?: string
+  defaultContext?: NonNullable<Project["context"]>
   onSubmit: (values: ProjectFormValues) => void
 }
 
@@ -44,12 +46,14 @@ function ProjectDialogFields({
   initialProject,
   goals,
   defaultGoalId,
+  defaultContext,
   onSubmit,
   onOpenChange,
 }: {
   initialProject?: Project
   goals: Goal[]
   defaultGoalId?: string
+  defaultContext?: NonNullable<Project["context"]>
   onSubmit: (values: ProjectFormValues) => void
   onOpenChange: (open: boolean) => void
 }) {
@@ -65,6 +69,9 @@ function ProjectDialogFields({
   const [title, setTitle] = useState(initialProject?.title ?? "")
   const [description, setDescription] = useState(
     initialProject?.description ?? "",
+  )
+  const [context, setContext] = useState<NonNullable<Project["context"]>>(
+    initialProject?.context ?? defaultContext ?? "personal",
   )
   const [showOnDashboard, setShowOnDashboard] = useState(
     initialProject ? initialProject.showOnDashboard !== false : true,
@@ -84,6 +91,7 @@ function ProjectDialogFields({
       title: t,
       goalId: goalId === "" ? "" : goalId,
       description: description.trim() || undefined,
+      context,
       showOnDashboard,
       statType:
         statTypeSelect === ""
@@ -126,6 +134,21 @@ function ProjectDialogFields({
                 rows={3}
               />
             </div>
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="project-context">Контекст</Label>
+            <select
+              id="project-context"
+              value={context}
+              onChange={(e) =>
+                setContext(e.target.value === "work" ? "work" : "personal")
+              }
+              className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 shadow-xs outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/30 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+            >
+              <option value="personal">Личное</option>
+              <option value="work">Работа</option>
+            </select>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -239,6 +262,7 @@ export function ProjectDialog({
   initialProject,
   goals,
   defaultGoalId,
+  defaultContext,
   onSubmit,
 }: ProjectDialogProps) {
   return (
@@ -253,6 +277,7 @@ export function ProjectDialog({
             initialProject={initialProject}
             goals={goals}
             defaultGoalId={defaultGoalId}
+            defaultContext={defaultContext}
             onSubmit={onSubmit}
             onOpenChange={onOpenChange}
           />

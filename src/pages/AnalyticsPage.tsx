@@ -21,6 +21,10 @@ import {
   normalizeSelectedGoalId,
 } from "@/shared/lib/selectedGoal"
 import { SELECTED_GOAL_STORAGE_KEY } from "@/shared/lib/storageKeys"
+import {
+  habitMatchesWorkspaceMode,
+  projectMatchesWorkspaceMode,
+} from "@/shared/lib/workManagement"
 import { useAppState } from "@/store/useAppState"
 
 export default function AnalyticsPage() {
@@ -33,12 +37,19 @@ export default function AnalyticsPage() {
   )
   const selectedGoalId = normalizeSelectedGoalId(rawSelectedGoalId, state.goals)
   const selectedGoalTitle = getSelectedGoalTitle(selectedGoalId, state.goals)
-  const scopedProjects = useMemo(
+  const goalScopedProjects = useMemo(
     () => getScopedProjectsForSelectedGoal(projects, selectedGoalId, state.goals),
     [projects, selectedGoalId, state.goals],
   )
+  const scopedProjects = useMemo(
+    () =>
+      goalScopedProjects.filter((project) =>
+        projectMatchesWorkspaceMode(project, state.settings.workspaceMode ?? "all"),
+      ),
+    [goalScopedProjects, state.settings.workspaceMode],
+  )
 
-  const scopedHabits = useMemo(
+  const goalScopedHabits = useMemo(
     () =>
       getScopedHabits(
         habits,
@@ -47,6 +58,17 @@ export default function AnalyticsPage() {
         state.goals,
       ),
     [habits, scopedProjects, selectedGoalId, state.goals],
+  )
+  const scopedHabits = useMemo(
+    () =>
+      goalScopedHabits.filter((habit) =>
+        habitMatchesWorkspaceMode(
+          habit,
+          projects,
+          state.settings.workspaceMode ?? "all",
+        ),
+      ),
+    [goalScopedHabits, projects, state.settings.workspaceMode],
   )
 
   const weekDates = useMemo(() => getCurrentWeekDates(), [])

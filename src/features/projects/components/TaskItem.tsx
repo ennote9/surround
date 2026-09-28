@@ -2,6 +2,7 @@ import { Pencil, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
+import { getTaskStatusLabel } from "@/shared/lib/workManagement"
 import type { Task } from "@/store/appState.types"
 
 const priorityLabel: Record<NonNullable<Task["priority"]>, string> = {
@@ -51,6 +52,13 @@ export function TaskItem({ task, onToggle, onEdit, onDelete }: TaskItemProps) {
               <span className="shrink-0">
                 Приоритет: {priorityLabel[task.priority]}
               </span>
+            ) : null}
+            <span className="shrink-0">Статус: {getTaskStatusLabel(task)}</span>
+            {task.assignee ? (
+              <span className="shrink-0">Ответственный: {task.assignee}</span>
+            ) : null}
+            {task.followUpDate ? (
+              <span className="shrink-0">Контроль: {task.followUpDate}</span>
             ) : null}
           </div>
         </div>

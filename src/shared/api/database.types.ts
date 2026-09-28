@@ -66,6 +66,7 @@ export type ProjectRow = {
   goal_id: string | null
   title: string
   description: string | null
+  context: string
   stat_type: string | null
   phase: string | null
   target_date: string | null
@@ -80,6 +81,7 @@ export type ProjectInsert = {
   goal_id: string | null
   title: string
   description: string | null
+  context: string
   stat_type: string | null
   phase: string | null
   target_date: string | null
@@ -90,6 +92,7 @@ export type ProjectUpdate = Partial<{
   goal_id: string | null
   title: string
   description: string | null
+  context: string
   stat_type: string | null
   phase: string | null
   target_date: string | null
@@ -126,9 +129,12 @@ export type TaskRow = {
   group_id: string
   title: string
   completed: boolean
+  status: string
   deadline: string | null
   notes: string | null
   priority: string | null
+  assignee: string | null
+  follow_up_date: string | null
   sort_order: number
   created_at: string
   updated_at: string
@@ -141,9 +147,12 @@ export type TaskInsert = {
   group_id: string
   title: string
   completed: boolean
+  status: string
   deadline: string | null
   notes: string | null
   priority: string | null
+  assignee: string | null
+  follow_up_date: string | null
   sort_order: number
 }
 
@@ -152,9 +161,12 @@ export type TaskUpdate = Partial<{
   group_id: string
   title: string
   completed: boolean
+  status: string
   deadline: string | null
   notes: string | null
   priority: string | null
+  assignee: string | null
+  follow_up_date: string | null
   sort_order: number
 }>
 
