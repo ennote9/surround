@@ -326,6 +326,7 @@ export default function DashboardPage() {
     () => normalizeDashboardWidgets(widgetsStored),
     [widgetsStored],
   )
+  const showOverall = isWidgetEnabled(widgets, "overallProgress")
   const showToday = isWidgetEnabled(widgets, "todayRoutines")
   const showProjects = isWidgetEnabled(widgets, "projects")
   const showMetrics = isWidgetEnabled(widgets, "metrics")
@@ -828,19 +829,21 @@ export default function DashboardPage() {
 
   const renderWork = () => (
     <>
-      <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
-        <CompactMetric value={workFocusTasks.length + "/3"} label="план дня" />
-        <CompactMetric
-          value={workInProgress.length + "/" + (state.settings.workWipLimit ?? 4)}
-          label="в работе"
-        />
-        <CompactMetric value={workControl.length} label="жду / контроль" />
-        <CompactMetric
-          value={workOverdue.length}
-          label="просрочено"
-          warning={workOverdue.length > 0}
-        />
-      </div>
+      {showOverall ? (
+        <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
+          <CompactMetric value={workFocusTasks.length + "/3"} label="план дня" />
+          <CompactMetric
+            value={workInProgress.length + "/" + (state.settings.workWipLimit ?? 4)}
+            label="в работе"
+          />
+          <CompactMetric value={workControl.length} label="жду / контроль" />
+          <CompactMetric
+            value={workOverdue.length}
+            label="просрочено"
+            warning={workOverdue.length > 0}
+          />
+        </div>
+      ) : null}
 
       <div className="grid gap-3 lg:grid-cols-[0.9fr_1.1fr]">
         <section className="rounded-2xl border border-blue-200 bg-blue-50/50 p-3 dark:border-blue-500/20 dark:bg-blue-500/5">
@@ -1007,15 +1010,17 @@ export default function DashboardPage() {
 
   const renderPersonal = () => (
     <>
-      <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
-        <CompactMetric value={personalQueue.length} label="задачи сегодня" />
-        <CompactMetric
-          value={completedHabits + "/" + todayHabits.length}
-          label="привычки"
-        />
-        <CompactMetric value={activePersonalProjects.length} label="проекты" />
-        <CompactMetric value={personalProgress + "%"} label="прогресс" />
-      </div>
+      {showOverall ? (
+        <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
+          <CompactMetric value={personalQueue.length} label="задачи сегодня" />
+          <CompactMetric
+            value={completedHabits + "/" + todayHabits.length}
+            label="привычки"
+          />
+          <CompactMetric value={activePersonalProjects.length} label="проекты" />
+          <CompactMetric value={personalProgress + "%"} label="прогресс" />
+        </div>
+      ) : null}
 
       <div className="grid gap-3 lg:grid-cols-[1.15fr_0.85fr]">
         <section className="rounded-2xl border border-violet-200 bg-violet-50/40 p-3 dark:border-violet-500/20 dark:bg-violet-500/5">
@@ -1173,19 +1178,21 @@ export default function DashboardPage() {
 
   const renderAll = () => (
     <>
-      <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
-        <CompactMetric value={workFocusTasks.length + "/3"} label="работа" />
-        <CompactMetric value={personalQueue.length} label="личные задачи" />
-        <CompactMetric
-          value={completedHabits + "/" + todayHabits.length}
-          label="привычки"
-        />
-        <CompactMetric
-          value={totalOverdue}
-          label="просрочено"
-          warning={totalOverdue > 0}
-        />
-      </div>
+      {showOverall ? (
+        <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
+          <CompactMetric value={workFocusTasks.length + "/3"} label="работа" />
+          <CompactMetric value={personalQueue.length} label="личные задачи" />
+          <CompactMetric
+            value={completedHabits + "/" + todayHabits.length}
+            label="привычки"
+          />
+          <CompactMetric
+            value={totalOverdue}
+            label="просрочено"
+            warning={totalOverdue > 0}
+          />
+        </div>
+      ) : null}
 
       <div className="grid gap-3 lg:grid-cols-[0.9fr_1.1fr]">
         <section className="rounded-2xl border border-blue-200 bg-blue-50/40 p-3 dark:border-blue-500/20 dark:bg-blue-500/5">
