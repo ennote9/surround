@@ -31,6 +31,10 @@ import {
   SELECTED_PROJECT_STORAGE_KEY,
 } from "@/shared/lib/storageKeys"
 import { cn } from "@/lib/utils"
+import {
+  habitMatchesWorkspaceMode,
+  projectMatchesWorkspaceMode,
+} from "@/shared/lib/workManagement"
 import { getOverallProgress, getProjectTaskStats } from "@/store/selectors"
 import { useAppState } from "@/store/useAppState"
 
@@ -56,7 +60,7 @@ export default function DashboardPage() {
   const selectedGoalId = normalizeSelectedGoalId(rawSelectedGoalId, dashboardGoals)
   const selectedGoalTitle = getSelectedGoalTitle(selectedGoalId, dashboardGoals)
 
-  const scopedProjects = useMemo(() => {
+  const goalScopedProjects = useMemo(() => {
     if (selectedGoalId !== ALL_GOALS_SCOPE) {
       return projects.filter(
         (project) => (project.goalId?.trim() ?? "") === selectedGoalId,
@@ -77,12 +81,20 @@ export default function DashboardPage() {
     })
   }, [projects, selectedGoalId, state.goals, dashboardGoals])
 
+  const scopedProjects = useMemo(
+    () =>
+      goalScopedProjects.filter((project) =>
+        projectMatchesWorkspaceMode(project, state.settings.workspaceMode ?? "all"),
+      ),
+    [goalScopedProjects, state.settings.workspaceMode],
+  )
+
   const dashboardProjects = useMemo(
     () => scopedProjects.filter((project) => project.showOnDashboard !== false),
     [scopedProjects],
   )
 
-  const scopedHabits = useMemo(() => {
+  const goalScopedHabits = useMemo(() => {
     const scopedProjectIds = new Set(scopedProjects.map((project) => project.id))
 
     if (selectedGoalId !== ALL_GOALS_SCOPE) {
@@ -109,6 +121,18 @@ export default function DashboardPage() {
       return true
     })
   }, [habits, scopedProjects, selectedGoalId, dashboardGoals])
+
+  const scopedHabits = useMemo(
+    () =>
+      goalScopedHabits.filter((habit) =>
+        habitMatchesWorkspaceMode(
+          habit,
+          projects,
+          state.settings.workspaceMode ?? "all",
+        ),
+      ),
+    [goalScopedHabits, projects, state.settings.workspaceMode],
+  )
 
   const dashboardHabits = useMemo(
     () =>
