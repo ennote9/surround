@@ -21,6 +21,10 @@ export type TaskFormValues = {
   status?: TaskStatus
   assignee?: string
   followUpDate?: string
+  deferReason?: string
+  deferredUntil?: string
+  delegationNote?: string
+  isNextAction?: boolean
 }
 
 type TaskDialogProps = {
@@ -50,6 +54,14 @@ function TaskDialogFields({
   )
   const [assignee, setAssignee] = useState(initialTask?.assignee ?? "")
   const [followUpDate, setFollowUpDate] = useState(initialTask?.followUpDate ?? "")
+  const [deferReason, setDeferReason] = useState(initialTask?.deferReason ?? "")
+  const [deferredUntil, setDeferredUntil] = useState(initialTask?.deferredUntil ?? "")
+  const [delegationNote, setDelegationNote] = useState(
+    initialTask?.delegationNote ?? "",
+  )
+  const [isNextAction, setIsNextAction] = useState(
+    initialTask?.isNextAction === true,
+  )
 
   const handleSubmit = () => {
     const t = title.trim()
@@ -62,6 +74,10 @@ function TaskDialogFields({
       status,
       assignee: assignee.trim() || undefined,
       followUpDate: followUpDate.trim() || undefined,
+      deferReason: deferReason.trim() || undefined,
+      deferredUntil: deferredUntil.trim() || undefined,
+      delegationNote: delegationNote.trim() || undefined,
+      isNextAction: status === "done" ? false : isNextAction,
     })
     onOpenChange(false)
   }
@@ -146,6 +162,52 @@ function TaskDialogFields({
             />
           </div>
         </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-2">
+            <Label htmlFor="task-deferred-until">Отложить до</Label>
+            <Input
+              id="task-deferred-until"
+              type="date"
+              value={deferredUntil}
+              onChange={(e) => setDeferredUntil(e.target.value)}
+              className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="task-defer-reason">Причина переноса</Label>
+            <Input
+              id="task-defer-reason"
+              value={deferReason}
+              onChange={(e) => setDeferReason(e.target.value)}
+              placeholder="Почему не сейчас"
+              className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+            />
+          </div>
+        </div>
+
+        <div className="grid gap-2">
+          <Label htmlFor="task-delegation-note">Комментарий по делегированию</Label>
+          <Textarea
+            id="task-delegation-note"
+            value={delegationNote}
+            onChange={(e) => setDelegationNote(e.target.value)}
+            className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+            rows={2}
+            placeholder="Что передано и какой результат должен вернуться"
+          />
+        </div>
+
+        <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm dark:border-slate-800 dark:bg-slate-950/50">
+          <input
+            type="checkbox"
+            checked={isNextAction}
+            disabled={status === "done"}
+            onChange={(e) => setIsNextAction(e.target.checked)}
+            className="size-4"
+          />
+          <span>Следующий шаг проекта</span>
+        </label>
+
         <div className="grid gap-2">
           <Label htmlFor="task-notes">Заметки</Label>
           <Textarea
