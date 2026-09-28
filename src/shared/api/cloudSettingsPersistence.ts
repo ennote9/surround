@@ -7,7 +7,8 @@ import {
 } from "./repositoryResult"
 
 /**
- * Сохраняет только `AppState.settings` (theme, accentColor) в `user_settings`.
+ * Сохраняет облачные настройки приложения, включая рабочий Inbox,
+ * фокус дня и отметки закрытия рабочего дня.
  * Локальные UI keys (selectedGoal, sidebar, dashboard widgets и т.д.) сюда не попадают.
  */
 export async function persistUserSettings(
