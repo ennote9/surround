@@ -150,7 +150,7 @@ function TaskRow({
           <div className="flex flex-wrap items-center gap-1.5">
             {item.task.isNextAction ? (
               <span className="rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-semibold text-violet-700 dark:bg-violet-500/10 dark:text-violet-300">
-                Следующий шаг
+                Следующая задача проекта
               </span>
             ) : null}
             {deferredFuture ? (
@@ -622,7 +622,7 @@ export default function WorkPage() {
       return
     }
     if (!isNextActionEligible(item)) {
-      toast.info("Следующий шаг должен быть задачей, которую можно выполнять сейчас.")
+      toast.info("Следующая задача проекта должен быть задачей, которую можно выполнять сейчас.")
       return
     }
     setProjectNextAction(item.projectId, item.task.id)
@@ -917,14 +917,14 @@ export default function WorkPage() {
         <div className="flex items-center gap-2">
           <Star className="size-5 text-violet-600 dark:text-violet-400" aria-hidden />
           <div className="min-w-0 flex-1">
-            <h2 className="font-semibold text-slate-950 dark:text-white">Следующий шаг проектов</h2>
+            <h2 className="font-semibold text-slate-950 dark:text-white">Следующая задача проекта проектов</h2>
             <p className="text-xs text-slate-500">
-              У каждого активного рабочего проекта должен быть один понятный следующий ход.
+              У каждого активного рабочего проекта должен быть один понятный следующую конкретную задачу.
             </p>
           </div>
           {projectsWithoutNextAction.length > 0 ? (
             <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
-              без шага: {projectsWithoutNextAction.length}
+              без следующей задачи: {projectsWithoutNextAction.length}
             </span>
           ) : null}
         </div>
