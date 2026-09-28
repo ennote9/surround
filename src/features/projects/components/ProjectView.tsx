@@ -328,7 +328,7 @@ export function ProjectView({
           </span>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-medium uppercase tracking-wide text-blue-700 dark:text-blue-300">
-              Следующий шаг
+              Следующая задача проекта
             </p>
             {nextTask ? (
               <>
