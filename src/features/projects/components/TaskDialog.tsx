@@ -1,3 +1,4 @@
+import { CircleHelp } from "lucide-react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
@@ -237,7 +238,17 @@ function TaskDialogFields({
             onChange={(e) => setIsNextAction(e.target.checked)}
             className="size-4"
           />
-          <span>Следующий шаг проекта</span>
+          <span className="flex min-w-0 items-center gap-1.5">
+            <span>Следующая задача проекта</span>
+            <span
+              className="inline-flex size-5 shrink-0 items-center justify-center rounded-full text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+              title="Отметь одну задачу, которую нужно выполнить следующей, чтобы продвинуть проект. В проекте может быть только одна такая задача."
+              aria-label="Подсказка: следующая задача проекта"
+              onClick={(event) => event.preventDefault()}
+            >
+              <CircleHelp className="size-3.5" aria-hidden />
+            </span>
+          </span>
         </label>
 
         <div className="grid gap-2">
