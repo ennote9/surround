@@ -3,6 +3,10 @@ import type { AppSettings, AppState } from "./appState.types"
 export const DEFAULT_APP_SETTINGS: AppSettings = {
   theme: "light",
   accentColor: "#4a86e8",
+  workspaceMode: "all",
+  workInbox: [],
+  dailyFocus: {},
+  workDayClosures: {},
 }
 
 export const initialAppState: AppState = {
