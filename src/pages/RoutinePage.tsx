@@ -16,6 +16,10 @@ import {
 import { MobileRoutineWorkspace } from "@/features/habits/components/MobileRoutineWorkspace"
 import { Button } from "@/components/ui/button"
 import { getWeekISODatesFromMonday } from "@/shared/lib/dates"
+import {
+  habitMatchesWorkspaceMode,
+  projectMatchesWorkspaceMode,
+} from "@/shared/lib/workManagement"
 import { getHabitCompletionType } from "@/store/selectors"
 import type { Habit } from "@/store/appState.types"
 import { useAppState } from "@/store/useAppState"
@@ -23,7 +27,24 @@ import { useAppState } from "@/store/useAppState"
 export default function RoutinePage() {
   const { state, dispatch } = useAppState()
   const navigate = useNavigate()
-  const habits = state.habits
+  const scopedProjects = useMemo(
+    () =>
+      state.projects.filter((project) =>
+        projectMatchesWorkspaceMode(project, state.settings.workspaceMode ?? "all"),
+      ),
+    [state.projects, state.settings.workspaceMode],
+  )
+  const habits = useMemo(
+    () =>
+      state.habits.filter((habit) =>
+        habitMatchesWorkspaceMode(
+          habit,
+          state.projects,
+          state.settings.workspaceMode ?? "all",
+        ),
+      ),
+    [state.habits, state.projects, state.settings.workspaceMode],
+  )
 
   const [weekStartDate, setWeekStartDate] = useState(() =>
     startOfWeek(new Date(), { weekStartsOn: 1 }),
@@ -150,7 +171,7 @@ export default function RoutinePage() {
     <div className="mx-auto min-w-0 w-full max-w-6xl">
       <MobileRoutineWorkspace
         habits={habits}
-        projects={state.projects}
+        projects={scopedProjects}
         weekDates={weekDates}
         onPreviousWeek={() =>
           setWeekStartDate((d) => startOfWeek(addWeeks(d, -1), { weekStartsOn: 1 }))
@@ -266,7 +287,7 @@ export default function RoutinePage() {
         open={habitDialogOpen}
         onOpenChange={setHabitDialogOpen}
         initialHabit={editingHabit ?? undefined}
-        projects={state.projects}
+        projects={scopedProjects}
         onSubmit={handleHabitSubmit}
       />
 
