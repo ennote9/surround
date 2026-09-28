@@ -135,6 +135,13 @@ export type TaskRow = {
   priority: string | null
   assignee: string | null
   follow_up_date: string | null
+  defer_reason: string | null
+  deferred_until: string | null
+  delegation_note: string | null
+  delegated_at: string | null
+  is_next_action: boolean
+  status_changed_at: string
+  completed_at: string | null
   sort_order: number
   created_at: string
   updated_at: string
@@ -153,6 +160,13 @@ export type TaskInsert = {
   priority: string | null
   assignee: string | null
   follow_up_date: string | null
+  defer_reason: string | null
+  deferred_until: string | null
+  delegation_note: string | null
+  delegated_at: string | null
+  is_next_action: boolean
+  status_changed_at: string
+  completed_at: string | null
   sort_order: number
 }
 
@@ -167,6 +181,13 @@ export type TaskUpdate = Partial<{
   priority: string | null
   assignee: string | null
   follow_up_date: string | null
+  defer_reason: string | null
+  deferred_until: string | null
+  delegation_note: string | null
+  delegated_at: string | null
+  is_next_action: boolean
+  status_changed_at: string
+  completed_at: string | null
   sort_order: number
 }>
 
