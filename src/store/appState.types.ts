@@ -12,6 +12,14 @@ export type TaskStatus =
   | "control"
   | "done"
 
+export type TaskDeferReason =
+  | "priority_changed"
+  | "dependency"
+  | "capacity"
+  | "blocked"
+  | "deadline_changed"
+  | "other"
+
 export type WorkInboxItem = {
   id: string
   title: string
@@ -87,7 +95,8 @@ export type Task = {
   priority?: TaskPriority
   assignee?: string
   followUpDate?: string
-  deferReason?: string
+  deferReason?: TaskDeferReason
+  deferNote?: string
   deferredUntil?: string
   delegationNote?: string
   delegatedAt?: string
