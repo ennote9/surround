@@ -225,15 +225,10 @@ export default function ProjectsPage() {
       (project) => project.id === taskDialogProjectId,
     )
     const movingIntoWork =
-      getProjectContext(taskProject ?? ({ context: "personal" } as Project)) === "work" &&
+      taskProject !== undefined &&
+      getProjectContext(taskProject) === "work" &&
       values.status === "in_progress" &&
-      getTaskStatus(
-        editingTask ??
-          ({
-            completed: false,
-            status: "planned",
-          } as Task),
-      ) !== "in_progress"
+      (editingTask ? getTaskStatus(editingTask) : "planned") !== "in_progress"
 
     if (movingIntoWork) {
       const currentWip = state.projects
