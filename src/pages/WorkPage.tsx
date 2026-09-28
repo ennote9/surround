@@ -6,7 +6,6 @@ import {
   AlertTriangle,
   ArrowRight,
   BriefcaseBusiness,
-  CalendarRange,
   CheckCircle2,
   Clock3,
   Gauge,
@@ -65,12 +64,6 @@ function makeId(): string {
 
 function dateOnly(value?: string): string | undefined {
   return value?.slice(0, 10)
-}
-
-function daysBetween(from: string, to: string): number {
-  const fromTime = new Date(`${from}T12:00:00`).getTime()
-  const toTime = new Date(`${to}T12:00:00`).getTime()
-  return Math.floor((toTime - fromTime) / 86_400_000)
 }
 
 function getWeekStartISO(): string {
@@ -438,30 +431,6 @@ export default function WorkPage() {
       item.task.deferredUntil <= todayISO,
   )
 
-  const todayTaskIds = new Set<string>(activeFocusIds)
-  for (const item of activeTasks) {
-    if (item.task.deadline && item.task.deadline <= todayISO) {
-      todayTaskIds.add(item.task.id)
-    }
-  }
-  for (const item of dueControlTasks) todayTaskIds.add(item.task.id)
-  for (const item of deferredDueTasks) todayTaskIds.add(item.task.id)
-
-  const todayQueue = activeTasks
-    .filter((item) => todayTaskIds.has(item.task.id))
-    .sort((a, b) => {
-      const aFocus = activeFocusIds.indexOf(a.task.id)
-      const bFocus = activeFocusIds.indexOf(b.task.id)
-      if (aFocus >= 0 || bFocus >= 0) {
-        if (aFocus < 0) return 1
-        if (bFocus < 0) return -1
-        return aFocus - bFocus
-      }
-      return (a.task.deadline ?? "9999-99-99").localeCompare(
-        b.task.deadline ?? "9999-99-99",
-      )
-    })
-
   const dueTodayTasks = activeTasks.filter(
     (item) => item.task.deadline === todayISO,
   )
@@ -492,11 +461,6 @@ export default function WorkPage() {
         b.task.followUpDate ?? "9999-99-99",
       ),
     )
-
-  const staleInProgress = inProgressTasks.filter((item) => {
-    const since = dateOnly(item.task.statusChangedAt ?? item.task.updatedAt)
-    return since ? daysBetween(since, todayISO) >= 3 : false
-  })
 
   const projectsWithoutNextAction = activeWorkProjects.filter((project) => {
     const openTasks = getProjectOpenTasks(project)
@@ -632,7 +596,7 @@ export default function WorkPage() {
         title: item.title,
         status: "planned",
         priority: inboxPriorities[item.id] ?? "medium",
-        deadline: deadlineOverride ?? inboxDeadlines[item.id] || undefined,
+        deadline: (deadlineOverride ?? inboxDeadlines[item.id]) || undefined,
       },
     })
     removeInboxItem(item.id)
@@ -1571,30 +1535,6 @@ export default function WorkPage() {
           </div>
         )}
       </section>
-
-      {(staleInProgress.length > 0 ||
-        projectsWithoutNextAction.length > 0 ||
-        dueControlTasks.length > 0) ? (
-        <section className="rounded-[24px] border border-amber-200 bg-amber-50/70 p-4 dark:border-amber-500/20 dark:bg-amber-500/5 sm:p-5">
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="size-5 text-amber-600" aria-hidden />
-            <h2 className="font-semibold text-slate-950 dark:text-white">
-              Требует внимания
-            </h2>
-          </div>
-          <div className="mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-300">
-            {staleInProgress.length > 0 ? (
-              <p>В работе без смены статуса 3+ дня: {staleInProgress.length}.</p>
-            ) : null}
-            {projectsWithoutNextAction.length > 0 ? (
-              <p>Активных проектов без следующей задачи: {projectsWithoutNextAction.length}.</p>
-            ) : null}
-            {dueControlTasks.length > 0 ? (
-              <p>Задач, у которых наступила дата контроля: {dueControlTasks.length}.</p>
-            ) : null}
-          </div>
-        </section>
-      ) : null}
 
       <div className="flex flex-wrap gap-3 text-xs text-slate-400">
         <span className="inline-flex items-center gap-1">
