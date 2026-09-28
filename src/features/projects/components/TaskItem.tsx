@@ -56,7 +56,7 @@ export function TaskItem({ task, onToggle, onEdit, onDelete }: TaskItemProps) {
             <span className="shrink-0">Статус: {getTaskStatusLabel(task)}</span>
             {task.isNextAction ? (
               <span className="shrink-0 font-medium text-violet-600 dark:text-violet-400">
-                Следующий шаг
+                Следующая задача проекта
               </span>
             ) : null}
             {task.assignee ? (
