@@ -1,6 +1,27 @@
 export type ProjectPhase = "active" | "later" | "strategic"
 
+export type LifeContext = "personal" | "work"
+export type WorkspaceMode = "all" | LifeContext
+
 export type TaskPriority = "low" | "medium" | "high"
+export type TaskStatus =
+  | "planned"
+  | "in_progress"
+  | "waiting"
+  | "delegated"
+  | "control"
+  | "done"
+
+export type WorkInboxItem = {
+  id: string
+  title: string
+  createdAt: string
+}
+
+export type WorkDayClosure = {
+  closedAt: string
+  note?: string
+}
 
 export type CharacterStatType =
   | "intelligence"
@@ -25,6 +46,10 @@ export type CharacterStatType =
 export type AppSettings = {
   theme: "dark" | "light" | "system"
   accentColor: string
+  workspaceMode: WorkspaceMode
+  workInbox: WorkInboxItem[]
+  dailyFocus: Record<string, string[]>
+  workDayClosures: Record<string, WorkDayClosure>
 }
 
 export type GoalStatus = "active" | "later" | "archived"
@@ -46,9 +71,12 @@ export type Task = {
   projectId: string
   title: string
   completed: boolean
+  status?: TaskStatus
   deadline?: string
   notes?: string
   priority?: TaskPriority
+  assignee?: string
+  followUpDate?: string
   createdAt: string
   updatedAt: string
 }
@@ -68,6 +96,8 @@ export type Project = {
   goalId?: string
   title: string
   description?: string
+  /** undefined в старых данных трактуется как personal. */
+  context?: LifeContext
   /** undefined = как «Сейчас» для старых данных */
   phase?: ProjectPhase
   targetDate?: string
