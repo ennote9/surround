@@ -279,6 +279,7 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
         assignee,
         followUpDate,
         deferReason: action.payload.deferReason,
+        deferNote: action.payload.deferNote,
         deferredUntil: action.payload.deferredUntil,
         delegationNote: action.payload.delegationNote,
         delegatedAt:
