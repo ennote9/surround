@@ -27,7 +27,6 @@ import { getTodayISO } from "@/shared/lib/dates"
 import { SELECTED_PROJECT_STORAGE_KEY } from "@/shared/lib/storageKeys"
 import {
   getProjectContext,
-  getTaskDeferReasonLabel,
   getTaskStatus,
   getTaskStatusLabel,
   TASK_DEFER_REASON_OPTIONS,
