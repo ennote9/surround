@@ -10,8 +10,16 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { TASK_STATUS_OPTIONS } from "@/shared/lib/workManagement"
-import type { Task, TaskPriority, TaskStatus } from "@/store/appState.types"
+import {
+  TASK_DEFER_REASON_OPTIONS,
+  TASK_STATUS_OPTIONS,
+} from "@/shared/lib/workManagement"
+import type {
+  Task,
+  TaskDeferReason,
+  TaskPriority,
+  TaskStatus,
+} from "@/store/appState.types"
 
 export type TaskFormValues = {
   title: string
@@ -21,7 +29,8 @@ export type TaskFormValues = {
   status?: TaskStatus
   assignee?: string
   followUpDate?: string
-  deferReason?: string
+  deferReason?: TaskDeferReason
+  deferNote?: string
   deferredUntil?: string
   delegationNote?: string
   isNextAction?: boolean
@@ -54,7 +63,10 @@ function TaskDialogFields({
   )
   const [assignee, setAssignee] = useState(initialTask?.assignee ?? "")
   const [followUpDate, setFollowUpDate] = useState(initialTask?.followUpDate ?? "")
-  const [deferReason, setDeferReason] = useState(initialTask?.deferReason ?? "")
+  const [deferReason, setDeferReason] = useState<TaskDeferReason | "">(
+    initialTask?.deferReason ?? "",
+  )
+  const [deferNote, setDeferNote] = useState(initialTask?.deferNote ?? "")
   const [deferredUntil, setDeferredUntil] = useState(initialTask?.deferredUntil ?? "")
   const [delegationNote, setDelegationNote] = useState(
     initialTask?.delegationNote ?? "",
@@ -74,7 +86,8 @@ function TaskDialogFields({
       status,
       assignee: assignee.trim() || undefined,
       followUpDate: followUpDate.trim() || undefined,
-      deferReason: deferReason.trim() || undefined,
+      deferReason: deferReason || undefined,
+      deferNote: deferNote.trim() || undefined,
       deferredUntil: deferredUntil.trim() || undefined,
       delegationNote: delegationNote.trim() || undefined,
       isNextAction: status === "done" ? false : isNextAction,
@@ -175,14 +188,33 @@ function TaskDialogFields({
           </div>
           <div className="grid gap-2">
             <Label htmlFor="task-defer-reason">Причина переноса</Label>
-            <Input
+            <select
               id="task-defer-reason"
               value={deferReason}
-              onChange={(e) => setDeferReason(e.target.value)}
-              placeholder="Почему не сейчас"
-              className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-            />
+              onChange={(e) =>
+                setDeferReason((e.target.value || "") as TaskDeferReason | "")
+              }
+              className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+            >
+              <option value="">Не указана</option>
+              {TASK_DEFER_REASON_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
           </div>
+        </div>
+
+        <div className="grid gap-2">
+          <Label htmlFor="task-defer-note">Комментарий к переносу</Label>
+          <Input
+            id="task-defer-note"
+            value={deferNote}
+            onChange={(e) => setDeferNote(e.target.value)}
+            placeholder="Что изменилось и при каком условии вернуться"
+            className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+          />
         </div>
 
         <div className="grid gap-2">
