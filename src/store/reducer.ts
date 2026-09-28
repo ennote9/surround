@@ -155,6 +155,7 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
         goalId,
         title: p.title,
         description: p.description,
+        context: p.context ?? "personal",
         targetDate: p.targetDate?.trim() || undefined,
         showOnDashboard: p.showOnDashboard ?? true,
         phase: p.phase ?? "active",
@@ -253,17 +254,30 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
     }
 
     case "ADD_TASK": {
-      const { projectId, groupId, title, deadline, notes, priority } =
-        action.payload
+      const {
+        projectId,
+        groupId,
+        title,
+        deadline,
+        notes,
+        priority,
+        status,
+        assignee,
+        followUpDate,
+      } = action.payload
+      const taskStatus = status ?? "planned"
       const task: Task = {
         id: action.payload.id ?? createId("task"),
         groupId,
         projectId,
         title,
-        completed: false,
+        completed: taskStatus === "done",
+        status: taskStatus,
         deadline,
         notes,
         priority,
+        assignee,
+        followUpDate,
         createdAt: action.payload.createdAt ?? t,
         updatedAt: action.payload.updatedAt ?? t,
       }
@@ -290,6 +304,12 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
 
     case "UPDATE_TASK": {
       const { projectId, groupId, taskId, patch } = action.payload
+      const normalizedPatch: Partial<Task> = { ...patch }
+      if (patch.status !== undefined) {
+        normalizedPatch.completed = patch.status === "done"
+      } else if (patch.completed !== undefined) {
+        normalizedPatch.status = patch.completed ? "done" : "planned"
+      }
       return {
         ...state,
         projects: state.projects.map((proj) => {
@@ -302,7 +322,7 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
                 ...g,
                 tasks: g.tasks.map((task) =>
                   task.id === taskId
-                    ? { ...task, ...patch, updatedAt: t }
+                    ? { ...task, ...normalizedPatch, updatedAt: t }
                     : task,
                 ),
                 updatedAt: t,
@@ -326,18 +346,19 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
               if (g.id !== groupId) return g
               return {
                 ...g,
-                tasks: g.tasks.map((task) =>
-                  task.id === taskId
-                    ? {
-                        ...task,
-                        completed:
-                          typeof action.payload.completed === "boolean"
-                            ? action.payload.completed
-                            : !task.completed,
-                        updatedAt: t,
-                      }
-                    : task,
-                ),
+                tasks: g.tasks.map((task) => {
+                  if (task.id !== taskId) return task
+                  const completed =
+                    typeof action.payload.completed === "boolean"
+                      ? action.payload.completed
+                      : !task.completed
+                  return {
+                    ...task,
+                    completed,
+                    status: completed ? "done" : "planned",
+                    updatedAt: t,
+                  }
+                }),
                 updatedAt: t,
               }
             }),
