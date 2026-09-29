@@ -909,7 +909,7 @@ export default function WorkPage() {
         ) : null}
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[1.35fr_0.65fr]">
+      <section className="space-y-4">
         <div className="rounded-[24px] border border-blue-200 bg-blue-50/60 p-4 dark:border-blue-500/20 dark:bg-blue-500/5 sm:p-5">
           <div className="flex items-center gap-2">
             <ListChecks className="size-5 text-blue-600 dark:text-blue-400" aria-hidden />
@@ -1030,9 +1030,9 @@ export default function WorkPage() {
             </span>
           </div>
 
-          <div className="mt-4 space-y-2">
+          <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
             {inProgressTasks.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-slate-200 p-3 dark:border-slate-800">
+              <div className="rounded-xl border border-dashed border-slate-200 p-3 md:col-span-2 xl:col-span-3 dark:border-slate-800">
                 <p className="text-sm text-slate-500">Сейчас ничего не выполняется.</p>
                 {focusTasks.length > 0 ? (
                   <Button type="button" size="sm" className="mt-3" onClick={startFirstFocusTask}>
@@ -1077,7 +1077,7 @@ export default function WorkPage() {
             )}
           </div>
 
-          <div className="mt-3 flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2 dark:bg-slate-950/60">
+          <div className="mt-3 flex max-w-xs items-center justify-between rounded-xl bg-slate-50 px-3 py-2 dark:bg-slate-950/60">
             <span className="text-xs text-slate-500">WIP-лимит</span>
             <Input
               type="number"
