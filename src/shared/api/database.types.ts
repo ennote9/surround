@@ -131,10 +131,12 @@ export type TaskRow = {
   completed: boolean
   status: string
   deadline: string | null
+  deadline_time: string | null
   notes: string | null
   priority: string | null
   assignee: string | null
   follow_up_date: string | null
+  follow_up_time: string | null
   defer_reason: string | null
   defer_note: string | null
   deferred_until: string | null
@@ -157,10 +159,12 @@ export type TaskInsert = {
   completed: boolean
   status: string
   deadline: string | null
+  deadline_time: string | null
   notes: string | null
   priority: string | null
   assignee: string | null
   follow_up_date: string | null
+  follow_up_time: string | null
   defer_reason: string | null
   defer_note: string | null
   deferred_until: string | null
@@ -179,10 +183,12 @@ export type TaskUpdate = Partial<{
   completed: boolean
   status: string
   deadline: string | null
+  deadline_time: string | null
   notes: string | null
   priority: string | null
   assignee: string | null
   follow_up_date: string | null
+  follow_up_time: string | null
   defer_reason: string | null
   defer_note: string | null
   deferred_until: string | null

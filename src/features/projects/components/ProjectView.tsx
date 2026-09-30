@@ -12,6 +12,7 @@ import { getCharacterStatTitle } from "@/features/dashboard/characterStats"
 import { CharacterStatIcon } from "@/shared/components/CharacterStatIcon"
 import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
 import { formatDateOnly } from "@/shared/lib/dateFormat"
+import { formatTaskScheduleLabel } from "@/shared/lib/taskSchedule"
 import { getHabitTimingLabel } from "@/shared/lib/habitEntries"
 import {
   DEFAULT_PROJECT_GROUPS_COLLAPSE_MODE,
@@ -338,7 +339,11 @@ export function ProjectView({
                 <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
                   Этап: {nextTask.group.title}
                   {nextTask.task.deadline
-                    ? " · До " + formatDateOnly(nextTask.task.deadline)
+                    ? " · До " +
+                      formatTaskScheduleLabel(
+                        nextTask.task.deadline,
+                        nextTask.task.deadlineTime,
+                      )
                     : ""}
                 </p>
                 <Button

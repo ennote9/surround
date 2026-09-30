@@ -20,6 +20,7 @@ import {
   getCharacterStatTitle,
 } from "@/features/dashboard/characterStats"
 import { getProjectPhaseTitle } from "@/shared/lib/projectPhases"
+import { isTaskOverdue } from "@/shared/lib/taskSchedule"
 import type {
   CharacterStatType,
   Habit,
@@ -412,18 +413,14 @@ export function MobileDashboard({
       if (project.phase !== undefined && project.phase !== "active") continue
       for (const group of project.groups) {
         for (const task of group.tasks) {
-          if (
-            !task.completed &&
-            task.deadline &&
-            task.deadline.slice(0, 10) < todayISO
-          ) {
+          if (isTaskOverdue(task)) {
             count += 1
           }
         }
       }
     }
     return count
-  }, [scopedProjects, todayISO])
+  }, [scopedProjects])
 
   const sortedProjects = useMemo(
     () =>

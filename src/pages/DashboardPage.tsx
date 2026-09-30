@@ -39,6 +39,13 @@ import {
 import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
 import { getTodayISO } from "@/shared/lib/dates"
 import {
+  compareTasksByControl,
+  compareTasksByDeadline,
+  formatTaskScheduleLabel,
+  isTaskControlDue,
+  isTaskOverdue,
+} from "@/shared/lib/taskSchedule"
+import {
   ALL_GOALS_SCOPE,
   getSelectedGoalTitle,
   normalizeSelectedGoalId,
@@ -103,16 +110,6 @@ function formatDashboardDate(isoDate: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1)
 }
 
-function formatShortDate(value?: string): string {
-  if (!value) return "—"
-  return new Intl.DateTimeFormat("ru-RU", {
-    day: "numeric",
-    month: "short",
-  })
-    .format(new Date(`${value.slice(0, 10)}T12:00:00`))
-    .replace(".", "")
-}
-
 function getLastDays(todayISO: string, count: number): string[] {
   const base = new Date(`${todayISO}T12:00:00`)
   return Array.from({ length: count }, (_, index) => {
@@ -147,9 +144,7 @@ function priorityWeight(priority?: Task["priority"]): number {
 }
 
 function sortTaskRefs(a: TaskRef, b: TaskRef): number {
-  const deadline = (a.task.deadline ?? "9999-99-99").localeCompare(
-    b.task.deadline ?? "9999-99-99",
-  )
+  const deadline = compareTasksByDeadline(a.task, b.task)
   if (deadline !== 0) return deadline
   return priorityWeight(b.task.priority) - priorityWeight(a.task.priority)
 }
@@ -247,7 +242,9 @@ function TaskLine({
         </p>
         <p className="mt-0.5 truncate text-[10px] text-slate-400">
           {item.project.title}
-          {item.task.deadline ? ` · ${formatShortDate(item.task.deadline)}` : ""}
+          {item.task.deadline
+            ? ` · ${formatTaskScheduleLabel(item.task.deadline, item.task.deadlineTime)}`
+            : ""}
         </p>
       </div>
       {badge ? (
@@ -415,13 +412,9 @@ export default function DashboardPage() {
     .sort(sortTaskRefs)
   const workControl = allWorkOpenTasks
     .filter((item) => CONTROL_STATUSES.has(getTaskStatus(item.task)))
-    .sort((a, b) =>
-      (a.task.followUpDate ?? "9999-99-99").localeCompare(
-        b.task.followUpDate ?? "9999-99-99",
-      ),
-    )
-  const workOverdue = allWorkOpenTasks.filter(
-    (item) => item.task.deadline && item.task.deadline < todayISO,
+    .sort((a, b) => compareTasksByControl(a.task, b.task))
+  const workOverdue = allWorkOpenTasks.filter((item) =>
+    isTaskOverdue(item.task),
   )
 
   const workAttentionIds = new Set<string>()
@@ -432,8 +425,7 @@ export default function DashboardPage() {
     }
     if (
       CONTROL_STATUSES.has(status) &&
-      item.task.followUpDate &&
-      item.task.followUpDate <= todayISO
+      isTaskControlDue(item.task)
     ) {
       workAttentionIds.add(item.task.id)
     }
@@ -457,8 +449,8 @@ export default function DashboardPage() {
       personalQueue.push(item)
     }
   }
-  const personalOverdue = allPersonalOpenTasks.filter(
-    (item) => item.task.deadline && item.task.deadline < todayISO,
+  const personalOverdue = allPersonalOpenTasks.filter((item) =>
+    isTaskOverdue(item.task),
   )
 
   const personalProjectIds = new Set(personalProjects.map((project) => project.id))
@@ -866,7 +858,11 @@ export default function DashboardPage() {
               </p>
               {workCurrent.task.deadline ? (
                 <p className="mt-1 text-[10px] text-slate-400">
-                  Дедлайн {formatShortDate(workCurrent.task.deadline)}
+                  Дедлайн{" "}
+                  {formatTaskScheduleLabel(
+                    workCurrent.task.deadline,
+                    workCurrent.task.deadlineTime,
+                  )}
                 </p>
               ) : null}
             </div>
@@ -924,9 +920,9 @@ export default function DashboardPage() {
                 context="work"
                 onOpenProject={handleOpenProject}
                 badge={
-                  item.task.deadline && item.task.deadline < todayISO
+                  isTaskOverdue(item.task)
                     ? "просрочено"
-                    : item.task.followUpDate && item.task.followUpDate <= todayISO
+                    : isTaskControlDue(item.task)
                       ? "контроль"
                       : item.task.deadline === todayISO
                         ? "сегодня"
@@ -965,7 +961,10 @@ export default function DashboardPage() {
                 </div>
                 <span className="shrink-0 text-[9px] text-slate-400">
                   {item.task.followUpDate
-                    ? formatShortDate(item.task.followUpDate)
+                    ? formatTaskScheduleLabel(
+                        item.task.followUpDate,
+                        item.task.followUpTime,
+                      )
                     : "без даты"}
                 </span>
               </div>

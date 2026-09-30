@@ -1,5 +1,6 @@
 import { isCharacterStatType } from "@/shared/lib/characterStats"
 import { isProjectPhase } from "@/shared/lib/projectPhases"
+import { normalizeTaskTime } from "@/shared/lib/taskSchedule"
 import type {
   Goal,
   Habit,
@@ -410,10 +411,12 @@ export function taskRowToTask(row: TaskRow): Task {
     completed: row.completed || row.status === "done",
     status: parseTaskStatusFromDb(row.status),
     deadline: row.deadline ?? undefined,
+    deadlineTime: normalizeTaskTime(row.deadline_time),
     notes: row.notes ?? undefined,
     priority: parseTaskPriorityFromDb(row.priority),
     assignee: row.assignee ?? undefined,
     followUpDate: row.follow_up_date ?? undefined,
+    followUpTime: normalizeTaskTime(row.follow_up_time),
     deferReason: parseTaskDeferReasonFromDb(row.defer_reason),
     deferNote: row.defer_note ?? undefined,
     deferredUntil: row.deferred_until ?? undefined,
@@ -443,10 +446,12 @@ export function taskToTaskInsert(
     completed: task.completed,
     status: task.status ?? (task.completed ? "done" : "planned"),
     deadline: task.deadline ?? null,
+    deadline_time: normalizeTaskTime(task.deadlineTime) ?? null,
     notes: task.notes ?? null,
     priority: task.priority ?? null,
     assignee: task.assignee ?? null,
     follow_up_date: task.followUpDate ?? null,
+    follow_up_time: normalizeTaskTime(task.followUpTime) ?? null,
     defer_reason: task.deferReason ?? null,
     defer_note: task.deferNote ?? null,
     deferred_until: task.deferredUntil ?? null,
@@ -470,11 +475,17 @@ export function taskToTaskUpdate(patch: Partial<Task>): TaskUpdate {
     o.completed = patch.completed
   }
   if ("deadline" in patch) o.deadline = patch.deadline ?? null
+  if ("deadlineTime" in patch) {
+    o.deadline_time = normalizeTaskTime(patch.deadlineTime) ?? null
+  }
   if ("notes" in patch) o.notes = patch.notes ?? null
   if ("priority" in patch) o.priority = patch.priority ?? null
   if ("status" in patch) o.status = patch.status ?? "planned"
   if ("assignee" in patch) o.assignee = patch.assignee ?? null
   if ("followUpDate" in patch) o.follow_up_date = patch.followUpDate ?? null
+  if ("followUpTime" in patch) {
+    o.follow_up_time = normalizeTaskTime(patch.followUpTime) ?? null
+  }
   if ("deferReason" in patch) o.defer_reason = patch.deferReason ?? null
   if ("deferNote" in patch) o.defer_note = patch.deferNote ?? null
   if ("deferredUntil" in patch) o.deferred_until = patch.deferredUntil ?? null
