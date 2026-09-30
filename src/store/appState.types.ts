@@ -93,10 +93,14 @@ export type Task = {
   completed: boolean
   status?: TaskStatus
   deadline?: string
+  /** Optional local wall-clock time (HH:mm). Undefined means date-only/all-day deadline. */
+  deadlineTime?: string
   notes?: string
   priority?: TaskPriority
   assignee?: string
   followUpDate?: string
+  /** Optional local wall-clock time (HH:mm) for control/follow-up. */
+  followUpTime?: string
   deferReason?: TaskDeferReason
   deferNote?: string
   deferredUntil?: string
