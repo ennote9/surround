@@ -25,11 +25,13 @@ import type {
 export type TaskFormValues = {
   title: string
   deadline?: string
+  deadlineTime?: string
   notes?: string
   priority?: TaskPriority
   status?: TaskStatus
   assignee?: string
   followUpDate?: string
+  followUpTime?: string
   deferReason?: TaskDeferReason
   deferNote?: string
   deferredUntil?: string
@@ -55,6 +57,7 @@ function TaskDialogFields({
 }) {
   const [title, setTitle] = useState(initialTask?.title ?? "")
   const [deadline, setDeadline] = useState(initialTask?.deadline ?? "")
+  const [deadlineTime, setDeadlineTime] = useState(initialTask?.deadlineTime ?? "")
   const [notes, setNotes] = useState(initialTask?.notes ?? "")
   const [priority, setPriority] = useState<TaskPriority | "">(
     initialTask?.priority ?? "",
@@ -64,6 +67,7 @@ function TaskDialogFields({
   )
   const [assignee, setAssignee] = useState(initialTask?.assignee ?? "")
   const [followUpDate, setFollowUpDate] = useState(initialTask?.followUpDate ?? "")
+  const [followUpTime, setFollowUpTime] = useState(initialTask?.followUpTime ?? "")
   const [deferReason, setDeferReason] = useState<TaskDeferReason | "">(
     initialTask?.deferReason ?? "",
   )
@@ -82,11 +86,13 @@ function TaskDialogFields({
     onSubmit({
       title: t,
       deadline: deadline.trim() || undefined,
+      deadlineTime: deadline ? deadlineTime.trim() || undefined : undefined,
       notes: notes.trim() || undefined,
       priority: priority === "" ? undefined : priority,
       status,
       assignee: assignee.trim() || undefined,
       followUpDate: followUpDate.trim() || undefined,
+      followUpTime: followUpDate ? followUpTime.trim() || undefined : undefined,
       deferReason: deferReason || undefined,
       deferNote: deferNote.trim() || undefined,
       deferredUntil: deferredUntil.trim() || undefined,
@@ -115,13 +121,30 @@ function TaskDialogFields({
         </div>
         <div className="grid gap-2">
           <Label htmlFor="task-deadline">Дедлайн</Label>
-          <Input
-            id="task-deadline"
-            type="date"
-            value={deadline}
-            onChange={(e) => setDeadline(e.target.value)}
-            className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-          />
+          <div className="grid grid-cols-[minmax(0,1fr)_120px] gap-2">
+            <Input
+              id="task-deadline"
+              type="date"
+              value={deadline}
+              onChange={(e) => {
+                setDeadline(e.target.value)
+                if (!e.target.value) setDeadlineTime("")
+              }}
+              className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+            />
+            <Input
+              id="task-deadline-time"
+              type="time"
+              value={deadlineTime}
+              disabled={!deadline}
+              onChange={(e) => setDeadlineTime(e.target.value)}
+              aria-label="Время дедлайна"
+              className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+            />
+          </div>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            Время необязательно. Без времени срок действует до конца дня.
+          </p>
         </div>
         <div className="grid gap-2">
           <Label htmlFor="task-priority">Приоритет</Label>
@@ -166,14 +189,28 @@ function TaskDialogFields({
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="task-follow-up">Дата контроля</Label>
-            <Input
-              id="task-follow-up"
-              type="date"
-              value={followUpDate}
-              onChange={(e) => setFollowUpDate(e.target.value)}
-              className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-            />
+            <Label htmlFor="task-follow-up">Контроль</Label>
+            <div className="grid grid-cols-[minmax(0,1fr)_110px] gap-2">
+              <Input
+                id="task-follow-up"
+                type="date"
+                value={followUpDate}
+                onChange={(e) => {
+                  setFollowUpDate(e.target.value)
+                  if (!e.target.value) setFollowUpTime("")
+                }}
+                className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+              />
+              <Input
+                id="task-follow-up-time"
+                type="time"
+                value={followUpTime}
+                disabled={!followUpDate}
+                onChange={(e) => setFollowUpTime(e.target.value)}
+                aria-label="Время контроля"
+                className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+              />
+            </div>
           </div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">

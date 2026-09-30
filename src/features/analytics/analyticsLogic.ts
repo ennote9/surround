@@ -6,6 +6,7 @@ import type {
 } from "@/store/appState.types"
 import type { SelectedGoalScope } from "@/shared/lib/selectedGoal"
 import { ALL_GOALS_SCOPE } from "@/shared/lib/selectedGoal"
+import { isTaskOverdue } from "@/shared/lib/taskSchedule"
 import {
   getHabitWeeklyCompleted,
   getHabitWeeklyTarget,
@@ -95,7 +96,7 @@ export function getWeeklyHabitSummary(habits: Habit[], weekDates: string[]) {
   }
 }
 
-export function getPlanningSummary(projects: Project[], todayISO: string) {
+export function getPlanningSummary(projects: Project[], _todayISO: string) {
   let tasks = 0
   let tasksWithDeadline = 0
   let overdue = 0
@@ -109,7 +110,7 @@ export function getPlanningSummary(projects: Project[], todayISO: string) {
         tasks += 1
         if (task.deadline) {
           tasksWithDeadline += 1
-          if (!task.completed && task.deadline.slice(0, 10) < todayISO) {
+          if (isTaskOverdue(task)) {
             overdue += 1
           }
         }

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import { getTaskStatusLabel } from "@/shared/lib/workManagement"
+import { formatTaskScheduleLabel, isTaskOverdue } from "@/shared/lib/taskSchedule"
 import type { Task } from "@/store/appState.types"
 
 const priorityLabel: Record<NonNullable<Task["priority"]>, string> = {
@@ -19,6 +20,8 @@ type TaskItemProps = {
 }
 
 export function TaskItem({ task, onToggle, onEdit, onDelete }: TaskItemProps) {
+  const overdue = isTaskOverdue(task)
+
   return (
     <div
       className={cn(
@@ -46,7 +49,14 @@ export function TaskItem({ task, onToggle, onEdit, onDelete }: TaskItemProps) {
           </label>
           <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-600 dark:text-slate-400">
             {task.deadline ? (
-              <span className="break-words">Дедлайн: {task.deadline}</span>
+              <span
+                className={cn(
+                  "break-words",
+                  overdue && "font-medium text-red-600 dark:text-red-400",
+                )}
+              >
+                Дедлайн: {formatTaskScheduleLabel(task.deadline, task.deadlineTime)}
+              </span>
             ) : null}
             {task.priority ? (
               <span className="shrink-0">
@@ -63,7 +73,9 @@ export function TaskItem({ task, onToggle, onEdit, onDelete }: TaskItemProps) {
               <span className="shrink-0">Ответственный: {task.assignee}</span>
             ) : null}
             {task.followUpDate ? (
-              <span className="shrink-0">Контроль: {task.followUpDate}</span>
+              <span className="shrink-0">
+                Контроль: {formatTaskScheduleLabel(task.followUpDate, task.followUpTime)}
+              </span>
             ) : null}
             {task.deferredUntil ? (
               <span className="shrink-0">Отложено до: {task.deferredUntil}</span>

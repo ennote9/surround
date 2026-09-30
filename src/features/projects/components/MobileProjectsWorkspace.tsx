@@ -24,6 +24,7 @@ import {
 import { CharacterStatIcon } from "@/shared/components/CharacterStatIcon"
 import { getCharacterStatTitle } from "@/features/dashboard/characterStats"
 import { formatDateOnly } from "@/shared/lib/dateFormat"
+import { formatTaskScheduleLabel, isTaskOverdue } from "@/shared/lib/taskSchedule"
 import {
   getProjectPhaseBadgeClassName,
   getProjectPhaseTitle,
@@ -119,14 +120,13 @@ function getPortfolioStats(projects: Project[]) {
   let totalTasks = 0
   let completedTasks = 0
   let overdue = 0
-  const today = new Date().toISOString().slice(0, 10)
 
   for (const project of projects) {
     for (const group of project.groups) {
       for (const task of group.tasks) {
         totalTasks += 1
         if (task.completed) completedTasks += 1
-        if (!task.completed && task.deadline && task.deadline.slice(0, 10) < today) {
+        if (isTaskOverdue(task)) {
           overdue += 1
         }
       }
@@ -536,7 +536,13 @@ export function MobileProjectsWorkspace({
                 </p>
                 <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-slate-500 dark:text-slate-400">
                   {nextTask.task.deadline ? (
-                    <span>До {formatDateOnly(nextTask.task.deadline)}</span>
+                    <span>
+                      До{" "}
+                      {formatTaskScheduleLabel(
+                        nextTask.task.deadline,
+                        nextTask.task.deadlineTime,
+                      )}
+                    </span>
                   ) : null}
                   {nextTask.task.priority ? (
                     <span>Приоритет: {priorityTitle[nextTask.task.priority]}</span>

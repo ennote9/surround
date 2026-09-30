@@ -1,6 +1,4 @@
 import { useMemo } from "react"
-import { format, isValid, parseISO } from "date-fns"
-import { ru } from "date-fns/locale"
 import {
   AlertTriangle,
   CalendarClock,
@@ -23,7 +21,11 @@ import {
 import type { Habit, Milestone, Project } from "@/store/appState.types"
 import type { TaskAggregate } from "@/features/analytics/analyticsLogic"
 import { getProjectPhaseBadgeClassName, getProjectPhaseTitle } from "@/shared/lib/projectPhases"
-import { getTodayISO } from "@/shared/lib/dates"
+import {
+  compareTasksByDeadline,
+  formatTaskScheduleLabel,
+  isTaskOverdue,
+} from "@/shared/lib/taskSchedule"
 
 type PhaseCounts = {
   active: number
@@ -166,13 +168,6 @@ function MetricCard({
   )
 }
 
-function formatDateShort(iso?: string): string {
-  if (!iso) return ""
-  const date = parseISO(iso)
-  if (!isValid(date)) return iso
-  return format(date, "d MMM", { locale: ru }).replace(".", "")
-}
-
 export function MobileAnalyticsDashboard({
   selectedGoalTitle,
   currentProjects,
@@ -189,7 +184,6 @@ export function MobileAnalyticsDashboard({
   milestones,
   weekDates,
 }: MobileAnalyticsDashboardProps) {
-  const todayISO = getTodayISO()
   const futureTasks = Math.max(0, portfolioTasks.total - currentTasks.total)
 
   const rankedProjects = useMemo(
@@ -236,6 +230,8 @@ export function MobileAnalyticsDashboard({
       title: string
       projectTitle: string
       deadline: string
+      deadlineTime?: string
+      task: Project["groups"][number]["tasks"][number]
       overdue: boolean
     }> = []
 
@@ -248,7 +244,9 @@ export function MobileAnalyticsDashboard({
               title: task.title,
               projectTitle: project.title,
               deadline: task.deadline,
-              overdue: task.deadline.slice(0, 10) < todayISO,
+              deadlineTime: task.deadlineTime,
+              task,
+              overdue: isTaskOverdue(task),
             })
           }
         }
@@ -256,9 +254,9 @@ export function MobileAnalyticsDashboard({
     }
 
     return rows
-      .sort((a, b) => a.deadline.localeCompare(b.deadline))
+      .sort((a, b) => compareTasksByDeadline(a.task, b.task))
       .slice(0, 5)
-  }, [currentProjects, todayISO])
+  }, [currentProjects])
 
   return (
     <div className="space-y-6 md:hidden">
@@ -644,7 +642,7 @@ export function MobileAnalyticsDashboard({
                       : "shrink-0 text-xs font-semibold text-slate-700 dark:text-slate-300"
                   }
                 >
-                  {formatDateShort(item.deadline)}
+                  {formatTaskScheduleLabel(item.deadline, item.deadlineTime)}
                 </span>
               </div>
             ))}

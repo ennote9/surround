@@ -1,4 +1,5 @@
 import { getTodayISO } from "@/shared/lib/dates"
+import { isTaskOverdue } from "@/shared/lib/taskSchedule"
 import type { Habit, Project, Task, TaskGroup } from "./appState.types"
 
 function pct(completed: number, total: number): number {
@@ -330,12 +331,11 @@ export function getProjectTaskStats(project: Project): {
 }
 
 export function getProjectOverdueTaskCount(project: Project): number {
-  const today = getTodayISO()
   let overdue = 0
 
   for (const group of project.groups) {
     for (const task of group.tasks) {
-      if (!task.completed && task.deadline && task.deadline.slice(0, 10) < today) {
+      if (isTaskOverdue(task)) {
         overdue += 1
       }
     }

@@ -23,6 +23,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { getTodayISO } from "@/shared/lib/dates"
+import {
+  compareTasksByControl,
+  compareTasksByDeadline,
+  formatTaskScheduleLabel,
+  isTaskControlDue,
+  isTaskOverdue,
+} from "@/shared/lib/taskSchedule"
 import { SELECTED_PROJECT_STORAGE_KEY } from "@/shared/lib/storageKeys"
 import {
   getProjectContext,
@@ -112,6 +119,7 @@ function TaskRow({
   todayISO,
   onStatusChange,
   onFollowUpChange,
+  onFollowUpTimeChange,
   onAssigneeChange,
   onToggleFocus,
   onSetNextAction,
@@ -125,6 +133,7 @@ function TaskRow({
   todayISO: string
   onStatusChange: (status: TaskStatus) => void
   onFollowUpChange: (value?: string) => void
+  onFollowUpTimeChange: (value?: string) => void
   onAssigneeChange: (value?: string) => void
   onToggleFocus: () => void
   onSetNextAction: () => void
@@ -204,7 +213,7 @@ function TaskRow({
         </div>
       </div>
 
-      <div className="mt-3 grid gap-2 sm:grid-cols-3">
+      <div className="mt-3 grid gap-2 sm:grid-cols-4">
         <select
           value={status}
           onChange={(event) => onStatusChange(event.target.value as TaskStatus)}
@@ -224,6 +233,17 @@ function TaskRow({
           onChange={(event) => onFollowUpChange(event.target.value || undefined)}
           className="h-9 text-xs"
           aria-label="Дата контроля"
+        />
+
+        <Input
+          type="time"
+          value={item.task.followUpTime ?? ""}
+          disabled={!item.task.followUpDate}
+          onChange={(event) =>
+            onFollowUpTimeChange(event.target.value || undefined)
+          }
+          className="h-9 text-xs"
+          aria-label="Время контроля"
         />
 
         <Input
@@ -295,7 +315,12 @@ function TaskRow({
       </details>
 
       <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-slate-500 dark:text-slate-400">
-        {item.task.deadline ? <span>Дедлайн: {item.task.deadline}</span> : null}
+        {item.task.deadline ? (
+          <span>
+            Дедлайн:{" "}
+            {formatTaskScheduleLabel(item.task.deadline, item.task.deadlineTime)}
+          </span>
+        ) : null}
         {item.task.assignee ? <span>Ответственный: {item.task.assignee}</span> : null}
         {item.task.statusChangedAt ? (
           <span>Статус с: {dateOnly(item.task.statusChangedAt)}</span>
@@ -398,24 +423,19 @@ export default function WorkPage() {
       const priorityDelta =
         priorityWeight(b.task.priority) - priorityWeight(a.task.priority)
       if (priorityDelta !== 0) return priorityDelta
-      return (a.task.deadline ?? "9999-99-99").localeCompare(
-        b.task.deadline ?? "9999-99-99",
-      )
+      return compareTasksByDeadline(a.task, b.task)
     })
   const allInboxItems = state.settings.workInbox ?? []
   const inboxItems = allInboxItems.filter((item) => item.context !== "personal")
   const dayClosure = state.settings.workDayClosures?.[todayISO]
 
-  const overdue = activeTasks.filter(
-    (item) => item.task.deadline && item.task.deadline < todayISO,
-  ).length
+  const overdue = activeTasks.filter((item) => isTaskOverdue(item.task)).length
 
   const dueControlTasks = activeTasks.filter((item) => {
     const status = getTaskStatus(item.task)
     return (
       CONTROL_STATUSES.has(status) &&
-      item.task.followUpDate !== undefined &&
-      item.task.followUpDate <= todayISO
+      isTaskControlDue(item.task)
     )
   })
 
@@ -438,7 +458,7 @@ export default function WorkPage() {
 
   const attentionIds = new Set<string>([
     ...activeTasks
-      .filter((item) => item.task.deadline && item.task.deadline < todayISO)
+      .filter((item) => isTaskOverdue(item.task))
       .map((item) => item.task.id),
     ...dueTodayTasks.map((item) => item.task.id),
     ...dueControlTasks.map((item) => item.task.id),
@@ -448,20 +468,14 @@ export default function WorkPage() {
   const attentionTasks = activeTasks
     .filter((item) => attentionIds.has(item.task.id))
     .sort((a, b) => {
-      const deadlineDelta = (a.task.deadline ?? "9999-99-99").localeCompare(
-        b.task.deadline ?? "9999-99-99",
-      )
+      const deadlineDelta = compareTasksByDeadline(a.task, b.task)
       if (deadlineDelta !== 0) return deadlineDelta
       return priorityWeight(b.task.priority) - priorityWeight(a.task.priority)
     })
 
   const controlLaneTasks = activeTasks
     .filter((item) => CONTROL_STATUSES.has(getTaskStatus(item.task)))
-    .sort((a, b) =>
-      (a.task.followUpDate ?? "9999-99-99").localeCompare(
-        b.task.followUpDate ?? "9999-99-99",
-      ),
-    )
+    .sort((a, b) => compareTasksByControl(a.task, b.task))
 
   const projectsWithoutNextAction = activeWorkProjects.filter((project) => {
     const openTasks = getProjectOpenTasks(project)
@@ -1129,7 +1143,7 @@ export default function WorkPage() {
                   </p>
                   <p className="mt-0.5 text-xs text-slate-500">{item.projectTitle}</p>
                   <div className="mt-2 flex flex-wrap gap-1.5 text-[10px]">
-                    {item.task.deadline && item.task.deadline < todayISO ? (
+                    {isTaskOverdue(item.task) ? (
                       <span className="rounded-full bg-red-50 px-2 py-0.5 font-medium text-red-700 dark:bg-red-500/10 dark:text-red-300">
                         Просрочено
                       </span>
@@ -1139,8 +1153,7 @@ export default function WorkPage() {
                       </span>
                     ) : null}
                     {CONTROL_STATUSES.has(status) &&
-                    item.task.followUpDate &&
-                    item.task.followUpDate <= todayISO ? (
+                    isTaskControlDue(item.task) ? (
                       <span className="rounded-full bg-amber-100 px-2 py-0.5 font-medium text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">
                         Контроль
                       </span>
@@ -1316,7 +1329,15 @@ export default function WorkPage() {
                     todayISO={todayISO}
                     focused={activeFocusIds.includes(item.task.id)}
                     onStatusChange={(status) => changeTaskStatus(item, status)}
-                    onFollowUpChange={(followUpDate) => updateTask(item, { followUpDate })}
+                    onFollowUpChange={(followUpDate) =>
+                      updateTask(item, {
+                        followUpDate,
+                        ...(!followUpDate ? { followUpTime: undefined } : {}),
+                      })
+                    }
+                    onFollowUpTimeChange={(followUpTime) =>
+                      updateTask(item, { followUpTime })
+                    }
                     onAssigneeChange={(assignee) => updateTask(item, { assignee })}
                     onToggleFocus={() => toggleFocus(item.task.id)}
                     onSetNextAction={() => toggleNextAction(item)}
@@ -1372,7 +1393,15 @@ export default function WorkPage() {
                         todayISO={todayISO}
                         focused={activeFocusIds.includes(item.task.id)}
                         onStatusChange={(status) => changeTaskStatus(item, status)}
-                        onFollowUpChange={(followUpDate) => updateTask(item, { followUpDate })}
+                        onFollowUpChange={(followUpDate) =>
+                      updateTask(item, {
+                        followUpDate,
+                        ...(!followUpDate ? { followUpTime: undefined } : {}),
+                      })
+                    }
+                    onFollowUpTimeChange={(followUpTime) =>
+                      updateTask(item, { followUpTime })
+                    }
                         onAssigneeChange={(assignee) => updateTask(item, { assignee })}
                         onToggleFocus={() => toggleFocus(item.task.id)}
                         onSetNextAction={() => toggleNextAction(item)}

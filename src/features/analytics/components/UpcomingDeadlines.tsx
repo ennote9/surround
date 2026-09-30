@@ -1,4 +1,8 @@
-import { parseISO, format, isValid } from "date-fns"
+import {
+  compareTasksByDeadline,
+  formatTaskScheduleLabel,
+  isTaskOverdue,
+} from "@/shared/lib/taskSchedule"
 import type { Project, Task, TaskGroup } from "@/store/appState.types"
 
 type DeadlineRow = {
@@ -23,13 +27,8 @@ function collectDeadlineRows(projects: Project[]): DeadlineRow[] {
       }
     }
   }
-  rows.sort((a, b) => a.deadline.localeCompare(b.deadline))
+  rows.sort((a, b) => compareTasksByDeadline(a.task, b.task))
   return rows.slice(0, 8)
-}
-
-function formatDeadline(iso: string): string {
-  const d = parseISO(iso)
-  return isValid(d) ? format(d, "dd.MM.yyyy") : iso
 }
 
 export function UpcomingDeadlines({ projects }: UpcomingDeadlinesProps) {
@@ -61,16 +60,24 @@ export function UpcomingDeadlines({ projects }: UpcomingDeadlinesProps) {
               </div>
               <div className="flex shrink-0 flex-col items-start gap-0.5 sm:items-end">
                 <span className="text-sm font-medium text-slate-700">
-                  {task.deadline ? formatDeadline(task.deadline) : ""}
+                  {task.deadline
+                    ? formatTaskScheduleLabel(task.deadline, task.deadlineTime)
+                    : ""}
                 </span>
                 <span
                   className={
                     task.completed
                       ? "text-xs text-slate-400"
-                      : "text-xs font-medium text-blue-600"
+                      : isTaskOverdue(task)
+                        ? "text-xs font-medium text-red-600"
+                        : "text-xs font-medium text-blue-600"
                   }
                 >
-                  {task.completed ? "Выполнено" : "В ожидании"}
+                  {task.completed
+                    ? "Выполнено"
+                    : isTaskOverdue(task)
+                      ? "Просрочено"
+                      : "В ожидании"}
                 </span>
               </div>
             </li>

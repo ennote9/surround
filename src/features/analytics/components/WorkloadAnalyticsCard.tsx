@@ -1,5 +1,6 @@
 import { AlertTriangle, CheckCircle2, Gauge, Star } from "lucide-react"
 import { getTodayISO } from "@/shared/lib/dates"
+import { isTaskControlDue, isTaskOverdue } from "@/shared/lib/taskSchedule"
 import { getTaskStatus } from "@/shared/lib/workManagement"
 import type { Project } from "@/store/appState.types"
 
@@ -39,13 +40,10 @@ export function WorkloadAnalyticsCard({
     const status = getTaskStatus(task)
     return (
       (status === "waiting" || status === "delegated" || status === "control") &&
-      task.followUpDate !== undefined &&
-      task.followUpDate <= todayISO
+      isTaskControlDue(task)
     )
   })
-  const overdue = openTasks.filter(
-    (task) => task.deadline !== undefined && task.deadline < todayISO,
-  )
+  const overdue = openTasks.filter((task) => isTaskOverdue(task))
   const deferred = openTasks.filter(
     (task) => task.deferredUntil !== undefined && task.deferredUntil > todayISO,
   )
