@@ -96,7 +96,7 @@ export function getWeeklyHabitSummary(habits: Habit[], weekDates: string[]) {
   }
 }
 
-export function getPlanningSummary(projects: Project[], _todayISO: string) {
+export function getPlanningSummary(projects: Project[], todayISO: string) {
   let tasks = 0
   let tasksWithDeadline = 0
   let overdue = 0
@@ -110,7 +110,11 @@ export function getPlanningSummary(projects: Project[], _todayISO: string) {
         tasks += 1
         if (task.deadline) {
           tasksWithDeadline += 1
-          if (isTaskOverdue(task)) {
+          const dateOnlyOverdue =
+            !task.deadlineTime &&
+            !task.completed &&
+            task.deadline.slice(0, 10) < todayISO
+          if (dateOnlyOverdue || (task.deadlineTime && isTaskOverdue(task))) {
             overdue += 1
           }
         }
