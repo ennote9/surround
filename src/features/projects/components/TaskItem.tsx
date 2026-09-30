@@ -4,6 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import { getTaskStatusLabel } from "@/shared/lib/workManagement"
 import { formatTaskScheduleLabel, isTaskOverdue } from "@/shared/lib/taskSchedule"
+import { getTaskReminderPresetLabel } from "@/shared/lib/taskReminders"
 import type { Task } from "@/store/appState.types"
 
 const priorityLabel: Record<NonNullable<Task["priority"]>, string> = {
@@ -58,6 +59,16 @@ export function TaskItem({ task, onToggle, onEdit, onDelete }: TaskItemProps) {
                 Дедлайн: {formatTaskScheduleLabel(task.deadline, task.deadlineTime)}
               </span>
             ) : null}
+            {task.deadlineReminder ? (
+              <span className="shrink-0">
+                Напомнить:{" "}
+                {getTaskReminderPresetLabel(
+                  task.deadlineReminder,
+                  Boolean(task.deadlineTime),
+                  "deadline",
+                )}
+              </span>
+            ) : null}
             {task.priority ? (
               <span className="shrink-0">
                 Приоритет: {priorityLabel[task.priority]}
@@ -75,6 +86,16 @@ export function TaskItem({ task, onToggle, onEdit, onDelete }: TaskItemProps) {
             {task.followUpDate ? (
               <span className="shrink-0">
                 Контроль: {formatTaskScheduleLabel(task.followUpDate, task.followUpTime)}
+              </span>
+            ) : null}
+            {task.followUpReminder ? (
+              <span className="shrink-0">
+                Напоминание контроля:{" "}
+                {getTaskReminderPresetLabel(
+                  task.followUpReminder,
+                  Boolean(task.followUpTime),
+                  "control",
+                )}
               </span>
             ) : null}
             {task.deferredUntil ? (

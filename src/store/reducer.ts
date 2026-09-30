@@ -260,12 +260,14 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
         title,
         deadline,
         deadlineTime,
+        deadlineReminder,
         notes,
         priority,
         status,
         assignee,
         followUpDate,
         followUpTime,
+        followUpReminder,
       } = action.payload
       const taskStatus = status ?? "planned"
       const task: Task = {
@@ -277,11 +279,13 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
         status: taskStatus,
         deadline,
         deadlineTime,
+        deadlineReminder,
         notes,
         priority,
         assignee,
         followUpDate,
         followUpTime,
+        followUpReminder,
         deferReason: action.payload.deferReason,
         deferNote: action.payload.deferNote,
         deferredUntil: action.payload.deferredUntil,

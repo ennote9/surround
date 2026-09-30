@@ -42,11 +42,13 @@ function sanitizeNewTaskPayload(payload: AddTaskAction["payload"]): Task | null 
     status: payload.status ?? "planned",
     deadline: payload.deadline?.trim() || undefined,
     deadlineTime: payload.deadline ? payload.deadlineTime?.trim() || undefined : undefined,
+    deadlineReminder: payload.deadline ? payload.deadlineReminder : undefined,
     notes: payload.notes?.trim() || undefined,
     priority: payload.priority,
     assignee: payload.assignee?.trim() || undefined,
     followUpDate: payload.followUpDate?.trim() || undefined,
     followUpTime: payload.followUpDate ? payload.followUpTime?.trim() || undefined : undefined,
+    followUpReminder: payload.followUpDate ? payload.followUpReminder : undefined,
     deferReason: payload.deferReason,
     deferNote: payload.deferNote?.trim() || undefined,
     deferredUntil: payload.deferredUntil?.trim() || undefined,
@@ -86,10 +88,16 @@ function sanitizeTaskPatch(
   }
   if ("deadline" in patch) {
     next.deadline = patch.deadline?.trim() || undefined
-    if (!next.deadline) next.deadlineTime = undefined
+    if (!next.deadline) {
+      next.deadlineTime = undefined
+      next.deadlineReminder = undefined
+    }
   }
   if ("deadlineTime" in patch) {
     next.deadlineTime = patch.deadlineTime?.trim() || undefined
+  }
+  if ("deadlineReminder" in patch) {
+    next.deadlineReminder = patch.deadlineReminder
   }
   if ("notes" in patch) next.notes = patch.notes?.trim() || undefined
   if ("priority" in patch) next.priority = patch.priority
@@ -114,10 +122,16 @@ function sanitizeTaskPatch(
   if ("assignee" in patch) next.assignee = patch.assignee?.trim() || undefined
   if ("followUpDate" in patch) {
     next.followUpDate = patch.followUpDate?.trim() || undefined
-    if (!next.followUpDate) next.followUpTime = undefined
+    if (!next.followUpDate) {
+      next.followUpTime = undefined
+      next.followUpReminder = undefined
+    }
   }
   if ("followUpTime" in patch) {
     next.followUpTime = patch.followUpTime?.trim() || undefined
+  }
+  if ("followUpReminder" in patch) {
+    next.followUpReminder = patch.followUpReminder
   }
   if ("deferReason" in patch) next.deferReason = patch.deferReason
   if ("deferNote" in patch) next.deferNote = patch.deferNote?.trim() || undefined

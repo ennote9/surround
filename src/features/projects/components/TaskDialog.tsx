@@ -15,10 +15,12 @@ import {
   TASK_DEFER_REASON_OPTIONS,
   TASK_STATUS_OPTIONS,
 } from "@/shared/lib/workManagement"
+import { getTaskReminderOptions } from "@/shared/lib/taskReminders"
 import type {
   Task,
   TaskDeferReason,
   TaskPriority,
+  TaskReminderPreset,
   TaskStatus,
 } from "@/store/appState.types"
 
@@ -26,12 +28,14 @@ export type TaskFormValues = {
   title: string
   deadline?: string
   deadlineTime?: string
+  deadlineReminder?: TaskReminderPreset
   notes?: string
   priority?: TaskPriority
   status?: TaskStatus
   assignee?: string
   followUpDate?: string
   followUpTime?: string
+  followUpReminder?: TaskReminderPreset
   deferReason?: TaskDeferReason
   deferNote?: string
   deferredUntil?: string
@@ -58,6 +62,9 @@ function TaskDialogFields({
   const [title, setTitle] = useState(initialTask?.title ?? "")
   const [deadline, setDeadline] = useState(initialTask?.deadline ?? "")
   const [deadlineTime, setDeadlineTime] = useState(initialTask?.deadlineTime ?? "")
+  const [deadlineReminder, setDeadlineReminder] = useState<TaskReminderPreset | "">(
+    initialTask?.deadlineReminder ?? "",
+  )
   const [notes, setNotes] = useState(initialTask?.notes ?? "")
   const [priority, setPriority] = useState<TaskPriority | "">(
     initialTask?.priority ?? "",
@@ -68,6 +75,9 @@ function TaskDialogFields({
   const [assignee, setAssignee] = useState(initialTask?.assignee ?? "")
   const [followUpDate, setFollowUpDate] = useState(initialTask?.followUpDate ?? "")
   const [followUpTime, setFollowUpTime] = useState(initialTask?.followUpTime ?? "")
+  const [followUpReminder, setFollowUpReminder] = useState<TaskReminderPreset | "">(
+    initialTask?.followUpReminder ?? "",
+  )
   const [deferReason, setDeferReason] = useState<TaskDeferReason | "">(
     initialTask?.deferReason ?? "",
   )
@@ -87,12 +97,14 @@ function TaskDialogFields({
       title: t,
       deadline: deadline.trim() || undefined,
       deadlineTime: deadline ? deadlineTime.trim() || undefined : undefined,
+      deadlineReminder: deadline ? deadlineReminder || undefined : undefined,
       notes: notes.trim() || undefined,
       priority: priority === "" ? undefined : priority,
       status,
       assignee: assignee.trim() || undefined,
       followUpDate: followUpDate.trim() || undefined,
       followUpTime: followUpDate ? followUpTime.trim() || undefined : undefined,
+      followUpReminder: followUpDate ? followUpReminder || undefined : undefined,
       deferReason: deferReason || undefined,
       deferNote: deferNote.trim() || undefined,
       deferredUntil: deferredUntil.trim() || undefined,
@@ -128,7 +140,10 @@ function TaskDialogFields({
               value={deadline}
               onChange={(e) => {
                 setDeadline(e.target.value)
-                if (!e.target.value) setDeadlineTime("")
+                if (!e.target.value) {
+                  setDeadlineTime("")
+                  setDeadlineReminder("")
+                }
               }}
               className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
             />
@@ -142,8 +157,29 @@ function TaskDialogFields({
               className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
             />
           </div>
+          <select
+            value={deadlineReminder}
+            disabled={!deadline}
+            onChange={(e) =>
+              setDeadlineReminder(
+                (e.target.value || "") as TaskReminderPreset | "",
+              )
+            }
+            className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+            aria-label="Напоминание о дедлайне"
+          >
+            <option value="">Не напоминать</option>
+            {getTaskReminderOptions(Boolean(deadlineTime), "deadline").map(
+              (option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ),
+            )}
+          </select>
           <p className="text-[11px] text-slate-500 dark:text-slate-400">
-            Время необязательно. Без времени срок действует до конца дня.
+            Время необязательно. Без времени срок действует до конца дня, а
+            напоминание «в день срока» срабатывает в 09:00.
           </p>
         </div>
         <div className="grid gap-2">
@@ -197,7 +233,10 @@ function TaskDialogFields({
                 value={followUpDate}
                 onChange={(e) => {
                   setFollowUpDate(e.target.value)
-                  if (!e.target.value) setFollowUpTime("")
+                  if (!e.target.value) {
+                    setFollowUpTime("")
+                    setFollowUpReminder("")
+                  }
                 }}
                 className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
               />
@@ -211,6 +250,26 @@ function TaskDialogFields({
                 className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
               />
             </div>
+            <select
+              value={followUpReminder}
+              disabled={!followUpDate}
+              onChange={(e) =>
+                setFollowUpReminder(
+                  (e.target.value || "") as TaskReminderPreset | "",
+                )
+              }
+              className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+              aria-label="Напоминание о контроле"
+            >
+              <option value="">Не напоминать</option>
+              {getTaskReminderOptions(Boolean(followUpTime), "control").map(
+                (option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ),
+              )}
+            </select>
           </div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">

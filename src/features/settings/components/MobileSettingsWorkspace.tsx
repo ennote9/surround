@@ -18,6 +18,7 @@ import {
   PROJECT_GROUPS_COLLAPSE_MODE_OPTIONS,
 } from "@/shared/lib/projectGroupsCollapse"
 import { DataManagementCard } from "@/features/settings/components/DataManagementCard"
+import { NotificationSettingsCard } from "@/features/settings/components/NotificationSettingsCard"
 
 type ThemeValue = "light" | "dark" | "system"
 
@@ -343,6 +344,19 @@ export function MobileSettingsWorkspace({
             </button>
           ) : null}
         </div>
+      </section>
+
+      <section className="space-y-3.5">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-400">
+            Уведомления
+          </p>
+          <h2 className="mt-0.5 text-xl font-semibold tracking-tight text-slate-950 dark:text-white">
+            Напоминания
+          </h2>
+        </div>
+
+        <NotificationSettingsCard compact />
       </section>
 
       <section className="space-y-3.5">

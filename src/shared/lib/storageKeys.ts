@@ -13,3 +13,6 @@ export const COLLAPSED_PROJECT_GROUPS_STORAGE_KEY =
 
 export const THEME_PREFERENCE_STORAGE_KEY =
   "life-progress-os-theme-preference"
+
+export const TASK_REMINDER_SENT_STORAGE_KEY =
+  "life-progress-os-task-reminders-sent-v1"

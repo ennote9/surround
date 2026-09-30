@@ -12,6 +12,7 @@ import {
   normalizeDashboardWidgets,
 } from "@/features/dashboard/dashboardWidgets"
 import { DataManagementCard } from "@/features/settings/components/DataManagementCard"
+import { NotificationSettingsCard } from "@/features/settings/components/NotificationSettingsCard"
 import { MobileSettingsWorkspace } from "@/features/settings/components/MobileSettingsWorkspace"
 import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
 import { useAppState } from "@/store/useAppState"
@@ -272,6 +273,18 @@ export default function SettingsPage() {
             </div>
           ) : null}
         </div>
+      </section>
+
+      <section className="min-w-0 space-y-3">
+        <div className="min-w-0">
+          <h2 className="break-words text-lg font-semibold text-slate-950 dark:text-slate-100">
+            Напоминания
+          </h2>
+          <p className="mt-1 text-pretty text-sm text-slate-600 dark:text-slate-400">
+            Разрешите системные уведомления для задач с дедлайном и контролем.
+          </p>
+        </div>
+        <NotificationSettingsCard />
       </section>
 
       <section className="min-w-0 space-y-3">
