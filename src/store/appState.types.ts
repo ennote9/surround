@@ -4,6 +4,14 @@ export type LifeContext = "personal" | "work"
 export type WorkspaceMode = "all" | LifeContext
 
 export type TaskPriority = "low" | "medium" | "high"
+export type TaskReminderPreset =
+  | "at_time"
+  | "15m"
+  | "30m"
+  | "1h"
+  | "2h"
+  | "1d"
+  | "morning"
 export type TaskStatus =
   | "planned"
   | "in_progress"
@@ -95,12 +103,14 @@ export type Task = {
   deadline?: string
   /** Optional local wall-clock time (HH:mm). Undefined means date-only/all-day deadline. */
   deadlineTime?: string
+  deadlineReminder?: TaskReminderPreset
   notes?: string
   priority?: TaskPriority
   assignee?: string
   followUpDate?: string
   /** Optional local wall-clock time (HH:mm) for control/follow-up. */
   followUpTime?: string
+  followUpReminder?: TaskReminderPreset
   deferReason?: TaskDeferReason
   deferNote?: string
   deferredUntil?: string

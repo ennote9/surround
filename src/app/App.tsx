@@ -1,6 +1,7 @@
 import { AuthProvider } from "@/features/auth/AuthProvider"
 import { ProtectedApp } from "@/features/auth/ProtectedApp"
 import { CloudStateGate } from "@/shared/api/CloudStateGate"
+import { TaskReminderEngine } from "@/shared/components/TaskReminderEngine"
 import { AppStateProvider } from "@/store/AppStateProvider"
 import { RouterProvider } from "react-router-dom"
 import { Toaster } from "sonner"
@@ -19,6 +20,7 @@ export default function App() {
                 cloudSaveMode="goals-projects-tasks-habits-milestones-settings"
                 userId={userId}
               >
+                <TaskReminderEngine />
                 <RouterProvider router={router} />
               </AppStateProvider>
             )}

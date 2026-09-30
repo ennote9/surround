@@ -87,12 +87,14 @@ export type AddTaskPayload = {
   title: string
   deadline?: string
   deadlineTime?: string
+  deadlineReminder?: Task["deadlineReminder"]
   notes?: string
   priority?: Task["priority"]
   status?: Task["status"]
   assignee?: string
   followUpDate?: string
   followUpTime?: string
+  followUpReminder?: Task["followUpReminder"]
   deferReason?: Task["deferReason"]
   deferNote?: string
   deferredUntil?: string
@@ -116,12 +118,14 @@ export type UpdateTaskPayload = {
       | "completed"
       | "deadline"
       | "deadlineTime"
+      | "deadlineReminder"
       | "notes"
       | "priority"
       | "status"
       | "assignee"
       | "followUpDate"
       | "followUpTime"
+      | "followUpReminder"
       | "deferReason"
       | "deferNote"
       | "deferredUntil"

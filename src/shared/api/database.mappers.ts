@@ -10,6 +10,7 @@ import type {
   TaskDeferReason,
   TaskGroup,
   TaskPriority,
+  TaskReminderPreset,
 } from "@/store/appState.types"
 import type {
   GoalRow,
@@ -86,6 +87,23 @@ function parseGoalStatusFromDb(value: unknown): Goal["status"] {
 
 function parseTaskPriorityFromDb(value: unknown): TaskPriority | undefined {
   if (value === "low" || value === "medium" || value === "high") {
+    return value
+  }
+  return undefined
+}
+
+function parseTaskReminderPresetFromDb(
+  value: unknown,
+): TaskReminderPreset | undefined {
+  if (
+    value === "at_time" ||
+    value === "15m" ||
+    value === "30m" ||
+    value === "1h" ||
+    value === "2h" ||
+    value === "1d" ||
+    value === "morning"
+  ) {
     return value
   }
   return undefined
@@ -412,11 +430,13 @@ export function taskRowToTask(row: TaskRow): Task {
     status: parseTaskStatusFromDb(row.status),
     deadline: row.deadline ?? undefined,
     deadlineTime: normalizeTaskTime(row.deadline_time),
+    deadlineReminder: parseTaskReminderPresetFromDb(row.deadline_reminder),
     notes: row.notes ?? undefined,
     priority: parseTaskPriorityFromDb(row.priority),
     assignee: row.assignee ?? undefined,
     followUpDate: row.follow_up_date ?? undefined,
     followUpTime: normalizeTaskTime(row.follow_up_time),
+    followUpReminder: parseTaskReminderPresetFromDb(row.follow_up_reminder),
     deferReason: parseTaskDeferReasonFromDb(row.defer_reason),
     deferNote: row.defer_note ?? undefined,
     deferredUntil: row.deferred_until ?? undefined,
@@ -447,11 +467,13 @@ export function taskToTaskInsert(
     status: task.status ?? (task.completed ? "done" : "planned"),
     deadline: task.deadline ?? null,
     deadline_time: normalizeTaskTime(task.deadlineTime) ?? null,
+    deadline_reminder: task.deadlineReminder ?? null,
     notes: task.notes ?? null,
     priority: task.priority ?? null,
     assignee: task.assignee ?? null,
     follow_up_date: task.followUpDate ?? null,
     follow_up_time: normalizeTaskTime(task.followUpTime) ?? null,
+    follow_up_reminder: task.followUpReminder ?? null,
     defer_reason: task.deferReason ?? null,
     defer_note: task.deferNote ?? null,
     deferred_until: task.deferredUntil ?? null,
@@ -478,6 +500,9 @@ export function taskToTaskUpdate(patch: Partial<Task>): TaskUpdate {
   if ("deadlineTime" in patch) {
     o.deadline_time = normalizeTaskTime(patch.deadlineTime) ?? null
   }
+  if ("deadlineReminder" in patch) {
+    o.deadline_reminder = patch.deadlineReminder ?? null
+  }
   if ("notes" in patch) o.notes = patch.notes ?? null
   if ("priority" in patch) o.priority = patch.priority ?? null
   if ("status" in patch) o.status = patch.status ?? "planned"
@@ -485,6 +510,9 @@ export function taskToTaskUpdate(patch: Partial<Task>): TaskUpdate {
   if ("followUpDate" in patch) o.follow_up_date = patch.followUpDate ?? null
   if ("followUpTime" in patch) {
     o.follow_up_time = normalizeTaskTime(patch.followUpTime) ?? null
+  }
+  if ("followUpReminder" in patch) {
+    o.follow_up_reminder = patch.followUpReminder ?? null
   }
   if ("deferReason" in patch) o.defer_reason = patch.deferReason ?? null
   if ("deferNote" in patch) o.defer_note = patch.deferNote ?? null
