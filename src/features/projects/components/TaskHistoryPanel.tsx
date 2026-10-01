@@ -147,7 +147,8 @@ function groupEntries(entries: TaskHistoryEntry[]): HistoryGroup[] {
     groups.set(entry.batchId, {
       batchId: entry.batchId,
       changedAt: entry.changedAt,
-      reason: entry.reason,
+      reason:
+        entry.eventType === "history_started" ? undefined : entry.reason,
       entries: [entry],
     })
   }
@@ -172,7 +173,7 @@ export function TaskHistoryPanel({ taskId }: TaskHistoryPanelProps) {
       const result = await listTaskHistory(taskId)
       if (!active) return
 
-      if (result.error) {
+      if (result.error !== null) {
         setError(result.error)
         setEntries([])
       } else {
