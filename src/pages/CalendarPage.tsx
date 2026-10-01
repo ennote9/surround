@@ -73,6 +73,24 @@ function eventKindLabel(kind: TaskCalendarEvent["kind"]): string {
   return kind === "deadline" ? "Дедлайн" : "Контроль"
 }
 
+function taskHasCalendarRelations(event: TaskCalendarEvent): boolean {
+  if (
+    (event.task.blockedByTaskIds?.length ?? 0) > 0 ||
+    event.task.completionNextTaskId
+  ) {
+    return true
+  }
+
+  return getProjectTasks(event.project).some(
+    (task) =>
+      task.id !== event.task.id &&
+      (
+        (task.blockedByTaskIds ?? []).includes(event.task.id) ||
+        task.completionNextTaskId === event.task.id
+      ),
+  )
+}
+
 function CalendarEventCard({
   event,
   compact = false,
@@ -392,6 +410,101 @@ export default function CalendarPage() {
         event.task.id,
       )}&project=${encodeURIComponent(event.project.id)}`,
     )
+  }
+
+  const updateEventSchedule = (
+    event: TaskCalendarEvent,
+    date?: string,
+    time?: string,
+    reason = "Изменено из календаря",
+  ) => {
+    const patch =
+      event.kind === "deadline"
+        ? {
+            deadline: date,
+            deadlineTime: date ? time : undefined,
+            ...(date ? {} : { deadlineReminder: undefined }),
+          }
+        : {
+            followUpDate: date,
+            followUpTime: date ? time : undefined,
+            ...(date ? {} : { followUpReminder: undefined }),
+          }
+
+    dispatch({
+      type: "UPDATE_TASK",
+      payload: {
+        projectId: event.project.id,
+        groupId: event.group.id,
+        taskId: event.task.id,
+        changeReason: reason,
+        patch,
+      },
+    })
+
+    toast.success(
+      date
+        ? `${eventKindLabel(event.kind)} обновлён`
+        : `${eventKindLabel(event.kind)} удалён`,
+    )
+  }
+
+  const moveEventToDate = (
+    event: TaskCalendarEvent,
+    nextDate: string,
+  ) => {
+    if (!nextDate || nextDate === event.date) return
+
+    const risky =
+      (event.kind === "deadline" && isTaskOverdue(event.task)) ||
+      taskHasCalendarRelations(event)
+
+    if (
+      risky &&
+      !window.confirm(
+        `${eventKindLabel(event.kind)} будет перенесён с ${event.date} на ${nextDate}. Связи задачи сохранятся. Продолжить?`,
+      )
+    ) {
+      return
+    }
+
+    updateEventSchedule(
+      event,
+      nextDate,
+      event.time,
+      `Перенос из календаря: ${eventKindLabel(event.kind)} ${event.date} → ${nextDate}`,
+    )
+  }
+
+  const handleDropOnDate = (
+    targetDate: string,
+    dragEvent: React.DragEvent<HTMLElement>,
+  ) => {
+    dragEvent.preventDefault()
+    const eventId = dragEvent.dataTransfer.getData(
+      "application/x-life-calendar-event",
+    )
+    const event = events.find((item) => item.id === eventId)
+    if (!event) return
+    moveEventToDate(event, targetDate)
+  }
+
+  const startEventDrag = (
+    event: TaskCalendarEvent,
+    dragEvent: React.DragEvent<HTMLButtonElement>,
+  ) => {
+    dragEvent.dataTransfer.effectAllowed = "move"
+    dragEvent.dataTransfer.setData(
+      "application/x-life-calendar-event",
+      event.id,
+    )
+  }
+
+  const resetFilters = () => {
+    setKindFilter("all")
+    setStatusFilter("all")
+    setBlockingFilter("all")
+    setProjectFilter("all")
   }
 
   const monthPrefix = format(anchorDate, "yyyy-MM")
