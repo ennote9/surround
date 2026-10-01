@@ -213,11 +213,20 @@ function EmptyDay() {
 }
 
 export default function CalendarPage() {
-  const { state } = useAppState()
+  const { state, dispatch } = useAppState()
   const navigate = useNavigate()
   const [viewMode, setViewMode] = useState<CalendarViewMode>("week")
   const [anchorDate, setAnchorDate] = useState(() => new Date())
   const [selectedDate, setSelectedDate] = useState(getTodayISO())
+  const [kindFilter, setKindFilter] =
+    useState<CalendarKindFilter>("all")
+  const [statusFilter, setStatusFilter] =
+    useState<CalendarStatusFilter>("all")
+  const [blockingFilter, setBlockingFilter] =
+    useState<CalendarBlockingFilter>("all")
+  const [projectFilter, setProjectFilter] = useState("all")
+  const [editingEvent, setEditingEvent] =
+    useState<TaskCalendarEvent | null>(null)
 
   const [rawSelectedGoalId] = useLocalStorage(
     SELECTED_GOAL_STORAGE_KEY,
@@ -252,9 +261,49 @@ export default function CalendarPage() {
     () => getTaskCalendarEvents(scopedProjects),
     [scopedProjects],
   )
+  const filteredEvents = useMemo(
+    () =>
+      events.filter((event) => {
+        if (kindFilter !== "all" && event.kind !== kindFilter) {
+          return false
+        }
+        if (
+          statusFilter !== "all" &&
+          getTaskStatus(event.task) !== statusFilter
+        ) {
+          return false
+        }
+        if (
+          blockingFilter === "blocked" &&
+          !event.blocked
+        ) {
+          return false
+        }
+        if (
+          blockingFilter === "available" &&
+          event.blocked
+        ) {
+          return false
+        }
+        if (
+          projectFilter !== "all" &&
+          event.project.id !== projectFilter
+        ) {
+          return false
+        }
+        return true
+      }),
+    [
+      blockingFilter,
+      events,
+      kindFilter,
+      projectFilter,
+      statusFilter,
+    ],
+  )
   const eventsByDate = useMemo(
-    () => groupTaskCalendarEventsByDate(events),
-    [events],
+    () => groupTaskCalendarEventsByDate(filteredEvents),
+    [filteredEvents],
   )
 
   const weekStart = useMemo(
@@ -293,7 +342,7 @@ export default function CalendarPage() {
     viewMode === "week" ? toISODate(weekStart) : toISODate(monthStart)
   const visibleEnd =
     viewMode === "week" ? toISODate(weekEnd) : toISODate(monthEnd)
-  const visibleEvents = events.filter(
+  const visibleEvents = filteredEvents.filter(
     (event) => event.date >= visibleStart && event.date <= visibleEnd,
   )
 
