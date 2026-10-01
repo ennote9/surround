@@ -1,6 +1,7 @@
 import { createId } from "@/shared/lib/ids"
 import {
   applyTaskCompletionSuccessor,
+  applyTaskEligibilityAfterRelationChange,
   getTaskById,
 } from "@/shared/lib/taskDependencies"
 import type {
@@ -414,9 +415,20 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
             updatedAt: t,
           }
           const isCompletedNow = getTaskById(updatedProject, taskId)?.completed === true
-          return !wasCompleted && isCompletedNow
-            ? applyTaskCompletionSuccessor(updatedProject, taskId, t)
-            : updatedProject
+          let reconciledProject =
+            !wasCompleted && isCompletedNow
+              ? applyTaskCompletionSuccessor(updatedProject, taskId, t)
+              : updatedProject
+
+          if ("blockedByTaskIds" in patch) {
+            reconciledProject = applyTaskEligibilityAfterRelationChange(
+              reconciledProject,
+              taskId,
+              t,
+            )
+          }
+
+          return reconciledProject
         }),
       }
     }
