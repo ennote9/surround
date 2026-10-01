@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom"
 import { AppLayout } from "@/layouts/AppLayout"
 import AnalyticsPage from "@/pages/AnalyticsPage"
 import AuthPage from "@/pages/AuthPage"
+import CalendarPage from "@/pages/CalendarPage"
 import DashboardPage from "@/pages/DashboardPage"
 import GoalsPage from "@/pages/GoalsPage"
 import GuidePage from "@/pages/GuidePage"
@@ -21,6 +22,7 @@ export const router = createBrowserRouter([
       { index: true, element: <DashboardPage /> },
       { path: "goals", element: <GoalsPage /> },
       { path: "projects", element: <ProjectsPage /> },
+      { path: "calendar", element: <CalendarPage /> },
       { path: "work", element: <WorkPage /> },
       { path: "routine", element: <RoutinePage /> },
       { path: "analytics", element: <AnalyticsPage /> },
