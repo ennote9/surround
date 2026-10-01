@@ -229,17 +229,25 @@ export default function ProjectsPage() {
         const task = group.tasks.find((item) => item.id === taskId)
         if (!task) continue
 
-        setSelectedProjectId(project.id)
-        setTaskDialogProjectId(project.id)
-        setTaskDialogGroupId(group.id)
-        setEditingTask(task)
-        setTaskDialogOpen(true)
+        let cancelled = false
+        queueMicrotask(() => {
+          if (cancelled) return
 
-        const nextParams = new URLSearchParams(searchParams)
-        nextParams.delete("task")
-        nextParams.delete("project")
-        setSearchParams(nextParams, { replace: true })
-        return
+          setSelectedProjectId(project.id)
+          setTaskDialogProjectId(project.id)
+          setTaskDialogGroupId(group.id)
+          setEditingTask(task)
+          setTaskDialogOpen(true)
+
+          const nextParams = new URLSearchParams(searchParams)
+          nextParams.delete("task")
+          nextParams.delete("project")
+          setSearchParams(nextParams, { replace: true })
+        })
+
+        return () => {
+          cancelled = true
+        }
       }
     }
   }, [
