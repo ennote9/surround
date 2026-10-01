@@ -1,8 +1,5 @@
 import type { Project, Task } from "@/store/appState.types"
-import {
-  getIncompleteTaskBlockers,
-  getProjectTasks,
-} from "@/shared/lib/taskDependencies"
+import { getIncompleteTaskBlockers } from "@/shared/lib/taskDependencies"
 import { normalizeTaskTime } from "@/shared/lib/taskSchedule"
 
 export type CalendarPlanningIssueKind =
@@ -214,10 +211,9 @@ export function analyzeCalendarPlanning(
 ): CalendarPlanningAnalysis {
   const issues: CalendarPlanningIssue[] = []
   const dayLoads = new Map<string, CalendarDayLoad>()
+  const taskIdsByDate = new Map<string, Set<string>>()
 
   for (const project of projects) {
-    const allTasks = getProjectTasks(project)
-
     for (const group of project.groups) {
       for (const task of group.tasks) {
         analyzeTaskIssues(
@@ -274,22 +270,18 @@ export function analyzeCalendarPlanning(
           if (normalizeTaskTime(entry.time)) current.exactTimeCount += 1
 
           dayLoads.set(date, current)
-        }
-      }
-    }
 
-    for (const load of dayLoads.values()) {
-      const taskIds = new Set<string>()
-      for (const task of allTasks) {
-        if (
-          task.deadline?.slice(0, 10) === load.date ||
-          task.followUpDate?.slice(0, 10) === load.date
-        ) {
+          const taskIds = taskIdsByDate.get(date) ?? new Set<string>()
           taskIds.add(task.id)
+          taskIdsByDate.set(date, taskIds)
         }
       }
-      load.taskCount = taskIds.size
     }
+  }
+
+  for (const [date, taskIds] of taskIdsByDate) {
+    const load = dayLoads.get(date)
+    if (load) load.taskCount = taskIds.size
   }
 
   const peakOpenEventCount = Math.max(
