@@ -20,12 +20,16 @@ import {
   ChevronRight,
   Clock3,
   Flag,
+  Filter,
+  GripVertical,
   LockKeyhole,
   RotateCcw,
 } from "lucide-react"
 import { useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { CalendarEventDialog } from "@/features/calendar/components/CalendarEventDialog"
 import { cn } from "@/lib/utils"
 import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
 import {
@@ -41,11 +45,23 @@ import {
   type TaskCalendarEvent,
 } from "@/shared/lib/taskCalendar"
 import { isTaskOverdue } from "@/shared/lib/taskSchedule"
-import { projectMatchesWorkspaceMode } from "@/shared/lib/workManagement"
+import {
+  getIncompleteTaskBlockers,
+  getProjectTasks,
+  getTaskById,
+} from "@/shared/lib/taskDependencies"
+import {
+  getTaskStatus,
+  projectMatchesWorkspaceMode,
+  TASK_STATUS_OPTIONS,
+} from "@/shared/lib/workManagement"
 import { getTodayISO, toISODate } from "@/shared/lib/dates"
 import { useAppState } from "@/store/useAppState"
 
 type CalendarViewMode = "week" | "month"
+type CalendarKindFilter = "all" | TaskCalendarEvent["kind"]
+type CalendarBlockingFilter = "all" | "blocked" | "available"
+type CalendarStatusFilter = "all" | NonNullable<TaskCalendarEvent["task"]["status"]>
 
 const WEEKDAY_LABELS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
 
@@ -57,32 +73,62 @@ function eventKindLabel(kind: TaskCalendarEvent["kind"]): string {
   return kind === "deadline" ? "Дедлайн" : "Контроль"
 }
 
+function taskHasCalendarRelations(event: TaskCalendarEvent): boolean {
+  if (
+    (event.task.blockedByTaskIds?.length ?? 0) > 0 ||
+    event.task.completionNextTaskId
+  ) {
+    return true
+  }
+
+  return getProjectTasks(event.project).some(
+    (task) =>
+      task.id !== event.task.id &&
+      (
+        (task.blockedByTaskIds ?? []).includes(event.task.id) ||
+        task.completionNextTaskId === event.task.id
+      ),
+  )
+}
+
 function CalendarEventCard({
   event,
   compact = false,
   onOpen,
+  onDragStart,
 }: {
   event: TaskCalendarEvent
   compact?: boolean
   onOpen: () => void
+  onDragStart?: (event: React.DragEvent<HTMLButtonElement>) => void
 }) {
   const overdue =
     event.kind === "deadline" && isTaskOverdue(event.task)
   const completed = event.task.completed
+  const incompleteBlockers = getIncompleteTaskBlockers(
+    event.project,
+    event.task,
+  )
+  const successor = event.task.completionNextTaskId
+    ? getTaskById(event.project, event.task.completionNextTaskId)
+    : undefined
 
   return (
     <button
       type="button"
+      draggable={Boolean(onDragStart)}
+      onDragStart={onDragStart}
       onClick={onOpen}
       className={cn(
-        "w-full min-w-0 rounded-xl border text-left transition-colors",
+        "group w-full min-w-0 rounded-xl border text-left transition-colors",
+        onDragStart && "cursor-grab active:cursor-grabbing",
         compact ? "px-2 py-1.5" : "px-3 py-2.5",
         overdue
           ? "border-red-200 bg-red-50/70 hover:bg-red-50 dark:border-red-500/20 dark:bg-red-500/5 dark:hover:bg-red-500/10"
           : "border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/80",
         completed && "opacity-55",
       )}
-      aria-label={`Открыть задачу: ${event.task.title}`}
+      aria-label={`Открыть календарное событие: ${event.task.title}`}
     >
       <div className="flex min-w-0 items-start gap-2">
         <span
@@ -101,20 +147,28 @@ function CalendarEventCard({
         </span>
 
         <div className="min-w-0 flex-1">
-          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">
-            <span
-              className={cn(
-                "text-[10px] font-semibold uppercase tracking-[0.08em]",
-                event.kind === "deadline"
-                  ? "text-slate-500 dark:text-slate-400"
-                  : "text-blue-600 dark:text-blue-300",
-              )}
-            >
-              {eventKindLabel(event.kind)}
-            </span>
-            <span className="text-[10px] font-medium text-slate-400">
-              {event.time ?? "Весь день"}
-            </span>
+          <div className="flex min-w-0 items-center gap-1.5">
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-0.5">
+              <span
+                className={cn(
+                  "text-[10px] font-semibold uppercase tracking-[0.08em]",
+                  event.kind === "deadline"
+                    ? "text-slate-500 dark:text-slate-400"
+                    : "text-blue-600 dark:text-blue-300",
+                )}
+              >
+                {eventKindLabel(event.kind)}
+              </span>
+              <span className="text-[10px] font-medium text-slate-400">
+                {event.time ?? "Весь день"}
+              </span>
+            </div>
+            {onDragStart ? (
+              <GripVertical
+                className="size-3.5 shrink-0 text-slate-300 opacity-0 transition-opacity group-hover:opacity-100 dark:text-slate-600"
+                aria-hidden
+              />
+            ) : null}
           </div>
 
           <p
@@ -133,19 +187,32 @@ function CalendarEventCard({
             </p>
           ) : null}
 
-          {!compact && (event.blocked || completed) ? (
-            <div className="mt-1.5 flex flex-wrap gap-1.5">
-              {event.blocked ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
-                  <LockKeyhole className="size-3" aria-hidden />
-                  Заблокировано
-                </span>
+          {!compact && (event.blocked || completed || successor) ? (
+            <div className="mt-1.5 space-y-1">
+              <div className="flex flex-wrap gap-1.5">
+                {event.blocked ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
+                    <LockKeyhole className="size-3" aria-hidden />
+                    Заблокировано
+                  </span>
+                ) : null}
+                {completed ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                    <CheckCircle2 className="size-3" aria-hidden />
+                    Выполнено
+                  </span>
+                ) : null}
+              </div>
+
+              {incompleteBlockers.length > 0 ? (
+                <p className="truncate text-[10px] text-amber-700 dark:text-amber-400">
+                  Ждёт: {incompleteBlockers.map((task) => task.title).join(", ")}
+                </p>
               ) : null}
-              {completed ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400">
-                  <CheckCircle2 className="size-3" aria-hidden />
-                  Выполнено
-                </span>
+              {successor ? (
+                <p className="truncate text-[10px] text-blue-600 dark:text-blue-300">
+                  После выполнения → {successor.title}
+                </p>
               ) : null}
             </div>
           ) : null}
@@ -164,11 +231,20 @@ function EmptyDay() {
 }
 
 export default function CalendarPage() {
-  const { state } = useAppState()
+  const { state, dispatch } = useAppState()
   const navigate = useNavigate()
   const [viewMode, setViewMode] = useState<CalendarViewMode>("week")
   const [anchorDate, setAnchorDate] = useState(() => new Date())
   const [selectedDate, setSelectedDate] = useState(getTodayISO())
+  const [kindFilter, setKindFilter] =
+    useState<CalendarKindFilter>("all")
+  const [statusFilter, setStatusFilter] =
+    useState<CalendarStatusFilter>("all")
+  const [blockingFilter, setBlockingFilter] =
+    useState<CalendarBlockingFilter>("all")
+  const [projectFilter, setProjectFilter] = useState("all")
+  const [editingEvent, setEditingEvent] =
+    useState<TaskCalendarEvent | null>(null)
 
   const [rawSelectedGoalId] = useLocalStorage(
     SELECTED_GOAL_STORAGE_KEY,
@@ -203,9 +279,49 @@ export default function CalendarPage() {
     () => getTaskCalendarEvents(scopedProjects),
     [scopedProjects],
   )
+  const filteredEvents = useMemo(
+    () =>
+      events.filter((event) => {
+        if (kindFilter !== "all" && event.kind !== kindFilter) {
+          return false
+        }
+        if (
+          statusFilter !== "all" &&
+          getTaskStatus(event.task) !== statusFilter
+        ) {
+          return false
+        }
+        if (
+          blockingFilter === "blocked" &&
+          !event.blocked
+        ) {
+          return false
+        }
+        if (
+          blockingFilter === "available" &&
+          event.blocked
+        ) {
+          return false
+        }
+        if (
+          projectFilter !== "all" &&
+          event.project.id !== projectFilter
+        ) {
+          return false
+        }
+        return true
+      }),
+    [
+      blockingFilter,
+      events,
+      kindFilter,
+      projectFilter,
+      statusFilter,
+    ],
+  )
   const eventsByDate = useMemo(
-    () => groupTaskCalendarEventsByDate(events),
-    [events],
+    () => groupTaskCalendarEventsByDate(filteredEvents),
+    [filteredEvents],
   )
 
   const weekStart = useMemo(
@@ -244,7 +360,7 @@ export default function CalendarPage() {
     viewMode === "week" ? toISODate(weekStart) : toISODate(monthStart)
   const visibleEnd =
     viewMode === "week" ? toISODate(weekEnd) : toISODate(monthEnd)
-  const visibleEvents = events.filter(
+  const visibleEvents = filteredEvents.filter(
     (event) => event.date >= visibleStart && event.date <= visibleEnd,
   )
 
@@ -296,6 +412,101 @@ export default function CalendarPage() {
     )
   }
 
+  const updateEventSchedule = (
+    event: TaskCalendarEvent,
+    date?: string,
+    time?: string,
+    reason = "Изменено из календаря",
+  ) => {
+    const patch =
+      event.kind === "deadline"
+        ? {
+            deadline: date,
+            deadlineTime: date ? time : undefined,
+            ...(date ? {} : { deadlineReminder: undefined }),
+          }
+        : {
+            followUpDate: date,
+            followUpTime: date ? time : undefined,
+            ...(date ? {} : { followUpReminder: undefined }),
+          }
+
+    dispatch({
+      type: "UPDATE_TASK",
+      payload: {
+        projectId: event.project.id,
+        groupId: event.group.id,
+        taskId: event.task.id,
+        changeReason: reason,
+        patch,
+      },
+    })
+
+    toast.success(
+      date
+        ? `${eventKindLabel(event.kind)} обновлён`
+        : `${eventKindLabel(event.kind)} удалён`,
+    )
+  }
+
+  const moveEventToDate = (
+    event: TaskCalendarEvent,
+    nextDate: string,
+  ) => {
+    if (!nextDate || nextDate === event.date) return
+
+    const risky =
+      (event.kind === "deadline" && isTaskOverdue(event.task)) ||
+      taskHasCalendarRelations(event)
+
+    if (
+      risky &&
+      !window.confirm(
+        `${eventKindLabel(event.kind)} будет перенесён с ${event.date} на ${nextDate}. Связи задачи сохранятся. Продолжить?`,
+      )
+    ) {
+      return
+    }
+
+    updateEventSchedule(
+      event,
+      nextDate,
+      event.time,
+      `Перенос из календаря: ${eventKindLabel(event.kind)} ${event.date} → ${nextDate}`,
+    )
+  }
+
+  const handleDropOnDate = (
+    targetDate: string,
+    dragEvent: React.DragEvent<HTMLElement>,
+  ) => {
+    dragEvent.preventDefault()
+    const eventId = dragEvent.dataTransfer.getData(
+      "application/x-life-calendar-event",
+    )
+    const event = events.find((item) => item.id === eventId)
+    if (!event) return
+    moveEventToDate(event, targetDate)
+  }
+
+  const startEventDrag = (
+    event: TaskCalendarEvent,
+    dragEvent: React.DragEvent<HTMLButtonElement>,
+  ) => {
+    dragEvent.dataTransfer.effectAllowed = "move"
+    dragEvent.dataTransfer.setData(
+      "application/x-life-calendar-event",
+      event.id,
+    )
+  }
+
+  const resetFilters = () => {
+    setKindFilter("all")
+    setStatusFilter("all")
+    setBlockingFilter("all")
+    setProjectFilter("all")
+  }
+
   const monthPrefix = format(anchorDate, "yyyy-MM")
   const todayISO = getTodayISO()
   const effectiveSelectedDate = selectedDate.startsWith(monthPrefix)
@@ -304,6 +515,11 @@ export default function CalendarPage() {
       ? todayISO
       : toISODate(monthStart)
   const selectedDateEvents = eventsByDate.get(effectiveSelectedDate) ?? []
+  const filtersActive =
+    kindFilter !== "all" ||
+    statusFilter !== "all" ||
+    blockingFilter !== "all" ||
+    projectFilter !== "all"
 
   return (
     <div className="mx-auto min-w-0 w-full max-w-7xl space-y-5">
@@ -364,6 +580,84 @@ export default function CalendarPage() {
           </Button>
         </div>
       </header>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+        <div className="flex items-center gap-2">
+          <Filter className="size-4 text-slate-400" aria-hidden />
+          <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+            Фильтры календаря
+          </p>
+          {filtersActive ? (
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="ml-auto text-[11px] font-medium text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+            >
+              Сбросить
+            </button>
+          ) : null}
+        </div>
+
+        <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          <select
+            value={kindFilter}
+            onChange={(event) =>
+              setKindFilter(event.target.value as CalendarKindFilter)
+            }
+            className="h-9 rounded-lg border border-slate-200 bg-white px-2.5 text-xs text-slate-700 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+            aria-label="Тип события"
+          >
+            <option value="all">Все события</option>
+            <option value="deadline">Только дедлайны</option>
+            <option value="control">Только контроль</option>
+          </select>
+
+          <select
+            value={statusFilter}
+            onChange={(event) =>
+              setStatusFilter(event.target.value as CalendarStatusFilter)
+            }
+            className="h-9 rounded-lg border border-slate-200 bg-white px-2.5 text-xs text-slate-700 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+            aria-label="Статус задачи"
+          >
+            <option value="all">Все статусы</option>
+            {TASK_STATUS_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={blockingFilter}
+            onChange={(event) =>
+              setBlockingFilter(
+                event.target.value as CalendarBlockingFilter,
+              )
+            }
+            className="h-9 rounded-lg border border-slate-200 bg-white px-2.5 text-xs text-slate-700 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+            aria-label="Доступность задачи"
+          >
+            <option value="all">Все по доступности</option>
+            <option value="blocked">Только заблокированные</option>
+            <option value="available">Только доступные</option>
+          </select>
+
+          <select
+            value={projectFilter}
+            onChange={(event) => setProjectFilter(event.target.value)}
+            className="h-9 min-w-0 rounded-lg border border-slate-200 bg-white px-2.5 text-xs text-slate-700 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+            aria-label="Проект"
+          >
+            <option value="all">Все проекты</option>
+            {scopedProjects.map((project) => (
+              <option key={project.id} value={project.id}>
+                {project.title}
+              </option>
+            ))}
+          </select>
+        </div>
+      </section>
 
       <section className="grid grid-cols-3 gap-2 sm:max-w-xl">
         <div className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
@@ -429,7 +723,12 @@ export default function CalendarPage() {
                 const dayEvents = eventsByDate.get(iso) ?? []
 
                 return (
-                  <div key={iso} className="min-h-[420px] min-w-0 p-2.5">
+                  <div
+                    key={iso}
+                    className="min-h-[420px] min-w-0 p-2.5"
+                    onDragOver={(event) => event.preventDefault()}
+                    onDrop={(event) => handleDropOnDate(iso, event)}
+                  >
                     <div className="mb-3">
                       <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-slate-400">
                         {format(day, "EEE", { locale: ru })}
@@ -454,7 +753,10 @@ export default function CalendarPage() {
                           <CalendarEventCard
                             key={event.id}
                             event={event}
-                            onOpen={() => openTask(event)}
+                            onOpen={() => setEditingEvent(event)}
+                            onDragStart={(dragEvent) =>
+                              startEventDrag(event, dragEvent)
+                            }
                           />
                         ))
                       )}
@@ -505,7 +807,10 @@ export default function CalendarPage() {
                           <CalendarEventCard
                             key={event.id}
                             event={event}
-                            onOpen={() => openTask(event)}
+                            onOpen={() => setEditingEvent(event)}
+                            onDragStart={(dragEvent) =>
+                              startEventDrag(event, dragEvent)
+                            }
                           />
                         ))
                       )}
@@ -540,6 +845,8 @@ export default function CalendarPage() {
                   return (
                     <div
                       key={iso}
+                      onDragOver={(event) => event.preventDefault()}
+                      onDrop={(event) => handleDropOnDate(iso, event)}
                       className={cn(
                         "min-h-[150px] min-w-0 border-b border-r border-slate-200 p-2 dark:border-slate-800",
                         !inCurrentMonth &&
@@ -573,7 +880,10 @@ export default function CalendarPage() {
                             key={event.id}
                             event={event}
                             compact
-                            onOpen={() => openTask(event)}
+                            onOpen={() => setEditingEvent(event)}
+                            onDragStart={(dragEvent) =>
+                              startEventDrag(event, dragEvent)
+                            }
                           />
                         ))}
                         {extraCount > 0 ? (
@@ -663,7 +973,10 @@ export default function CalendarPage() {
                       <CalendarEventCard
                         key={event.id}
                         event={event}
-                        onOpen={() => openTask(event)}
+                        onOpen={() => setEditingEvent(event)}
+                            onDragStart={(dragEvent) =>
+                              startEventDrag(event, dragEvent)
+                            }
                       />
                     ))
                   )}
@@ -675,9 +988,31 @@ export default function CalendarPage() {
       </section>
 
       <p className="px-1 text-xs leading-5 text-slate-400">
-        Задачи без точного времени остаются событиями дня. Календарь не
-        подставляет им искусственное время и не меняет дедлайны самостоятельно.
+        На компьютере событие можно перетащить на другой день. На телефоне
+        нажмите на событие и измените дату или время. Задачи без времени
+        остаются событиями дня.
       </p>
+
+      {editingEvent ? (
+        <CalendarEventDialog
+          key={`${editingEvent.id}:${editingEvent.date}:${editingEvent.time ?? ""}`}
+          event={editingEvent}
+          open
+          onOpenChange={(open) => {
+            if (!open) setEditingEvent(null)
+          }}
+          onSave={(date, time) => {
+            updateEventSchedule(
+              editingEvent,
+              date,
+              time,
+              "Дата или время изменены из календаря",
+            )
+            setEditingEvent(null)
+          }}
+          onOpenTask={() => openTask(editingEvent)}
+        />
+      ) : null}
     </div>
   )
 }
