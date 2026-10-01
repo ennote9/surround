@@ -1,6 +1,7 @@
 import { CircleHelp } from "lucide-react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { TaskHistoryPanel } from "@/features/projects/components/TaskHistoryPanel"
 import {
   Dialog,
   DialogContent,
@@ -41,6 +42,7 @@ export type TaskFormValues = {
   deferredUntil?: string
   delegationNote?: string
   isNextAction?: boolean
+  changeReason?: string
 }
 
 type TaskDialogProps = {
@@ -89,6 +91,34 @@ function TaskDialogFields({
   const [isNextAction, setIsNextAction] = useState(
     initialTask?.isNextAction === true,
   )
+  const [changeReason, setChangeReason] = useState("")
+
+  const normalizeOptional = (value: string): string | undefined =>
+    value.trim() || undefined
+
+  const initialStatus =
+    initialTask?.status ?? (initialTask?.completed ? "done" : "planned")
+  const nextActionForSave = status === "done" ? false : isNextAction
+
+  const hasTrackedChanges = Boolean(
+    initialTask &&
+      (
+        title.trim() !== initialTask.title ||
+        normalizeOptional(deadline) !== initialTask.deadline ||
+        normalizeOptional(deadlineTime) !== initialTask.deadlineTime ||
+        (deadlineReminder || undefined) !== initialTask.deadlineReminder ||
+        (priority || undefined) !== initialTask.priority ||
+        status !== initialStatus ||
+        normalizeOptional(assignee) !== initialTask.assignee ||
+        normalizeOptional(followUpDate) !== initialTask.followUpDate ||
+        normalizeOptional(followUpTime) !== initialTask.followUpTime ||
+        (followUpReminder || undefined) !== initialTask.followUpReminder ||
+        (deferReason || undefined) !== initialTask.deferReason ||
+        normalizeOptional(deferNote) !== initialTask.deferNote ||
+        normalizeOptional(deferredUntil) !== initialTask.deferredUntil ||
+        nextActionForSave !== (initialTask.isNextAction === true)
+      )
+  )
 
   const handleSubmit = () => {
     const t = title.trim()
@@ -109,7 +139,10 @@ function TaskDialogFields({
       deferNote: deferNote.trim() || undefined,
       deferredUntil: deferredUntil.trim() || undefined,
       delegationNote: delegationNote.trim() || undefined,
-      isNextAction: status === "done" ? false : isNextAction,
+      isNextAction: nextActionForSave,
+      changeReason: hasTrackedChanges
+        ? changeReason.trim() || undefined
+        : undefined,
     })
     onOpenChange(false)
   }
@@ -347,6 +380,27 @@ function TaskDialogFields({
           </span>
         </label>
 
+        {initialTask && hasTrackedChanges ? (
+          <div className="grid gap-2 rounded-xl border border-amber-200 bg-amber-50/60 p-3 dark:border-amber-500/20 dark:bg-amber-500/5">
+            <Label htmlFor="task-change-reason">
+              Причина этой правки
+              <span className="ml-1 font-normal text-slate-400">
+                необязательно
+              </span>
+            </Label>
+            <Input
+              id="task-change-reason"
+              value={changeReason}
+              onChange={(e) => setChangeReason(e.target.value)}
+              placeholder="Например: жду ответ от ИТ, срок перенесён"
+              className="border-amber-200 bg-white dark:border-amber-500/20 dark:bg-slate-950"
+            />
+            <p className="text-[11px] leading-4 text-slate-500 dark:text-slate-400">
+              Причина сохранится в истории вместе с этой группой изменений.
+            </p>
+          </div>
+        ) : null}
+
         <div className="grid gap-2">
           <Label htmlFor="task-notes">Заметки</Label>
           <Textarea
@@ -357,6 +411,8 @@ function TaskDialogFields({
             rows={3}
           />
         </div>
+
+        {initialTask ? <TaskHistoryPanel taskId={initialTask.id} /> : null}
       </div>
       <DialogFooter className="gap-2 sm:gap-0">
         <Button

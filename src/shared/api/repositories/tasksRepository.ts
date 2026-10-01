@@ -95,6 +95,7 @@ export async function updateTask(
   userId: string,
   taskId: string,
   patch: Partial<Task>,
+  changeReason?: string,
 ): Promise<RepositoryResult<Task>> {
   if (!supabase) {
     return repositoryFailure("Supabase не настроен.")
@@ -103,6 +104,11 @@ export async function updateTask(
   const body = taskToTaskUpdate(patch)
   if (Object.keys(body).length === 0) {
     return fetchTaskById(supabase, userId, taskId)
+  }
+
+  const reason = changeReason?.trim()
+  if (reason) {
+    body.change_reason = reason
   }
 
   const { data, error } = await supabase

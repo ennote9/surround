@@ -252,6 +252,7 @@ export default function ProjectsPage() {
           projectId: taskDialogProjectId,
           groupId: taskDialogGroupId,
           taskId: editingTask.id,
+          changeReason: values.changeReason,
           patch: {
             title: values.title,
             deadline: values.deadline,
