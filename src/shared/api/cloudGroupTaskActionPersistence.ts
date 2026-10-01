@@ -248,7 +248,12 @@ async function persistTaskAction(
       if (cleared.error) return repositoryFailure(cleared.error)
     }
 
-    const result = await updateTask(userId, action.payload.taskId, patch)
+    const result = await updateTask(
+      userId,
+      action.payload.taskId,
+      patch,
+      action.payload.changeReason,
+    )
     return result.error ? repositoryFailure(result.error) : repositorySuccess(null)
   }
 

@@ -111,6 +111,8 @@ export type UpdateTaskPayload = {
   projectId: string
   groupId: string
   taskId: string
+  /** Optional explanation saved with this edit in task history. */
+  changeReason?: string
   patch: Partial<
     Pick<
       Task,

@@ -204,7 +204,20 @@ export type TaskUpdate = Partial<{
   status_changed_at: string
   completed_at: string | null
   sort_order: number
+  change_reason: string | null
 }>
+
+export type TaskHistoryRow = {
+  id: string
+  user_id: string
+  task_id: string
+  batch_id: string
+  event_type: string
+  old_value: unknown | null
+  new_value: unknown | null
+  reason: string | null
+  changed_at: string
+}
 
 export type HabitRow = {
   id: string
