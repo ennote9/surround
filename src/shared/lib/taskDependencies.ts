@@ -43,16 +43,42 @@ export function applyTaskCompletionSuccessor(
   changedAt: string,
 ): Project {
   const completedTask = getTaskById(project, completedTaskId)
-  const successorId = completedTask?.completionNextTaskId
-  if (!completedTask?.completed || !successorId) return project
+  if (!completedTask?.completed) return project
 
-  const successor = getTaskById(project, successorId)
-  if (!successor || successor.completed) return project
+  const directSuccessorId = completedTask.completionNextTaskId
+  const directSuccessor = directSuccessorId
+    ? getTaskById(project, directSuccessorId)
+    : undefined
 
-  if (getIncompleteTaskBlockers(project, successor).length > 0) {
-    return project
+  let successor =
+    directSuccessor &&
+    !directSuccessor.completed &&
+    getIncompleteTaskBlockers(project, directSuccessor).length === 0
+      ? directSuccessor
+      : undefined
+
+  if (!successor) {
+    const tasks = getProjectTasks(project)
+    successor = tasks.find((candidate) => {
+      if (candidate.completed) return false
+      if (!(candidate.blockedByTaskIds ?? []).includes(completedTaskId)) {
+        return false
+      }
+      if (getIncompleteTaskBlockers(project, candidate).length > 0) {
+        return false
+      }
+
+      return tasks.some(
+        (predecessor) =>
+          predecessor.completed &&
+          predecessor.completionNextTaskId === candidate.id,
+      )
+    })
   }
 
+  if (!successor) return project
+
+  const successorId = successor.id
   return {
     ...project,
     updatedAt: changedAt,
