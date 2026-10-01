@@ -292,6 +292,12 @@ export default function CalendarPage() {
     state.settings.workspaceMode,
   ])
 
+  const effectiveProjectFilter =
+    projectFilter === "all" ||
+    scopedProjects.some((project) => project.id === projectFilter)
+      ? projectFilter
+      : "all"
+
   const events = useMemo(
     () => getTaskCalendarEvents(scopedProjects),
     [scopedProjects],
@@ -321,8 +327,8 @@ export default function CalendarPage() {
           return false
         }
         if (
-          projectFilter !== "all" &&
-          event.project.id !== projectFilter
+          effectiveProjectFilter !== "all" &&
+          event.project.id !== effectiveProjectFilter
         ) {
           return false
         }
@@ -332,7 +338,7 @@ export default function CalendarPage() {
       blockingFilter,
       events,
       kindFilter,
-      projectFilter,
+      effectiveProjectFilter,
       statusFilter,
     ],
   )
@@ -381,6 +387,25 @@ export default function CalendarPage() {
     (event) => event.date >= visibleStart && event.date <= visibleEnd,
   )
 
+  const planningProjects = useMemo(
+    () =>
+      effectiveProjectFilter === "all"
+        ? scopedProjects
+        : scopedProjects.filter(
+            (project) => project.id === effectiveProjectFilter,
+          ),
+    [effectiveProjectFilter, scopedProjects],
+  )
+  const planningAnalysis = useMemo(
+    () =>
+      analyzeCalendarPlanning(
+        planningProjects,
+        visibleStart,
+        visibleEnd,
+      ),
+    [planningProjects, visibleEnd, visibleStart],
+  )
+
   const visibleDeadlines = visibleEvents.filter(
     (event) => event.kind === "deadline",
   ).length
@@ -426,6 +451,32 @@ export default function CalendarPage() {
       `/projects?task=${encodeURIComponent(
         event.task.id,
       )}&project=${encodeURIComponent(event.project.id)}`,
+    )
+  }
+
+  const openPlanningIssue = (issue: CalendarPlanningIssue) => {
+    const event = events.find(
+      (item) =>
+        item.task.id === issue.taskId &&
+        item.kind === issue.eventKind,
+    )
+
+    if (event) {
+      setEditingEvent(event)
+      return
+    }
+
+    const project = scopedProjects.find(
+      (item) => item.id === issue.projectId,
+    )
+    if (!project) return
+    const task = getTaskById(project, issue.taskId)
+    if (!task) return
+
+    navigate(
+      `/projects?task=${encodeURIComponent(
+        task.id,
+      )}&project=${encodeURIComponent(project.id)}`,
     )
   }
 
@@ -536,7 +587,7 @@ export default function CalendarPage() {
     kindFilter !== "all" ||
     statusFilter !== "all" ||
     blockingFilter !== "all" ||
-    projectFilter !== "all"
+    effectiveProjectFilter !== "all"
 
   return (
     <div className="mx-auto min-w-0 w-full max-w-7xl space-y-5">
@@ -661,7 +712,7 @@ export default function CalendarPage() {
           </select>
 
           <select
-            value={projectFilter}
+            value={effectiveProjectFilter}
             onChange={(event) => setProjectFilter(event.target.value)}
             className="h-9 min-w-0 rounded-lg border border-slate-200 bg-white px-2.5 text-xs text-slate-700 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
             aria-label="Проект"
