@@ -23,7 +23,7 @@ import {
   LockKeyhole,
   RotateCcw,
 } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -41,10 +41,7 @@ import {
   type TaskCalendarEvent,
 } from "@/shared/lib/taskCalendar"
 import { isTaskOverdue } from "@/shared/lib/taskSchedule"
-import {
-  getTaskStatusLabel,
-  projectMatchesWorkspaceMode,
-} from "@/shared/lib/workManagement"
+import { projectMatchesWorkspaceMode } from "@/shared/lib/workManagement"
 import { getTodayISO, toISODate } from "@/shared/lib/dates"
 import { useAppState } from "@/store/useAppState"
 
@@ -273,19 +270,6 @@ export default function CalendarPage() {
       ? "Все цели"
       : getSelectedGoalTitle(selectedGoalId, state.goals)
 
-  useEffect(() => {
-    if (viewMode !== "month") return
-
-    const today = getTodayISO()
-    const monthPrefix = format(anchorDate, "yyyy-MM")
-    if (today.startsWith(monthPrefix)) {
-      setSelectedDate(today)
-      return
-    }
-
-    setSelectedDate(toISODate(startOfMonth(anchorDate)))
-  }, [anchorDate, viewMode])
-
   const goPrevious = () => {
     setAnchorDate((current) =>
       viewMode === "week" ? subWeeks(current, 1) : subMonths(current, 1),
@@ -312,7 +296,14 @@ export default function CalendarPage() {
     )
   }
 
-  const selectedDateEvents = eventsByDate.get(selectedDate) ?? []
+  const monthPrefix = format(anchorDate, "yyyy-MM")
+  const todayISO = getTodayISO()
+  const effectiveSelectedDate = selectedDate.startsWith(monthPrefix)
+    ? selectedDate
+    : todayISO.startsWith(monthPrefix)
+      ? todayISO
+      : toISODate(monthStart)
+  const selectedDateEvents = eventsByDate.get(effectiveSelectedDate) ?? []
 
   return (
     <div className="mx-auto min-w-0 w-full max-w-7xl space-y-5">
@@ -611,7 +602,7 @@ export default function CalendarPage() {
                 {monthDays.map((day) => {
                   const iso = toISODate(day)
                   const dayEvents = eventsByDate.get(iso) ?? []
-                  const selected = selectedDate === iso
+                  const selected = effectiveSelectedDate === iso
                   const inCurrentMonth = isSameMonth(day, anchorDate)
 
                   return (
@@ -650,9 +641,9 @@ export default function CalendarPage() {
                     {capitalize(
                       format(
                         new Date(
-                          Number(selectedDate.slice(0, 4)),
-                          Number(selectedDate.slice(5, 7)) - 1,
-                          Number(selectedDate.slice(8, 10)),
+                          Number(effectiveSelectedDate.slice(0, 4)),
+                          Number(effectiveSelectedDate.slice(5, 7)) - 1,
+                          Number(effectiveSelectedDate.slice(8, 10)),
                         ),
                         "d MMMM, EEEE",
                         { locale: ru },
