@@ -13,6 +13,10 @@ import type {
   TaskRow,
 } from "../database.types"
 import {
+  listTaskDependencies,
+  type TaskDependency,
+} from "./taskDependenciesRepository"
+import {
   getRepositoryErrorMessage,
   repositoryFailure,
   repositorySuccess,
@@ -68,8 +72,18 @@ export async function listProjects(
   }
   const tasks = (taskRows ?? []) as TaskRow[]
 
+  const dependenciesResult = await listTaskDependencies(userId, projectIds)
+  if (dependenciesResult.error) {
+    return repositoryFailure(getRepositoryErrorMessage(dependenciesResult.error))
+  }
+
   return repositorySuccess(
-    assembleProjectsFromRows(projects, groups, tasks),
+    assembleProjectsFromRows(
+      projects,
+      groups,
+      tasks,
+      dependenciesResult.data ?? [],
+    ),
   )
 }
 
@@ -122,8 +136,18 @@ export async function listProjectsByGoal(
   }
   const tasks = (taskRows ?? []) as TaskRow[]
 
+  const dependenciesResult = await listTaskDependencies(userId, projectIds)
+  if (dependenciesResult.error) {
+    return repositoryFailure(getRepositoryErrorMessage(dependenciesResult.error))
+  }
+
   return repositorySuccess(
-    assembleProjectsFromRows(projects, groups, tasks),
+    assembleProjectsFromRows(
+      projects,
+      groups,
+      tasks,
+      dependenciesResult.data ?? [],
+    ),
   )
 }
 
@@ -210,6 +234,7 @@ function assembleProjectsFromRows(
   projectRows: ProjectRow[],
   groupRows: ProjectGroupRow[],
   taskRows: TaskRow[],
+  dependencies: TaskDependency[] = [],
 ): Project[] {
   const groupsByProject = new Map<string, ProjectGroupRow[]>()
   for (const g of groupRows) {
@@ -220,6 +245,23 @@ function assembleProjectsFromRows(
   for (const [key, list] of groupsByProject) {
     list.sort((a, b) => a.sort_order - b.sort_order)
     groupsByProject.set(key, list)
+  }
+
+  const blockersBySuccessor = new Map<string, string[]>()
+  const completionNextByPredecessor = new Map<string, string>()
+
+  for (const dependency of dependencies) {
+    if (dependency.blocksSuccessor) {
+      const blockers = blockersBySuccessor.get(dependency.successorTaskId) ?? []
+      blockers.push(dependency.predecessorTaskId)
+      blockersBySuccessor.set(dependency.successorTaskId, blockers)
+    }
+    if (dependency.completionAction === "set_next_action") {
+      completionNextByPredecessor.set(
+        dependency.predecessorTaskId,
+        dependency.successorTaskId,
+      )
+    }
   }
 
   const tasksByGroup = new Map<string, TaskRow[]>()
@@ -236,7 +278,11 @@ function assembleProjectsFromRows(
   return projectRows.map((pr) => {
     const gRows = groupsByProject.get(pr.id) ?? []
     const groups = gRows.map((gr) => {
-      const tr = (tasksByGroup.get(gr.id) ?? []).map((r) => taskRowToTask(r))
+      const tr = (tasksByGroup.get(gr.id) ?? []).map((r) => ({
+        ...taskRowToTask(r),
+        blockedByTaskIds: blockersBySuccessor.get(r.id) ?? [],
+        completionNextTaskId: completionNextByPredecessor.get(r.id),
+      }))
       return projectGroupRowToGroup(gr, tr)
     })
     return { ...projectRowToProjectBase(pr), groups }
@@ -286,10 +332,16 @@ async function loadProjectWithNested(
   }
   const tRows = (taskRows ?? []) as TaskRow[]
 
+  const dependenciesResult = await listTaskDependencies(userId, [projectId])
+  if (dependenciesResult.error) {
+    return repositoryFailure(getRepositoryErrorMessage(dependenciesResult.error))
+  }
+
   const [assembled] = assembleProjectsFromRows(
     [pr as ProjectRow],
     gRows,
     tRows,
+    dependenciesResult.data ?? [],
   )
   return repositorySuccess(assembled)
 }

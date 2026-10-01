@@ -775,6 +775,7 @@ export function MobileProjectsWorkspace({
                               <li key={task.id}>
                                 <TaskItem
                                   task={task}
+                                  project={detailProject}
                                   onToggle={() =>
                                     onToggleTask(detailProject.id, group.id, task.id)
                                   }

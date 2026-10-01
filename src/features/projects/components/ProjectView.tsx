@@ -539,6 +539,7 @@ export function ProjectView({
                         <li key={task.id}>
                           <TaskItem
                             task={task}
+                            project={project}
                             onToggle={() => onToggleTask(group.id, task.id)}
                             onEdit={() => onEditTask(group.id, task.id)}
                             onDelete={() => onDeleteTask(group.id, task.id)}

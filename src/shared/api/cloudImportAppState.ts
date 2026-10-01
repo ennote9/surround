@@ -1,6 +1,7 @@
 /**
  * Replace-import AppState в Supabase без merge.
- * Вся замена выполняется одной транзакционной RPC-операцией.
+ * Основное состояние заменяется атомарной RPC-операцией; связи задач
+ * восстанавливаются сразу после неё отдельной вставкой.
  */
 import { supabase } from "@/shared/lib/supabase"
 import type { AppState, Goal, Habit, Milestone, Project } from "@/store/appState.types"
@@ -120,12 +121,22 @@ export function normalizeImportedAppStateIds(appState: AppState): AppState {
 
     const groups = project.groups.map((group, groupIndex) => {
       const groupId = groupIdMap.get(group.id.trim())!
-      const tasks = group.tasks.map((task) => ({
-        ...task,
-        id: taskIdMap.get(task.id.trim())!,
-        projectId,
-        groupId,
-      }))
+      const tasks = group.tasks.map((task) => {
+        const taskId = taskIdMap.get(task.id.trim())!
+        return {
+          ...task,
+          id: taskId,
+          projectId,
+          groupId,
+          blockedByTaskIds: (task.blockedByTaskIds ?? []).flatMap((id) => {
+            const mapped = taskIdMap.get(id.trim())
+            return mapped ? [mapped] : []
+          }),
+          completionNextTaskId: task.completionNextTaskId?.trim()
+            ? taskIdMap.get(task.completionNextTaskId.trim())
+            : undefined,
+        }
+      })
       return {
         ...group,
         id: groupId,
@@ -188,11 +199,54 @@ export function normalizeImportedAppStateIds(appState: AppState): AppState {
 function validateImportableState(appState: AppState): string | null {
   const goalIds = new Set(appState.goals.map((goal) => goal.id.trim()))
   const projectIds = new Set(appState.projects.map((project) => project.id.trim()))
+  const taskProjectById = new Map<string, string>()
+
+  for (const project of appState.projects) {
+    for (const group of project.groups) {
+      for (const task of group.tasks) {
+        taskProjectById.set(task.id.trim(), project.id.trim())
+      }
+    }
+  }
 
   for (const project of appState.projects) {
     const goalId = project.goalId?.trim()
     if (goalId && !goalIds.has(goalId)) {
       return `Проект «${project.title}» ссылается на несуществующую цель (${project.goalId}).`
+    }
+  }
+
+  for (const project of appState.projects) {
+    for (const group of project.groups) {
+      for (const task of group.tasks) {
+        const taskId = task.id.trim()
+
+        for (const blockerIdRaw of task.blockedByTaskIds ?? []) {
+          const blockerId = blockerIdRaw.trim()
+          if (!blockerId || !taskProjectById.has(blockerId)) {
+            return `Задача «${task.title}» ссылается на несуществующую блокирующую задачу.`
+          }
+          if (blockerId === taskId) {
+            return `Задача «${task.title}» не может зависеть сама от себя.`
+          }
+          if (taskProjectById.get(blockerId) !== project.id.trim()) {
+            return `Зависимость задачи «${task.title}» должна находиться в том же проекте.`
+          }
+        }
+
+        const completionNextId = task.completionNextTaskId?.trim()
+        if (completionNextId) {
+          if (!taskProjectById.has(completionNextId)) {
+            return `Задача «${task.title}» ссылается на несуществующую следующую задачу.`
+          }
+          if (completionNextId === taskId) {
+            return `Задача «${task.title}» не может продолжаться самой собой.`
+          }
+          if (taskProjectById.get(completionNextId) !== project.id.trim()) {
+            return `Следующая задача после «${task.title}» должна находиться в том же проекте.`
+          }
+        }
+      }
     }
   }
 
@@ -235,6 +289,7 @@ function buildAtomicImportPayload(userId: string, state: AppState) {
   const groups: Record<string, unknown>[] = []
   const tasks: Record<string, unknown>[] = []
   const habitLogs: Record<string, unknown>[] = []
+  const dependencyByPair = new Map<string, Record<string, unknown>>()
 
   for (const project of state.projects) {
     for (let groupIndex = 0; groupIndex < project.groups.length; groupIndex += 1) {
@@ -250,15 +305,42 @@ function buildAtomicImportPayload(userId: string, state: AppState) {
       )
 
       for (let taskIndex = 0; taskIndex < group.tasks.length; taskIndex += 1) {
+        const task = group.tasks[taskIndex]
         tasks.push(
           taskToTaskInsert(
-            group.tasks[taskIndex],
+            task,
             userId,
             project.id,
             group.id,
             taskIndex,
           ) as unknown as Record<string, unknown>,
         )
+
+        for (const blockerId of task.blockedByTaskIds ?? []) {
+          const key = `${blockerId}::${task.id}`
+          dependencyByPair.set(key, {
+            user_id: userId,
+            project_id: project.id,
+            predecessor_task_id: blockerId,
+            successor_task_id: task.id,
+            blocks_successor: true,
+            completion_action:
+              dependencyByPair.get(key)?.completion_action ?? "unblock",
+          })
+        }
+
+        if (task.completionNextTaskId) {
+          const key = `${task.id}::${task.completionNextTaskId}`
+          const existing = dependencyByPair.get(key)
+          dependencyByPair.set(key, {
+            user_id: userId,
+            project_id: project.id,
+            predecessor_task_id: task.id,
+            successor_task_id: task.completionNextTaskId,
+            blocks_successor: existing?.blocks_successor === true,
+            completion_action: "set_next_action",
+          })
+        }
       }
     }
   }
@@ -297,6 +379,7 @@ function buildAtomicImportPayload(userId: string, state: AppState) {
     ),
     groups,
     tasks,
+    task_dependencies: [...dependencyByPair.values()],
     habits: state.habits.map(
       (habit) =>
         habitToHabitInsert(habit, userId) as unknown as Record<string, unknown>,
@@ -340,6 +423,19 @@ export async function importAppStateIntoCloud(
       return repositoryFailure(
         `Не удалось импортировать данные: ${getRepositoryErrorMessage(error)}`,
       )
+    }
+
+    const dependencyRows = payload.task_dependencies
+    if (dependencyRows.length > 0) {
+      const { error: dependencyError } = await supabase
+        .from("task_dependencies")
+        .insert(dependencyRows)
+
+      if (dependencyError) {
+        return repositoryFailure(
+          `Основные данные импортированы, но связи задач не восстановлены: ${getRepositoryErrorMessage(dependencyError)}`,
+        )
+      }
     }
 
     return repositorySuccess(normalized)

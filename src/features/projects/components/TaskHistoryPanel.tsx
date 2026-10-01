@@ -76,6 +76,18 @@ function asRecord(value: unknown): Record<string, unknown> | null {
   return value as Record<string, unknown>
 }
 
+function linkedTaskTitle(value: unknown): string {
+  const record = asRecord(value)
+  if (!record) return scalar(value)
+  if (typeof record.title === "string" && record.title.trim()) {
+    return record.title
+  }
+  if (typeof record.task_id === "string" && record.task_id.trim()) {
+    return record.task_id
+  }
+  return "задача"
+}
+
 function formatSchedule(value: unknown): string {
   const record = asRecord(value)
   if (!record) return scalar(value)
@@ -128,6 +140,12 @@ function changeLine(entry: TaskHistoryEntry): string {
       return `Напоминание о дедлайне: ${REMINDER_LABELS[scalar(from)] ?? scalar(from)} → ${REMINDER_LABELS[scalar(to)] ?? scalar(to)}`
     case "control_reminder_changed":
       return `Напоминание контроля: ${REMINDER_LABELS[scalar(from)] ?? scalar(from)} → ${REMINDER_LABELS[scalar(to)] ?? scalar(to)}`
+    case "dependency_added":
+      return `Добавлена зависимость: после «${linkedTaskTitle(to)}»`
+    case "dependency_removed":
+      return `Удалена зависимость от «${linkedTaskTitle(from)}»`
+    case "completion_successor_changed":
+      return `После выполнения: ${from ? `«${linkedTaskTitle(from)}»` : "не задано"} → ${to ? `«${linkedTaskTitle(to)}»` : "не задано"}`
     default:
       return "Параметры задачи изменены"
   }

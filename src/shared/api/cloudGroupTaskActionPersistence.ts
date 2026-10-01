@@ -5,6 +5,7 @@ import {
   deleteProjectGroup,
   updateProjectGroup,
 } from "./repositories/projectGroupsRepository"
+import { syncTaskRelations } from "./repositories/taskDependenciesRepository"
 import {
   clearProjectNextActions,
   createTask,
@@ -61,6 +62,8 @@ function sanitizeNewTaskPayload(payload: AddTaskAction["payload"]): Task | null 
     completedAt:
       payload.completedAt ??
       (payload.status === "done" ? now : undefined),
+    blockedByTaskIds: payload.blockedByTaskIds ?? [],
+    completionNextTaskId: payload.completionNextTaskId,
     createdAt: payload.createdAt ?? now,
     updatedAt: payload.updatedAt ?? now,
   }
@@ -154,6 +157,19 @@ function sanitizeTaskPatch(
   if ("completedAt" in patch && next.completedAt === undefined) {
     next.completedAt = patch.completedAt
   }
+  if ("blockedByTaskIds" in patch) {
+    next.blockedByTaskIds = [
+      ...new Set(
+        (patch.blockedByTaskIds ?? []).filter(
+          (taskId) => typeof taskId === "string" && taskId.trim() !== "",
+        ),
+      ),
+    ]
+  }
+  if ("completionNextTaskId" in patch) {
+    next.completionNextTaskId =
+      patch.completionNextTaskId?.trim() || undefined
+  }
 
   return next
 }
@@ -230,7 +246,18 @@ async function persistTaskAction(
       action.payload.groupId,
       task,
     )
-    return result.error ? repositoryFailure(result.error) : repositorySuccess(null)
+    if (result.error) return repositoryFailure(result.error)
+
+    const relations = await syncTaskRelations({
+      userId,
+      projectId: action.payload.projectId,
+      taskId: task.id,
+      blockedByTaskIds: task.blockedByTaskIds ?? [],
+      completionNextTaskId: task.completionNextTaskId,
+    })
+    return relations.error
+      ? repositoryFailure(relations.error)
+      : repositorySuccess(null)
   }
 
   if (action.type === "UPDATE_TASK") {
@@ -246,6 +273,21 @@ async function persistTaskAction(
         action.payload.taskId,
       )
       if (cleared.error) return repositoryFailure(cleared.error)
+    }
+
+    const relationsChanged =
+      "blockedByTaskIds" in action.payload.patch ||
+      "completionNextTaskId" in action.payload.patch
+
+    if (relationsChanged) {
+      const relations = await syncTaskRelations({
+        userId,
+        projectId: action.payload.projectId,
+        taskId: action.payload.taskId,
+        blockedByTaskIds: patch.blockedByTaskIds ?? [],
+        completionNextTaskId: patch.completionNextTaskId,
+      })
+      if (relations.error) return repositoryFailure(relations.error)
     }
 
     const result = await updateTask(

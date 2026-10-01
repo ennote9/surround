@@ -1,11 +1,15 @@
-import { Pencil, Trash2 } from "lucide-react"
+import { ArrowRight, LockKeyhole, Pencil, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import { getTaskStatusLabel } from "@/shared/lib/workManagement"
+import {
+  getIncompleteTaskBlockers,
+  getTaskById,
+} from "@/shared/lib/taskDependencies"
 import { formatTaskScheduleLabel, isTaskOverdue } from "@/shared/lib/taskSchedule"
 import { getTaskReminderPresetLabel } from "@/shared/lib/taskReminders"
-import type { Task } from "@/store/appState.types"
+import type { Project, Task } from "@/store/appState.types"
 
 const priorityLabel: Record<NonNullable<Task["priority"]>, string> = {
   low: "Низкий",
@@ -15,13 +19,27 @@ const priorityLabel: Record<NonNullable<Task["priority"]>, string> = {
 
 type TaskItemProps = {
   task: Task
+  project?: Project
   onToggle: () => void
   onEdit: () => void
   onDelete: () => void
 }
 
-export function TaskItem({ task, onToggle, onEdit, onDelete }: TaskItemProps) {
+export function TaskItem({
+  task,
+  project,
+  onToggle,
+  onEdit,
+  onDelete,
+}: TaskItemProps) {
   const overdue = isTaskOverdue(task)
+  const incompleteBlockers = project
+    ? getIncompleteTaskBlockers(project, task)
+    : []
+  const completionSuccessor =
+    project && task.completionNextTaskId
+      ? getTaskById(project, task.completionNextTaskId)
+      : undefined
 
   return (
     <div
@@ -75,6 +93,12 @@ export function TaskItem({ task, onToggle, onEdit, onDelete }: TaskItemProps) {
               </span>
             ) : null}
             <span className="shrink-0">Статус: {getTaskStatusLabel(task)}</span>
+            {incompleteBlockers.length > 0 ? (
+              <span className="inline-flex shrink-0 items-center gap-1 font-medium text-amber-700 dark:text-amber-400">
+                <LockKeyhole className="size-3" aria-hidden />
+                Заблокировано: {incompleteBlockers.length}
+              </span>
+            ) : null}
             {task.isNextAction ? (
               <span className="shrink-0 font-medium text-violet-600 dark:text-violet-400">
                 Следующая задача проекта
@@ -96,6 +120,14 @@ export function TaskItem({ task, onToggle, onEdit, onDelete }: TaskItemProps) {
                   Boolean(task.followUpTime),
                   "control",
                 )}
+              </span>
+            ) : null}
+            {completionSuccessor ? (
+              <span className="inline-flex min-w-0 items-center gap-1 text-blue-600 dark:text-blue-400">
+                <ArrowRight className="size-3 shrink-0" aria-hidden />
+                <span className="break-words">
+                  После выполнения: {completionSuccessor.title}
+                </span>
               </span>
             ) : null}
             {task.deferredUntil ? (
