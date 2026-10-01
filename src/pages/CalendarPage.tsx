@@ -14,6 +14,7 @@ import {
 } from "date-fns"
 import { ru } from "date-fns/locale"
 import {
+  AlertTriangle,
   CalendarDays,
   CheckCircle2,
   ChevronLeft,
@@ -30,7 +31,12 @@ import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { CalendarEventDialog } from "@/features/calendar/components/CalendarEventDialog"
+import { CalendarPlanningPanel } from "@/features/calendar/components/CalendarPlanningPanel"
 import { cn } from "@/lib/utils"
+import {
+  analyzeCalendarPlanning,
+  type CalendarPlanningIssue,
+} from "@/shared/lib/calendarPlanning"
 import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
 import {
   ALL_GOALS_SCOPE,
@@ -96,11 +102,13 @@ function CalendarEventCard({
   compact = false,
   onOpen,
   onDragStart,
+  issueCount = 0,
 }: {
   event: TaskCalendarEvent
   compact?: boolean
   onOpen: () => void
   onDragStart?: (event: React.DragEvent<HTMLButtonElement>) => void
+  issueCount?: number
 }) {
   const overdue =
     event.kind === "deadline" && isTaskOverdue(event.task)
@@ -163,6 +171,15 @@ function CalendarEventCard({
                 {event.time ?? "Весь день"}
               </span>
             </div>
+            {issueCount > 0 ? (
+              <span
+                className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-amber-50 px-1.5 py-0.5 text-[9px] font-semibold text-amber-700 dark:bg-amber-500/10 dark:text-amber-300"
+                title="Есть предупреждения планирования"
+              >
+                <AlertTriangle className="size-2.5" aria-hidden />
+                {issueCount}
+              </span>
+            ) : null}
             {onDragStart ? (
               <GripVertical
                 className="size-3.5 shrink-0 text-slate-300 opacity-0 transition-opacity group-hover:opacity-100 dark:text-slate-600"
