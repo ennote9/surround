@@ -397,13 +397,18 @@ export default function WorkPage() {
     () =>
       workProjects.flatMap((project) =>
         project.groups.flatMap((group) =>
-          group.tasks.map((task) => ({
-            projectId: project.id,
-            projectTitle: project.title,
-            groupId: group.id,
-            groupTitle: group.title,
-            task,
-          })),
+          group.tasks.map((task) => {
+            const blockers = getIncompleteTaskBlockers(project, task)
+            return {
+              projectId: project.id,
+              projectTitle: project.title,
+              groupId: group.id,
+              groupTitle: group.title,
+              task,
+              blocked: blockers.length > 0,
+              blockerTitles: blockers.map((blocker) => blocker.title),
+            }
+          }),
         ),
       ),
     [workProjects],
