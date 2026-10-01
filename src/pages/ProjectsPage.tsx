@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
+import { useSearchParams } from "react-router-dom"
 import { toast } from "sonner"
 import { DeleteConfirmDialog } from "@/features/projects/components/DeleteConfirmDialog"
 import { GroupDialog } from "@/features/projects/components/GroupDialog"
@@ -52,6 +53,7 @@ type DeleteTarget =
 
 export default function ProjectsPage() {
   const { state, dispatch } = useAppState()
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const [rawSelectedGoalId] = useLocalStorage(
     SELECTED_GOAL_STORAGE_KEY,
@@ -217,6 +219,35 @@ export default function ProjectsPage() {
     setEditingTask(task)
     setTaskDialogOpen(true)
   }
+
+  useEffect(() => {
+    const taskId = searchParams.get("task")
+    if (!taskId) return
+
+    for (const project of state.projects) {
+      for (const group of project.groups) {
+        const task = group.tasks.find((item) => item.id === taskId)
+        if (!task) continue
+
+        setSelectedProjectId(project.id)
+        setTaskDialogProjectId(project.id)
+        setTaskDialogGroupId(group.id)
+        setEditingTask(task)
+        setTaskDialogOpen(true)
+
+        const nextParams = new URLSearchParams(searchParams)
+        nextParams.delete("task")
+        nextParams.delete("project")
+        setSearchParams(nextParams, { replace: true })
+        return
+      }
+    }
+  }, [
+    searchParams,
+    setSearchParams,
+    setSelectedProjectId,
+    state.projects,
+  ])
 
   const handleTaskSubmit = (values: TaskFormValues) => {
     if (!taskDialogProjectId || !taskDialogGroupId) return
