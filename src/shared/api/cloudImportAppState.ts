@@ -1,6 +1,7 @@
 /**
  * Replace-import AppState в Supabase без merge.
- * Вся замена выполняется одной транзакционной RPC-операцией.
+ * Основное состояние заменяется атомарной RPC-операцией; связи задач
+ * восстанавливаются сразу после неё отдельной вставкой.
  */
 import { supabase } from "@/shared/lib/supabase"
 import type { AppState, Goal, Habit, Milestone, Project } from "@/store/appState.types"
@@ -422,6 +423,19 @@ export async function importAppStateIntoCloud(
       return repositoryFailure(
         `Не удалось импортировать данные: ${getRepositoryErrorMessage(error)}`,
       )
+    }
+
+    const dependencyRows = payload.task_dependencies
+    if (dependencyRows.length > 0) {
+      const { error: dependencyError } = await supabase
+        .from("task_dependencies")
+        .insert(dependencyRows)
+
+      if (dependencyError) {
+        return repositoryFailure(
+          `Основные данные импортированы, но связи задач не восстановлены: ${getRepositoryErrorMessage(dependencyError)}`,
+        )
+      }
     }
 
     return repositorySuccess(normalized)
