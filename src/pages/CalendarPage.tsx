@@ -515,6 +515,11 @@ export default function CalendarPage() {
       ? todayISO
       : toISODate(monthStart)
   const selectedDateEvents = eventsByDate.get(effectiveSelectedDate) ?? []
+  const filtersActive =
+    kindFilter !== "all" ||
+    statusFilter !== "all" ||
+    blockingFilter !== "all" ||
+    projectFilter !== "all"
 
   return (
     <div className="mx-auto min-w-0 w-full max-w-7xl space-y-5">
@@ -575,6 +580,84 @@ export default function CalendarPage() {
           </Button>
         </div>
       </header>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+        <div className="flex items-center gap-2">
+          <Filter className="size-4 text-slate-400" aria-hidden />
+          <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+            Фильтры календаря
+          </p>
+          {filtersActive ? (
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="ml-auto text-[11px] font-medium text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+            >
+              Сбросить
+            </button>
+          ) : null}
+        </div>
+
+        <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          <select
+            value={kindFilter}
+            onChange={(event) =>
+              setKindFilter(event.target.value as CalendarKindFilter)
+            }
+            className="h-9 rounded-lg border border-slate-200 bg-white px-2.5 text-xs text-slate-700 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+            aria-label="Тип события"
+          >
+            <option value="all">Все события</option>
+            <option value="deadline">Только дедлайны</option>
+            <option value="control">Только контроль</option>
+          </select>
+
+          <select
+            value={statusFilter}
+            onChange={(event) =>
+              setStatusFilter(event.target.value as CalendarStatusFilter)
+            }
+            className="h-9 rounded-lg border border-slate-200 bg-white px-2.5 text-xs text-slate-700 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+            aria-label="Статус задачи"
+          >
+            <option value="all">Все статусы</option>
+            {TASK_STATUS_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={blockingFilter}
+            onChange={(event) =>
+              setBlockingFilter(
+                event.target.value as CalendarBlockingFilter,
+              )
+            }
+            className="h-9 rounded-lg border border-slate-200 bg-white px-2.5 text-xs text-slate-700 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+            aria-label="Доступность задачи"
+          >
+            <option value="all">Все по доступности</option>
+            <option value="blocked">Только заблокированные</option>
+            <option value="available">Только доступные</option>
+          </select>
+
+          <select
+            value={projectFilter}
+            onChange={(event) => setProjectFilter(event.target.value)}
+            className="h-9 min-w-0 rounded-lg border border-slate-200 bg-white px-2.5 text-xs text-slate-700 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+            aria-label="Проект"
+          >
+            <option value="all">Все проекты</option>
+            {scopedProjects.map((project) => (
+              <option key={project.id} value={project.id}>
+                {project.title}
+              </option>
+            ))}
+          </select>
+        </div>
+      </section>
 
       <section className="grid grid-cols-3 gap-2 sm:max-w-xl">
         <div className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
@@ -640,7 +723,12 @@ export default function CalendarPage() {
                 const dayEvents = eventsByDate.get(iso) ?? []
 
                 return (
-                  <div key={iso} className="min-h-[420px] min-w-0 p-2.5">
+                  <div
+                    key={iso}
+                    className="min-h-[420px] min-w-0 p-2.5"
+                    onDragOver={(event) => event.preventDefault()}
+                    onDrop={(event) => handleDropOnDate(iso, event)}
+                  >
                     <div className="mb-3">
                       <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-slate-400">
                         {format(day, "EEE", { locale: ru })}
@@ -665,7 +753,10 @@ export default function CalendarPage() {
                           <CalendarEventCard
                             key={event.id}
                             event={event}
-                            onOpen={() => openTask(event)}
+                            onOpen={() => setEditingEvent(event)}
+                            onDragStart={(dragEvent) =>
+                              startEventDrag(event, dragEvent)
+                            }
                           />
                         ))
                       )}
@@ -716,7 +807,10 @@ export default function CalendarPage() {
                           <CalendarEventCard
                             key={event.id}
                             event={event}
-                            onOpen={() => openTask(event)}
+                            onOpen={() => setEditingEvent(event)}
+                            onDragStart={(dragEvent) =>
+                              startEventDrag(event, dragEvent)
+                            }
                           />
                         ))
                       )}
@@ -751,6 +845,8 @@ export default function CalendarPage() {
                   return (
                     <div
                       key={iso}
+                      onDragOver={(event) => event.preventDefault()}
+                      onDrop={(event) => handleDropOnDate(iso, event)}
                       className={cn(
                         "min-h-[150px] min-w-0 border-b border-r border-slate-200 p-2 dark:border-slate-800",
                         !inCurrentMonth &&
@@ -784,7 +880,10 @@ export default function CalendarPage() {
                             key={event.id}
                             event={event}
                             compact
-                            onOpen={() => openTask(event)}
+                            onOpen={() => setEditingEvent(event)}
+                            onDragStart={(dragEvent) =>
+                              startEventDrag(event, dragEvent)
+                            }
                           />
                         ))}
                         {extraCount > 0 ? (
@@ -874,7 +973,10 @@ export default function CalendarPage() {
                       <CalendarEventCard
                         key={event.id}
                         event={event}
-                        onOpen={() => openTask(event)}
+                        onOpen={() => setEditingEvent(event)}
+                            onDragStart={(dragEvent) =>
+                              startEventDrag(event, dragEvent)
+                            }
                       />
                     ))
                   )}
@@ -886,9 +988,31 @@ export default function CalendarPage() {
       </section>
 
       <p className="px-1 text-xs leading-5 text-slate-400">
-        Задачи без точного времени остаются событиями дня. Календарь не
-        подставляет им искусственное время и не меняет дедлайны самостоятельно.
+        На компьютере событие можно перетащить на другой день. На телефоне
+        нажмите на событие и измените дату или время. Задачи без времени
+        остаются событиями дня.
       </p>
+
+      {editingEvent ? (
+        <CalendarEventDialog
+          key={`${editingEvent.id}:${editingEvent.date}:${editingEvent.time ?? ""}`}
+          event={editingEvent}
+          open
+          onOpenChange={(open) => {
+            if (!open) setEditingEvent(null)
+          }}
+          onSave={(date, time) => {
+            updateEventSchedule(
+              editingEvent,
+              date,
+              time,
+              "Дата или время изменены из календаря",
+            )
+            setEditingEvent(null)
+          }}
+          onOpenTask={() => openTask(editingEvent)}
+        />
+      ) : null}
     </div>
   )
 }
