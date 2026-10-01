@@ -141,3 +141,46 @@ export function wouldCreateBlockingDependencyCycle(
 
   return false
 }
+
+
+export function applyTaskEligibilityAfterRelationChange(
+  project: Project,
+  taskId: string,
+  changedAt: string,
+): Project {
+  const task = getTaskById(project, taskId)
+  if (!task || task.completed) return project
+  if (getIncompleteTaskBlockers(project, task).length > 0) return project
+
+  const hasCompletedContinuation = getProjectTasks(project).some(
+    (predecessor) =>
+      predecessor.completed &&
+      predecessor.completionNextTaskId === task.id,
+  )
+  if (!hasCompletedContinuation) return project
+
+  return {
+    ...project,
+    updatedAt: changedAt,
+    groups: project.groups.map((group) => ({
+      ...group,
+      tasks: group.tasks.map((candidate) => {
+        if (candidate.id === task.id) {
+          return {
+            ...candidate,
+            isNextAction: true,
+            updatedAt: changedAt,
+          }
+        }
+        if (candidate.isNextAction) {
+          return {
+            ...candidate,
+            isNextAction: false,
+            updatedAt: changedAt,
+          }
+        }
+        return candidate
+      }),
+    })),
+  }
+}
