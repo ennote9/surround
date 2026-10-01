@@ -20,12 +20,16 @@ import {
   ChevronRight,
   Clock3,
   Flag,
+  Filter,
+  GripVertical,
   LockKeyhole,
   RotateCcw,
 } from "lucide-react"
 import { useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { CalendarEventDialog } from "@/features/calendar/components/CalendarEventDialog"
 import { cn } from "@/lib/utils"
 import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
 import {
@@ -41,11 +45,23 @@ import {
   type TaskCalendarEvent,
 } from "@/shared/lib/taskCalendar"
 import { isTaskOverdue } from "@/shared/lib/taskSchedule"
-import { projectMatchesWorkspaceMode } from "@/shared/lib/workManagement"
+import {
+  getIncompleteTaskBlockers,
+  getProjectTasks,
+  getTaskById,
+} from "@/shared/lib/taskDependencies"
+import {
+  getTaskStatus,
+  projectMatchesWorkspaceMode,
+  TASK_STATUS_OPTIONS,
+} from "@/shared/lib/workManagement"
 import { getTodayISO, toISODate } from "@/shared/lib/dates"
 import { useAppState } from "@/store/useAppState"
 
 type CalendarViewMode = "week" | "month"
+type CalendarKindFilter = "all" | TaskCalendarEvent["kind"]
+type CalendarBlockingFilter = "all" | "blocked" | "available"
+type CalendarStatusFilter = "all" | NonNullable<TaskCalendarEvent["task"]["status"]>
 
 const WEEKDAY_LABELS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
 
