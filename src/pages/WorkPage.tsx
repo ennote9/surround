@@ -426,6 +426,7 @@ export default function WorkPage() {
     const deferredFuture =
       item.task.deferredUntil !== undefined && item.task.deferredUntil > todayISO
     return (
+      !item.blocked &&
       !deferredFuture &&
       (status === "planned" || status === "in_progress" || status === "control")
     )
@@ -503,7 +504,10 @@ export default function WorkPage() {
 
   const projectsWithoutNextAction = activeWorkProjects.filter((project) => {
     const openTasks = getProjectOpenTasks(project)
-    return openTasks.length > 0 && !openTasks.some((item) => item.task.isNextAction)
+    return (
+      openTasks.length > 0 &&
+      !openTasks.some((item) => item.task.isNextAction && !item.blocked)
+    )
   })
 
   const completedThisWeek = allWorkTasks.filter((item) => {
