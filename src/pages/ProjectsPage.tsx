@@ -270,8 +270,6 @@ export default function ProjectsPage() {
             deferredUntil: values.deferredUntil,
             delegationNote: values.delegationNote,
             isNextAction: values.isNextAction,
-          blockedByTaskIds: values.blockedByTaskIds,
-          completionNextTaskId: values.completionNextTaskId,
             blockedByTaskIds: values.blockedByTaskIds,
             completionNextTaskId: values.completionNextTaskId,
           },
