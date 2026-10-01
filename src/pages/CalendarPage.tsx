@@ -77,28 +77,40 @@ function CalendarEventCard({
   event,
   compact = false,
   onOpen,
+  onDragStart,
 }: {
   event: TaskCalendarEvent
   compact?: boolean
   onOpen: () => void
+  onDragStart?: (event: React.DragEvent<HTMLButtonElement>) => void
 }) {
   const overdue =
     event.kind === "deadline" && isTaskOverdue(event.task)
   const completed = event.task.completed
+  const incompleteBlockers = getIncompleteTaskBlockers(
+    event.project,
+    event.task,
+  )
+  const successor = event.task.completionNextTaskId
+    ? getTaskById(event.project, event.task.completionNextTaskId)
+    : undefined
 
   return (
     <button
       type="button"
+      draggable={Boolean(onDragStart)}
+      onDragStart={onDragStart}
       onClick={onOpen}
       className={cn(
-        "w-full min-w-0 rounded-xl border text-left transition-colors",
+        "group w-full min-w-0 rounded-xl border text-left transition-colors",
+        onDragStart && "cursor-grab active:cursor-grabbing",
         compact ? "px-2 py-1.5" : "px-3 py-2.5",
         overdue
           ? "border-red-200 bg-red-50/70 hover:bg-red-50 dark:border-red-500/20 dark:bg-red-500/5 dark:hover:bg-red-500/10"
           : "border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/80",
         completed && "opacity-55",
       )}
-      aria-label={`Открыть задачу: ${event.task.title}`}
+      aria-label={`Открыть календарное событие: ${event.task.title}`}
     >
       <div className="flex min-w-0 items-start gap-2">
         <span
@@ -117,20 +129,28 @@ function CalendarEventCard({
         </span>
 
         <div className="min-w-0 flex-1">
-          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">
-            <span
-              className={cn(
-                "text-[10px] font-semibold uppercase tracking-[0.08em]",
-                event.kind === "deadline"
-                  ? "text-slate-500 dark:text-slate-400"
-                  : "text-blue-600 dark:text-blue-300",
-              )}
-            >
-              {eventKindLabel(event.kind)}
-            </span>
-            <span className="text-[10px] font-medium text-slate-400">
-              {event.time ?? "Весь день"}
-            </span>
+          <div className="flex min-w-0 items-center gap-1.5">
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-0.5">
+              <span
+                className={cn(
+                  "text-[10px] font-semibold uppercase tracking-[0.08em]",
+                  event.kind === "deadline"
+                    ? "text-slate-500 dark:text-slate-400"
+                    : "text-blue-600 dark:text-blue-300",
+                )}
+              >
+                {eventKindLabel(event.kind)}
+              </span>
+              <span className="text-[10px] font-medium text-slate-400">
+                {event.time ?? "Весь день"}
+              </span>
+            </div>
+            {onDragStart ? (
+              <GripVertical
+                className="size-3.5 shrink-0 text-slate-300 opacity-0 transition-opacity group-hover:opacity-100 dark:text-slate-600"
+                aria-hidden
+              />
+            ) : null}
           </div>
 
           <p
@@ -149,19 +169,32 @@ function CalendarEventCard({
             </p>
           ) : null}
 
-          {!compact && (event.blocked || completed) ? (
-            <div className="mt-1.5 flex flex-wrap gap-1.5">
-              {event.blocked ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
-                  <LockKeyhole className="size-3" aria-hidden />
-                  Заблокировано
-                </span>
+          {!compact && (event.blocked || completed || successor) ? (
+            <div className="mt-1.5 space-y-1">
+              <div className="flex flex-wrap gap-1.5">
+                {event.blocked ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
+                    <LockKeyhole className="size-3" aria-hidden />
+                    Заблокировано
+                  </span>
+                ) : null}
+                {completed ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                    <CheckCircle2 className="size-3" aria-hidden />
+                    Выполнено
+                  </span>
+                ) : null}
+              </div>
+
+              {incompleteBlockers.length > 0 ? (
+                <p className="truncate text-[10px] text-amber-700 dark:text-amber-400">
+                  Ждёт: {incompleteBlockers.map((task) => task.title).join(", ")}
+                </p>
               ) : null}
-              {completed ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400">
-                  <CheckCircle2 className="size-3" aria-hidden />
-                  Выполнено
-                </span>
+              {successor ? (
+                <p className="truncate text-[10px] text-blue-600 dark:text-blue-300">
+                  После выполнения → {successor.title}
+                </p>
               ) : null}
             </div>
           ) : null}
