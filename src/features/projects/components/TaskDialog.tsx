@@ -127,8 +127,12 @@ function TaskDialogFields({
 
   const initialStatus =
     initialTask?.status ?? (initialTask?.completed ? "done" : "planned")
+  const statusForSave: TaskStatus =
+    status === "in_progress" && incompleteSelectedBlockers.length > 0
+      ? "planned"
+      : status
   const nextActionForSave =
-    status === "done" || incompleteSelectedBlockers.length > 0
+    statusForSave === "done" || incompleteSelectedBlockers.length > 0
       ? false
       : isNextAction
 
@@ -149,7 +153,7 @@ function TaskDialogFields({
         normalizeOptional(deadlineTime) !== initialTask.deadlineTime ||
         (deadlineReminder || undefined) !== initialTask.deadlineReminder ||
         (priority || undefined) !== initialTask.priority ||
-        status !== initialStatus ||
+        statusForSave !== initialStatus ||
         normalizeOptional(assignee) !== initialTask.assignee ||
         normalizeOptional(followUpDate) !== initialTask.followUpDate ||
         normalizeOptional(followUpTime) !== initialTask.followUpTime ||
@@ -177,7 +181,7 @@ function TaskDialogFields({
       deadlineReminder: deadline ? deadlineReminder || undefined : undefined,
       notes: notes.trim() || undefined,
       priority: priority === "" ? undefined : priority,
-      status,
+      status: statusForSave,
       assignee: assignee.trim() || undefined,
       followUpDate: followUpDate.trim() || undefined,
       followUpTime: followUpDate ? followUpTime.trim() || undefined : undefined,
@@ -414,9 +418,16 @@ function TaskDialogFields({
                 })}
               </div>
               {incompleteSelectedBlockers.length > 0 ? (
-                <p className="text-[11px] text-amber-600 dark:text-amber-400">
-                  Пока не выполнено: {incompleteSelectedBlockers.length}. Эту задачу нельзя считать следующей задачей проекта.
-                </p>
+                <div className="space-y-1 text-[11px] text-amber-600 dark:text-amber-400">
+                  <p>
+                    Пока не выполнено: {incompleteSelectedBlockers.length}. Эту задачу нельзя считать следующей задачей проекта.
+                  </p>
+                  {status === "in_progress" ? (
+                    <p>
+                      При сохранении статус будет изменён на «Запланировано», пока зависимости не выполнены.
+                    </p>
+                  ) : null}
+                </div>
               ) : null}
             </div>
 
