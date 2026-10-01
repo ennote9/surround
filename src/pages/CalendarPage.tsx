@@ -455,6 +455,29 @@ export default function CalendarPage() {
   }
 
   const openPlanningIssue = (issue: CalendarPlanningIssue) => {
+    const project = scopedProjects.find(
+      (item) => item.id === issue.projectId,
+    )
+    if (!project) return
+
+    if (
+      issue.relatedTaskId &&
+      (
+        issue.kind === "blocker_without_deadline" ||
+        issue.kind === "dependency_deadline_order"
+      )
+    ) {
+      const relatedTask = getTaskById(project, issue.relatedTaskId)
+      if (relatedTask) {
+        navigate(
+          `/projects?task=${encodeURIComponent(
+            relatedTask.id,
+          )}&project=${encodeURIComponent(project.id)}`,
+        )
+        return
+      }
+    }
+
     const event = events.find(
       (item) =>
         item.task.id === issue.taskId &&
@@ -466,10 +489,6 @@ export default function CalendarPage() {
       return
     }
 
-    const project = scopedProjects.find(
-      (item) => item.id === issue.projectId,
-    )
-    if (!project) return
     const task = getTaskById(project, issue.taskId)
     if (!task) return
 
@@ -593,6 +612,9 @@ export default function CalendarPage() {
     (planningAnalysis.issuesByTaskId.get(event.task.id) ?? []).filter(
       (issue) => issue.eventKind === event.kind,
     ).length
+  const planningIssueDates = new Set(
+    planningAnalysis.issues.map((issue) => issue.date),
+  )
 
   return (
     <div className="mx-auto min-w-0 w-full max-w-7xl space-y-5">
@@ -809,6 +831,8 @@ export default function CalendarPage() {
                       "min-h-[420px] min-w-0 p-2.5",
                       planningAnalysis.peakDates.has(iso) &&
                         "bg-slate-50/80 dark:bg-slate-950/45",
+                      planningIssueDates.has(iso) &&
+                        "ring-1 ring-inset ring-amber-200 dark:ring-amber-500/25",
                     )}
                     onDragOver={(event) => event.preventDefault()}
                     onDrop={(event) => handleDropOnDate(iso, event)}
@@ -874,6 +898,8 @@ export default function CalendarPage() {
                       planningAnalysis.peakDates.has(iso) &&
                         !isToday(day) &&
                         "bg-slate-50/70 dark:bg-slate-950/45",
+                      planningIssueDates.has(iso) &&
+                        "border-amber-300 dark:border-amber-500/30",
                     )}
                   >
                     <div className="mb-2.5 flex items-center justify-between gap-3">
@@ -949,7 +975,11 @@ export default function CalendarPage() {
                           "bg-slate-50/60 dark:bg-slate-950/35",
                         inCurrentMonth &&
                           planningAnalysis.peakDates.has(iso) &&
+                          !planningIssueDates.has(iso) &&
                           "ring-1 ring-inset ring-slate-300 dark:ring-slate-700",
+                        inCurrentMonth &&
+                          planningIssueDates.has(iso) &&
+                          "ring-1 ring-inset ring-amber-300 dark:ring-amber-500/30",
                         (index + 1) % 7 === 0 && "border-r-0",
                       )}
                     >
@@ -1036,7 +1066,9 @@ export default function CalendarPage() {
                             "mt-1 h-1 w-4 rounded-full",
                             selected
                               ? "bg-white/70 dark:bg-slate-950/60"
-                              : "bg-slate-300 dark:bg-slate-600",
+                              : planningIssueDates.has(iso)
+                                ? "bg-amber-400 dark:bg-amber-500"
+                                : "bg-slate-300 dark:bg-slate-600",
                           )}
                         />
                       ) : null}
