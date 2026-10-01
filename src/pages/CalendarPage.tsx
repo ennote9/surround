@@ -14,6 +14,7 @@ import {
 } from "date-fns"
 import { ru } from "date-fns/locale"
 import {
+  AlertTriangle,
   CalendarDays,
   CheckCircle2,
   ChevronLeft,
@@ -30,7 +31,12 @@ import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { CalendarEventDialog } from "@/features/calendar/components/CalendarEventDialog"
+import { CalendarPlanningPanel } from "@/features/calendar/components/CalendarPlanningPanel"
 import { cn } from "@/lib/utils"
+import {
+  analyzeCalendarPlanning,
+  type CalendarPlanningIssue,
+} from "@/shared/lib/calendarPlanning"
 import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
 import {
   ALL_GOALS_SCOPE,
@@ -96,11 +102,13 @@ function CalendarEventCard({
   compact = false,
   onOpen,
   onDragStart,
+  issueCount = 0,
 }: {
   event: TaskCalendarEvent
   compact?: boolean
   onOpen: () => void
   onDragStart?: (event: React.DragEvent<HTMLButtonElement>) => void
+  issueCount?: number
 }) {
   const overdue =
     event.kind === "deadline" && isTaskOverdue(event.task)
@@ -163,6 +171,15 @@ function CalendarEventCard({
                 {event.time ?? "Весь день"}
               </span>
             </div>
+            {issueCount > 0 ? (
+              <span
+                className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-amber-50 px-1.5 py-0.5 text-[9px] font-semibold text-amber-700 dark:bg-amber-500/10 dark:text-amber-300"
+                title="Есть предупреждения планирования"
+              >
+                <AlertTriangle className="size-2.5" aria-hidden />
+                {issueCount}
+              </span>
+            ) : null}
             {onDragStart ? (
               <GripVertical
                 className="size-3.5 shrink-0 text-slate-300 opacity-0 transition-opacity group-hover:opacity-100 dark:text-slate-600"
@@ -275,6 +292,12 @@ export default function CalendarPage() {
     state.settings.workspaceMode,
   ])
 
+  const effectiveProjectFilter =
+    projectFilter === "all" ||
+    scopedProjects.some((project) => project.id === projectFilter)
+      ? projectFilter
+      : "all"
+
   const events = useMemo(
     () => getTaskCalendarEvents(scopedProjects),
     [scopedProjects],
@@ -304,8 +327,8 @@ export default function CalendarPage() {
           return false
         }
         if (
-          projectFilter !== "all" &&
-          event.project.id !== projectFilter
+          effectiveProjectFilter !== "all" &&
+          event.project.id !== effectiveProjectFilter
         ) {
           return false
         }
@@ -315,7 +338,7 @@ export default function CalendarPage() {
       blockingFilter,
       events,
       kindFilter,
-      projectFilter,
+      effectiveProjectFilter,
       statusFilter,
     ],
   )
@@ -364,6 +387,25 @@ export default function CalendarPage() {
     (event) => event.date >= visibleStart && event.date <= visibleEnd,
   )
 
+  const planningProjects = useMemo(
+    () =>
+      effectiveProjectFilter === "all"
+        ? scopedProjects
+        : scopedProjects.filter(
+            (project) => project.id === effectiveProjectFilter,
+          ),
+    [effectiveProjectFilter, scopedProjects],
+  )
+  const planningAnalysis = useMemo(
+    () =>
+      analyzeCalendarPlanning(
+        planningProjects,
+        visibleStart,
+        visibleEnd,
+      ),
+    [planningProjects, visibleEnd, visibleStart],
+  )
+
   const visibleDeadlines = visibleEvents.filter(
     (event) => event.kind === "deadline",
   ).length
@@ -409,6 +451,51 @@ export default function CalendarPage() {
       `/projects?task=${encodeURIComponent(
         event.task.id,
       )}&project=${encodeURIComponent(event.project.id)}`,
+    )
+  }
+
+  const openPlanningIssue = (issue: CalendarPlanningIssue) => {
+    const project = scopedProjects.find(
+      (item) => item.id === issue.projectId,
+    )
+    if (!project) return
+
+    if (
+      issue.relatedTaskId &&
+      (
+        issue.kind === "blocker_without_deadline" ||
+        issue.kind === "dependency_deadline_order"
+      )
+    ) {
+      const relatedTask = getTaskById(project, issue.relatedTaskId)
+      if (relatedTask) {
+        navigate(
+          `/projects?task=${encodeURIComponent(
+            relatedTask.id,
+          )}&project=${encodeURIComponent(project.id)}`,
+        )
+        return
+      }
+    }
+
+    const event = events.find(
+      (item) =>
+        item.task.id === issue.taskId &&
+        item.kind === issue.eventKind,
+    )
+
+    if (event) {
+      setEditingEvent(event)
+      return
+    }
+
+    const task = getTaskById(project, issue.taskId)
+    if (!task) return
+
+    navigate(
+      `/projects?task=${encodeURIComponent(
+        task.id,
+      )}&project=${encodeURIComponent(project.id)}`,
     )
   }
 
@@ -519,7 +606,15 @@ export default function CalendarPage() {
     kindFilter !== "all" ||
     statusFilter !== "all" ||
     blockingFilter !== "all" ||
-    projectFilter !== "all"
+    effectiveProjectFilter !== "all"
+
+  const issueCountForEvent = (event: TaskCalendarEvent): number =>
+    (planningAnalysis.issuesByTaskId.get(event.task.id) ?? []).filter(
+      (issue) => issue.eventKind === event.kind,
+    ).length
+  const planningIssueDates = new Set(
+    planningAnalysis.issues.map((issue) => issue.date),
+  )
 
   return (
     <div className="mx-auto min-w-0 w-full max-w-7xl space-y-5">
@@ -644,7 +739,7 @@ export default function CalendarPage() {
           </select>
 
           <select
-            value={projectFilter}
+            value={effectiveProjectFilter}
             onChange={(event) => setProjectFilter(event.target.value)}
             className="h-9 min-w-0 rounded-lg border border-slate-200 bg-white px-2.5 text-xs text-slate-700 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
             aria-label="Проект"
@@ -686,6 +781,13 @@ export default function CalendarPage() {
         </div>
       </section>
 
+      <CalendarPlanningPanel
+        analysis={planningAnalysis}
+        projects={planningProjects}
+        periodLabel={periodTitle}
+        onOpenIssue={openPlanningIssue}
+      />
+
       <section className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-3 py-3 dark:border-slate-800 sm:px-4">
           <Button
@@ -725,14 +827,27 @@ export default function CalendarPage() {
                 return (
                   <div
                     key={iso}
-                    className="min-h-[420px] min-w-0 p-2.5"
+                    className={cn(
+                      "min-h-[420px] min-w-0 p-2.5",
+                      planningAnalysis.peakDates.has(iso) &&
+                        "bg-slate-50/80 dark:bg-slate-950/45",
+                      planningIssueDates.has(iso) &&
+                        "ring-1 ring-inset ring-amber-200 dark:ring-amber-500/25",
+                    )}
                     onDragOver={(event) => event.preventDefault()}
                     onDrop={(event) => handleDropOnDate(iso, event)}
                   >
                     <div className="mb-3">
-                      <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-slate-400">
-                        {format(day, "EEE", { locale: ru })}
-                      </p>
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-slate-400">
+                          {format(day, "EEE", { locale: ru })}
+                        </p>
+                        {planningAnalysis.peakDates.has(iso) ? (
+                          <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[9px] font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                            Пик · {planningAnalysis.dayLoads.get(iso)?.openEventCount ?? 0}
+                          </span>
+                        ) : null}
+                      </div>
                       <p
                         className={cn(
                           "mt-1 inline-flex size-8 items-center justify-center rounded-xl text-sm font-semibold",
@@ -757,6 +872,7 @@ export default function CalendarPage() {
                             onDragStart={(dragEvent) =>
                               startEventDrag(event, dragEvent)
                             }
+                            issueCount={issueCountForEvent(event)}
                           />
                         ))
                       )}
@@ -779,6 +895,11 @@ export default function CalendarPage() {
                       isToday(day)
                         ? "border-slate-400 bg-slate-50 dark:border-slate-600 dark:bg-slate-950/70"
                         : "border-slate-200 dark:border-slate-800",
+                      planningAnalysis.peakDates.has(iso) &&
+                        !isToday(day) &&
+                        "bg-slate-50/70 dark:bg-slate-950/45",
+                      planningIssueDates.has(iso) &&
+                        "border-amber-300 dark:border-amber-500/30",
                     )}
                   >
                     <div className="mb-2.5 flex items-center justify-between gap-3">
@@ -811,6 +932,7 @@ export default function CalendarPage() {
                             onDragStart={(dragEvent) =>
                               startEventDrag(event, dragEvent)
                             }
+                            issueCount={issueCountForEvent(event)}
                           />
                         ))
                       )}
@@ -851,6 +973,13 @@ export default function CalendarPage() {
                         "min-h-[150px] min-w-0 border-b border-r border-slate-200 p-2 dark:border-slate-800",
                         !inCurrentMonth &&
                           "bg-slate-50/60 dark:bg-slate-950/35",
+                        inCurrentMonth &&
+                          planningAnalysis.peakDates.has(iso) &&
+                          !planningIssueDates.has(iso) &&
+                          "ring-1 ring-inset ring-slate-300 dark:ring-slate-700",
+                        inCurrentMonth &&
+                          planningIssueDates.has(iso) &&
+                          "ring-1 ring-inset ring-amber-300 dark:ring-amber-500/30",
                         (index + 1) % 7 === 0 && "border-r-0",
                       )}
                     >
@@ -884,6 +1013,7 @@ export default function CalendarPage() {
                             onDragStart={(dragEvent) =>
                               startEventDrag(event, dragEvent)
                             }
+                            issueCount={issueCountForEvent(event)}
                           />
                         ))}
                         {extraCount > 0 ? (
@@ -936,7 +1066,9 @@ export default function CalendarPage() {
                             "mt-1 h-1 w-4 rounded-full",
                             selected
                               ? "bg-white/70 dark:bg-slate-950/60"
-                              : "bg-slate-300 dark:bg-slate-600",
+                              : planningIssueDates.has(iso)
+                                ? "bg-amber-400 dark:bg-amber-500"
+                                : "bg-slate-300 dark:bg-slate-600",
                           )}
                         />
                       ) : null}
@@ -977,6 +1109,7 @@ export default function CalendarPage() {
                             onDragStart={(dragEvent) =>
                               startEventDrag(event, dragEvent)
                             }
+                            issueCount={issueCountForEvent(event)}
                       />
                     ))
                   )}
