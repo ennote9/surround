@@ -103,6 +103,8 @@ export type AddTaskPayload = {
   isNextAction?: boolean
   statusChangedAt?: string
   completedAt?: string
+  blockedByTaskIds?: string[]
+  completionNextTaskId?: string
   createdAt?: string
   updatedAt?: string
 }
@@ -136,6 +138,8 @@ export type UpdateTaskPayload = {
       | "isNextAction"
       | "statusChangedAt"
       | "completedAt"
+      | "blockedByTaskIds"
+      | "completionNextTaskId"
     >
   >
 }

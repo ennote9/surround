@@ -1,5 +1,6 @@
 import { getTodayISO } from "@/shared/lib/dates"
 import { isTaskOverdue } from "@/shared/lib/taskSchedule"
+import { isTaskBlocked } from "@/shared/lib/taskDependencies"
 import type { Habit, Project, Task, TaskGroup } from "./appState.types"
 
 function pct(completed: number, total: number): number {
@@ -363,7 +364,8 @@ export function getProjectNextTask(project: Project): ProjectNextTask | undefine
         status !== "done" &&
         status !== "waiting" &&
         status !== "delegated" &&
-        !deferredToFuture
+        !deferredToFuture &&
+        !isTaskBlocked(project, task)
       ) {
         return { task, group }
       }

@@ -219,6 +219,18 @@ export type TaskHistoryRow = {
   changed_at: string
 }
 
+export type TaskDependencyRow = {
+  id: string
+  user_id: string
+  project_id: string
+  predecessor_task_id: string
+  successor_task_id: string
+  blocks_successor: boolean
+  completion_action: "unblock" | "set_next_action"
+  created_at: string
+  updated_at: string
+}
+
 export type HabitRow = {
   id: string
   user_id: string

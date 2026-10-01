@@ -1,4 +1,8 @@
 import { createId } from "@/shared/lib/ids"
+import {
+  applyTaskCompletionSuccessor,
+  getTaskById,
+} from "@/shared/lib/taskDependencies"
 import type {
   AppState,
   Goal,
@@ -244,9 +248,31 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
         ...state,
         projects: state.projects.map((proj) => {
           if (proj.id !== projectId) return proj
+
+          const removedTaskIds = new Set(
+            proj.groups.find((group) => group.id === groupId)?.tasks.map(
+              (task) => task.id,
+            ) ?? [],
+          )
+
           return {
             ...proj,
-            groups: proj.groups.filter((g) => g.id !== groupId),
+            groups: proj.groups
+              .filter((g) => g.id !== groupId)
+              .map((g) => ({
+                ...g,
+                tasks: g.tasks.map((task) => ({
+                  ...task,
+                  blockedByTaskIds: (task.blockedByTaskIds ?? []).filter(
+                    (id) => !removedTaskIds.has(id),
+                  ),
+                  completionNextTaskId:
+                    task.completionNextTaskId &&
+                    removedTaskIds.has(task.completionNextTaskId)
+                      ? undefined
+                      : task.completionNextTaskId,
+                })),
+              })),
             updatedAt: t,
           }
         }),
@@ -299,6 +325,8 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
         completedAt:
           action.payload.completedAt ??
           (taskStatus === "done" ? t : undefined),
+        blockedByTaskIds: action.payload.blockedByTaskIds ?? [],
+        completionNextTaskId: action.payload.completionNextTaskId,
         createdAt: action.payload.createdAt ?? t,
         updatedAt: action.payload.updatedAt ?? t,
       }
@@ -367,7 +395,8 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
         ...state,
         projects: state.projects.map((proj) => {
           if (proj.id !== projectId) return proj
-          return {
+          const wasCompleted = getTaskById(proj, taskId)?.completed === true
+          const updatedProject: Project = {
             ...proj,
             groups: proj.groups.map((g) => ({
               ...g,
@@ -384,6 +413,10 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
             })),
             updatedAt: t,
           }
+          const isCompletedNow = getTaskById(updatedProject, taskId)?.completed === true
+          return !wasCompleted && isCompletedNow
+            ? applyTaskCompletionSuccessor(updatedProject, taskId, t)
+            : updatedProject
         }),
       }
     }
@@ -394,7 +427,8 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
         ...state,
         projects: state.projects.map((proj) => {
           if (proj.id !== projectId) return proj
-          return {
+          const wasCompleted = getTaskById(proj, taskId)?.completed === true
+          const updatedProject: Project = {
             ...proj,
             groups: proj.groups.map((g) => {
               if (g.id !== groupId) return g
@@ -421,6 +455,10 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
             }),
             updatedAt: t,
           }
+          const isCompletedNow = getTaskById(updatedProject, taskId)?.completed === true
+          return !wasCompleted && isCompletedNow
+            ? applyTaskCompletionSuccessor(updatedProject, taskId, t)
+            : updatedProject
         }),
       }
     }
@@ -433,14 +471,22 @@ export function appStateReducer(state: AppState, action: AppAction): AppState {
           if (proj.id !== projectId) return proj
           return {
             ...proj,
-            groups: proj.groups.map((g) => {
-              if (g.id !== groupId) return g
-              return {
-                ...g,
-                tasks: g.tasks.filter((task) => task.id !== taskId),
-                updatedAt: t,
-              }
-            }),
+            groups: proj.groups.map((g) => ({
+              ...g,
+              tasks: g.tasks
+                .filter((task) => task.id !== taskId)
+                .map((task) => ({
+                  ...task,
+                  blockedByTaskIds: (task.blockedByTaskIds ?? []).filter(
+                    (id) => id !== taskId,
+                  ),
+                  completionNextTaskId:
+                    task.completionNextTaskId === taskId
+                      ? undefined
+                      : task.completionNextTaskId,
+                })),
+              updatedAt: g.id === groupId ? t : g.updatedAt,
+            })),
             updatedAt: t,
           }
         }),

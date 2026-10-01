@@ -31,6 +31,7 @@ import {
   isTaskOverdue,
 } from "@/shared/lib/taskSchedule"
 import { SELECTED_PROJECT_STORAGE_KEY } from "@/shared/lib/storageKeys"
+import { getIncompleteTaskBlockers } from "@/shared/lib/taskDependencies"
 import {
   getProjectContext,
   getTaskStatus,
@@ -54,6 +55,8 @@ type WorkTaskRef = {
   groupId: string
   groupTitle: string
   task: Task
+  blocked: boolean
+  blockerTitles: string[]
 }
 
 const CONTROL_STATUSES = new Set<TaskStatus>([
@@ -103,13 +106,18 @@ function getProjectOpenTasks(project: Project): WorkTaskRef[] {
   return project.groups.flatMap((group) =>
     group.tasks
       .filter((task) => getTaskStatus(task) !== "done")
-      .map((task) => ({
-        projectId: project.id,
-        projectTitle: project.title,
-        groupId: group.id,
-        groupTitle: group.title,
-        task,
-      })),
+      .map((task) => {
+        const blockers = getIncompleteTaskBlockers(project, task)
+        return {
+          projectId: project.id,
+          projectTitle: project.title,
+          groupId: group.id,
+          groupTitle: group.title,
+          task,
+          blocked: blockers.length > 0,
+          blockerTitles: blockers.map((blocker) => blocker.title),
+        }
+      }),
   )
 }
 
@@ -172,6 +180,14 @@ function TaskRow({
                 Отложено до {formatShortDate(item.task.deferredUntil!)}
               </span>
             ) : null}
+            {item.blocked ? (
+              <span
+                className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-500/10 dark:text-amber-300"
+                title={`Ждёт: ${item.blockerTitles.join(", ")}`}
+              >
+                Заблокировано: {item.blockerTitles.length}
+              </span>
+            ) : null}
           </div>
           <p className="mt-1 break-words text-sm font-semibold text-slate-950 dark:text-slate-100">
             {item.task.title}
@@ -189,8 +205,11 @@ function TaskRow({
           <button
             type="button"
             onClick={onSetNextAction}
+            disabled={item.blocked}
             className={
-              item.task.isNextAction
+              item.blocked
+                ? "flex size-8 cursor-not-allowed items-center justify-center rounded-lg bg-slate-100 text-slate-300 dark:bg-slate-800 dark:text-slate-600"
+                : item.task.isNextAction
                 ? "flex size-8 items-center justify-center rounded-lg bg-violet-100 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300"
                 : "flex size-8 items-center justify-center rounded-lg bg-slate-100 text-slate-400 hover:text-violet-600 dark:bg-slate-800"
             }
@@ -541,6 +560,17 @@ export default function WorkPage() {
 
   const changeTaskStatus = (item: WorkTaskRef, status: TaskStatus) => {
     const currentStatus = getTaskStatus(item.task)
+
+    if (
+      status === "in_progress" &&
+      currentStatus !== "in_progress" &&
+      item.blocked
+    ) {
+      toast.warning(
+        `Задача заблокирована. Сначала заверши: ${item.blockerTitles.join(", ")}.`,
+      )
+      return
+    }
     if (
       status === "in_progress" &&
       currentStatus !== "in_progress" &&

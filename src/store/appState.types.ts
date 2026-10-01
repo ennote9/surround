@@ -119,6 +119,10 @@ export type Task = {
   isNextAction?: boolean
   statusChangedAt?: string
   completedAt?: string
+  /** Task ids that must be completed before this task is unblocked. */
+  blockedByTaskIds?: string[]
+  /** Optional successor to mark as the project's next task after completion. */
+  completionNextTaskId?: string
   createdAt: string
   updatedAt: string
 }

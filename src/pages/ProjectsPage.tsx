@@ -270,6 +270,10 @@ export default function ProjectsPage() {
             deferredUntil: values.deferredUntil,
             delegationNote: values.delegationNote,
             isNextAction: values.isNextAction,
+          blockedByTaskIds: values.blockedByTaskIds,
+          completionNextTaskId: values.completionNextTaskId,
+            blockedByTaskIds: values.blockedByTaskIds,
+            completionNextTaskId: values.completionNextTaskId,
           },
         },
       })
@@ -516,6 +520,11 @@ export default function ProjectsPage() {
         open={taskDialogOpen}
         onOpenChange={setTaskDialogOpen}
         initialTask={editingTask ?? undefined}
+        project={
+          taskDialogProjectId
+            ? state.projects.find((project) => project.id === taskDialogProjectId)
+            : undefined
+        }
         onSubmit={handleTaskSubmit}
       />
 

@@ -17,7 +17,9 @@ import {
   TASK_STATUS_OPTIONS,
 } from "@/shared/lib/workManagement"
 import { getTaskReminderOptions } from "@/shared/lib/taskReminders"
+import { wouldCreateBlockingDependencyCycle } from "@/shared/lib/taskDependencies"
 import type {
+  Project,
   Task,
   TaskDeferReason,
   TaskPriority,
@@ -42,6 +44,8 @@ export type TaskFormValues = {
   deferredUntil?: string
   delegationNote?: string
   isNextAction?: boolean
+  blockedByTaskIds?: string[]
+  completionNextTaskId?: string
   changeReason?: string
 }
 
@@ -49,15 +53,18 @@ type TaskDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   initialTask?: Task
+  project?: Project
   onSubmit: (values: TaskFormValues) => void
 }
 
 function TaskDialogFields({
   initialTask,
+  project,
   onSubmit,
   onOpenChange,
 }: {
   initialTask?: Task
+  project?: Project
   onSubmit: (values: TaskFormValues) => void
   onOpenChange: (open: boolean) => void
 }) {
@@ -91,14 +98,48 @@ function TaskDialogFields({
   const [isNextAction, setIsNextAction] = useState(
     initialTask?.isNextAction === true,
   )
+  const [blockedByTaskIds, setBlockedByTaskIds] = useState<string[]>(
+    initialTask?.blockedByTaskIds ?? [],
+  )
+  const [completionNextTaskId, setCompletionNextTaskId] = useState(
+    initialTask?.completionNextTaskId ?? "",
+  )
   const [changeReason, setChangeReason] = useState("")
+
+  const relationCandidates =
+    project?.groups.flatMap((group) =>
+      group.tasks
+        .filter((task) => task.id !== initialTask?.id)
+        .map((task) => ({
+          task,
+          groupTitle: group.title,
+        })),
+    ) ?? []
+
+  const incompleteSelectedBlockers = relationCandidates.filter(
+    ({ task }) =>
+      blockedByTaskIds.includes(task.id) &&
+      !task.completed,
+  )
 
   const normalizeOptional = (value: string): string | undefined =>
     value.trim() || undefined
 
   const initialStatus =
     initialTask?.status ?? (initialTask?.completed ? "done" : "planned")
-  const nextActionForSave = status === "done" ? false : isNextAction
+  const nextActionForSave =
+    status === "done" || incompleteSelectedBlockers.length > 0
+      ? false
+      : isNextAction
+
+  const sameIds = (left: string[], right: string[]): boolean => {
+    const a = [...left].sort()
+    const b = [...right].sort()
+    return (
+      a.length === b.length &&
+      a.every((value, index) => value === b[index])
+    )
+  }
 
   const hasTrackedChanges = Boolean(
     initialTask &&
@@ -116,7 +157,13 @@ function TaskDialogFields({
         (deferReason || undefined) !== initialTask.deferReason ||
         normalizeOptional(deferNote) !== initialTask.deferNote ||
         normalizeOptional(deferredUntil) !== initialTask.deferredUntil ||
-        nextActionForSave !== (initialTask.isNextAction === true)
+        nextActionForSave !== (initialTask.isNextAction === true) ||
+        !sameIds(
+          blockedByTaskIds,
+          initialTask.blockedByTaskIds ?? [],
+        ) ||
+        (completionNextTaskId || undefined) !==
+          initialTask.completionNextTaskId
       )
   )
 
@@ -140,6 +187,8 @@ function TaskDialogFields({
       deferredUntil: deferredUntil.trim() || undefined,
       delegationNote: delegationNote.trim() || undefined,
       isNextAction: nextActionForSave,
+      blockedByTaskIds,
+      completionNextTaskId: completionNextTaskId || undefined,
       changeReason: hasTrackedChanges
         ? changeReason.trim() || undefined
         : undefined,
@@ -305,6 +354,101 @@ function TaskDialogFields({
             </select>
           </div>
         </div>
+        {relationCandidates.length > 0 ? (
+          <section className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 dark:border-slate-800 dark:bg-slate-950/40">
+            <div>
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                Связи задач
+              </p>
+              <p className="mt-1 text-[11px] leading-4 text-slate-500 dark:text-slate-400">
+                Зависимости управляют доступностью задачи. Завершение не переводит следующую задачу в работу автоматически.
+              </p>
+            </div>
+
+            <div className="mt-3 grid gap-2">
+              <Label>Задача доступна после</Label>
+              <div className="max-h-40 space-y-1 overflow-y-auto rounded-lg border border-slate-200 bg-white p-2 dark:border-slate-800 dark:bg-slate-900">
+                {relationCandidates.map(({ task, groupTitle }) => {
+                  const checked = blockedByTaskIds.includes(task.id)
+                  const createsCycle =
+                    !checked &&
+                    Boolean(
+                      project &&
+                        initialTask &&
+                        wouldCreateBlockingDependencyCycle(
+                          project,
+                          initialTask.id,
+                          task.id,
+                        ),
+                    )
+                  return (
+                    <label
+                      key={task.id}
+                      className="flex cursor-pointer items-start gap-2 rounded-md px-2 py-1.5 text-xs hover:bg-slate-50 dark:hover:bg-slate-800/70"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        disabled={createsCycle}
+                        onChange={(event) => {
+                          setBlockedByTaskIds((current) =>
+                            event.target.checked
+                              ? [...new Set([...current, task.id])]
+                              : current.filter((id) => id !== task.id),
+                          )
+                        }}
+                        className="mt-0.5 size-4"
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span className="block break-words font-medium text-slate-800 dark:text-slate-200">
+                          {task.title}
+                        </span>
+                        <span className="text-[11px] text-slate-400">
+                          {groupTitle}
+                          {task.completed ? " · выполнено" : ""}
+                          {createsCycle ? " · создаст цикл" : ""}
+                        </span>
+                      </span>
+                    </label>
+                  )
+                })}
+              </div>
+              {incompleteSelectedBlockers.length > 0 ? (
+                <p className="text-[11px] text-amber-600 dark:text-amber-400">
+                  Пока не выполнено: {incompleteSelectedBlockers.length}. Эту задачу нельзя считать следующей задачей проекта.
+                </p>
+              ) : null}
+            </div>
+
+            <div className="mt-3 grid gap-2">
+              <Label htmlFor="task-completion-next">
+                После выполнения
+              </Label>
+              <select
+                id="task-completion-next"
+                value={completionNextTaskId}
+                disabled={status === "done"}
+                onChange={(event) =>
+                  setCompletionNextTaskId(event.target.value)
+                }
+                className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+              >
+                <option value="">Ничего не выбирать автоматически</option>
+                {relationCandidates
+                  .filter(({ task }) => !task.completed)
+                  .map(({ task, groupTitle }) => (
+                    <option key={task.id} value={task.id}>
+                      {task.title} · {groupTitle}
+                    </option>
+                  ))}
+              </select>
+              <p className="text-[11px] leading-4 text-slate-500 dark:text-slate-400">
+                Выбранная задача станет «Следующей задачей проекта» после выполнения текущей, но только если все её блокирующие задачи уже выполнены.
+              </p>
+            </div>
+          </section>
+        ) : null}
+
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-2">
             <Label htmlFor="task-deferred-until">Отложить до</Label>
@@ -363,7 +507,10 @@ function TaskDialogFields({
           <input
             type="checkbox"
             checked={isNextAction}
-            disabled={status === "done"}
+            disabled={
+              status === "done" ||
+              incompleteSelectedBlockers.length > 0
+            }
             onChange={(e) => setIsNextAction(e.target.checked)}
             className="size-4"
           />
@@ -440,15 +587,17 @@ export function TaskDialog({
   open,
   onOpenChange,
   initialTask,
+  project,
   onSubmit,
 }: TaskDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto border-slate-200 bg-white text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 sm:max-w-md">
+      <DialogContent className="max-h-[90vh] overflow-y-auto border-slate-200 bg-white text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 sm:max-w-xl">
         {open ? (
           <TaskDialogFields
             key={initialTask?.id ?? "__add__"}
             initialTask={initialTask}
+            project={project}
             onSubmit={onSubmit}
             onOpenChange={onOpenChange}
           />
