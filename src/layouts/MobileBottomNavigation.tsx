@@ -5,6 +5,7 @@ import {
   BookOpen,
   BriefcaseBusiness,
   CalendarCheck,
+  CalendarDays,
   FolderKanban,
   Home,
   Menu,
@@ -28,7 +29,7 @@ const mainItems: MainItem[] = [
   { to: "/", title: "Главная", icon: Home, end: true },
   { to: "/goals", title: "Цели", icon: Target },
   { to: "/projects", title: "Проекты", icon: FolderKanban },
-  { to: "/routine", title: "Рутина", icon: CalendarCheck },
+  { to: "/calendar", title: "Календарь", icon: CalendarDays },
 ]
 
 const moreItems = [
@@ -37,6 +38,12 @@ const moreItems = [
     label: "Работа",
     caption: "Фокус, Inbox и контроль",
     icon: BriefcaseBusiness,
+  },
+  {
+    to: "/routine",
+    label: "Рутина",
+    caption: "Привычки и повторения",
+    icon: CalendarCheck,
   },
   {
     to: "/analytics",
@@ -67,6 +74,7 @@ const moreItems = [
 function isMoreRouteActive(pathname: string): boolean {
   return (
     pathname.startsWith("/work") ||
+    pathname.startsWith("/routine") ||
     pathname.startsWith("/analytics") ||
     pathname.startsWith("/guide") ||
     pathname.startsWith("/settings") ||
