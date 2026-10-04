@@ -31,12 +31,8 @@ import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { CalendarEventDialog } from "@/features/calendar/components/CalendarEventDialog"
-import { CalendarPlanningPanel } from "@/features/calendar/components/CalendarPlanningPanel"
 import { cn } from "@/lib/utils"
-import {
-  analyzeCalendarPlanning,
-  type CalendarPlanningIssue,
-} from "@/shared/lib/calendarPlanning"
+import { analyzeCalendarPlanning } from "@/shared/lib/calendarPlanning"
 import { useLocalStorage } from "@/shared/hooks/useLocalStorage"
 import {
   ALL_GOALS_SCOPE,
@@ -383,9 +379,6 @@ export default function CalendarPage() {
     viewMode === "week" ? toISODate(weekStart) : toISODate(monthStart)
   const visibleEnd =
     viewMode === "week" ? toISODate(weekEnd) : toISODate(monthEnd)
-  const visibleEvents = filteredEvents.filter(
-    (event) => event.date >= visibleStart && event.date <= visibleEnd,
-  )
 
   const planningProjects = useMemo(
     () =>
@@ -405,14 +398,6 @@ export default function CalendarPage() {
       ),
     [planningProjects, visibleEnd, visibleStart],
   )
-
-  const visibleDeadlines = visibleEvents.filter(
-    (event) => event.kind === "deadline",
-  ).length
-  const visibleControls = visibleEvents.filter(
-    (event) => event.kind === "control",
-  ).length
-  const exactTimeEvents = visibleEvents.filter((event) => event.time).length
 
   const periodTitle =
     viewMode === "week"
@@ -454,50 +439,6 @@ export default function CalendarPage() {
     )
   }
 
-  const openPlanningIssue = (issue: CalendarPlanningIssue) => {
-    const project = scopedProjects.find(
-      (item) => item.id === issue.projectId,
-    )
-    if (!project) return
-
-    if (
-      issue.relatedTaskId &&
-      (
-        issue.kind === "blocker_without_deadline" ||
-        issue.kind === "dependency_deadline_order"
-      )
-    ) {
-      const relatedTask = getTaskById(project, issue.relatedTaskId)
-      if (relatedTask) {
-        navigate(
-          `/projects?task=${encodeURIComponent(
-            relatedTask.id,
-          )}&project=${encodeURIComponent(project.id)}`,
-        )
-        return
-      }
-    }
-
-    const event = events.find(
-      (item) =>
-        item.task.id === issue.taskId &&
-        item.kind === issue.eventKind,
-    )
-
-    if (event) {
-      setEditingEvent(event)
-      return
-    }
-
-    const task = getTaskById(project, issue.taskId)
-    if (!task) return
-
-    navigate(
-      `/projects?task=${encodeURIComponent(
-        task.id,
-      )}&project=${encodeURIComponent(project.id)}`,
-    )
-  }
 
   const updateEventSchedule = (
     event: TaskCalendarEvent,
@@ -754,39 +695,6 @@ export default function CalendarPage() {
         </div>
       </section>
 
-      <section className="grid grid-cols-3 gap-2 sm:max-w-xl">
-        <div className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
-          <p className="text-[10px] uppercase tracking-[0.12em] text-slate-400">
-            Дедлайны
-          </p>
-          <p className="mt-1 text-xl font-semibold text-slate-950 dark:text-slate-100">
-            {visibleDeadlines}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
-          <p className="text-[10px] uppercase tracking-[0.12em] text-slate-400">
-            Контроль
-          </p>
-          <p className="mt-1 text-xl font-semibold text-slate-950 dark:text-slate-100">
-            {visibleControls}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
-          <p className="text-[10px] uppercase tracking-[0.12em] text-slate-400">
-            С временем
-          </p>
-          <p className="mt-1 text-xl font-semibold text-slate-950 dark:text-slate-100">
-            {exactTimeEvents}
-          </p>
-        </div>
-      </section>
-
-      <CalendarPlanningPanel
-        analysis={planningAnalysis}
-        projects={planningProjects}
-        periodLabel={periodTitle}
-        onOpenIssue={openPlanningIssue}
-      />
 
       <section className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-3 py-3 dark:border-slate-800 sm:px-4">

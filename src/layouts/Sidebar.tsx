@@ -1,19 +1,11 @@
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { SidebarGoalSwitcher } from "@/layouts/SidebarGoalSwitcher"
 import { WorkspaceContextSwitcher } from "@/shared/components/WorkspaceContextSwitcher"
 import {
-  BarChart3,
-  BookOpen,
-  BriefcaseBusiness,
   CalendarCheck,
   CalendarDays,
   CircleUserRound,
   FolderKanban,
-  Home,
-  PanelLeftClose,
-  PanelLeftOpen,
   Settings,
   Target,
   type LucideIcon,
@@ -25,18 +17,13 @@ type NavItem = {
   to: string
   label: string
   icon: LucideIcon
-  end?: boolean
 }
 
 const items: NavItem[] = [
-  { to: "/", label: "Главная", icon: Home, end: true },
   { to: "/goals", label: "Цели", icon: Target },
   { to: "/projects", label: "Проекты", icon: FolderKanban },
   { to: "/calendar", label: "Календарь", icon: CalendarDays },
-  { to: "/work", label: "Работа", icon: BriefcaseBusiness },
   { to: "/routine", label: "Рутина", icon: CalendarCheck },
-  { to: "/analytics", label: "Аналитика", icon: BarChart3 },
-  { to: "/guide", label: "Справочник", icon: BookOpen },
   { to: "/settings", label: "Настройки", icon: Settings },
 ]
 
@@ -66,7 +53,7 @@ function navLinkClassName({
 export function Sidebar({ collapsed, onToggleCollapsed }: SidebarProps) {
   const { isAuthenticated, user } = useAuth()
   const accountTitle = isAuthenticated ? "Аккаунт" : "Войти"
-  const accountSubtitle = isAuthenticated ? "Профиль и безопасность" : "Авторизация"
+  const toggleLabel = collapsed ? "Развернуть боковую панель" : "Свернуть боковую панель"
 
   return (
     <aside
@@ -78,71 +65,46 @@ export function Sidebar({ collapsed, onToggleCollapsed }: SidebarProps) {
       <div
         className={cn(
           "flex min-h-0 flex-1 flex-col",
-          collapsed ? "gap-4 p-3" : "gap-5 px-4 py-5",
+          collapsed ? "gap-4 p-3" : "gap-3 px-4 py-5",
         )}
       >
         <div
           className={cn(
-            "flex items-start gap-2",
-            collapsed && "flex-col items-center justify-center",
+            "flex min-w-0 items-center gap-3",
+            collapsed && "justify-center",
           )}
         >
+          <button
+            type="button"
+            onClick={onToggleCollapsed}
+            aria-label={toggleLabel}
+            title={toggleLabel}
+            aria-expanded={!collapsed}
+            className={cn(
+              "flex shrink-0 cursor-pointer items-center justify-center rounded-xl bg-slate-950 font-bold tracking-[0.08em] text-white shadow-sm transition-opacity hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:bg-white dark:text-slate-950 dark:focus-visible:ring-offset-slate-900",
+              collapsed ? "size-10 text-xs" : "size-9 text-[11px]",
+            )}
+          >
+            LP
+          </button>
           {collapsed ? (
-            <>
-              <span className="sr-only">Life Progress OS</span>
-              <div
-                className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-slate-950 text-xs font-bold tracking-[0.08em] text-white shadow-sm dark:bg-white dark:text-slate-950"
-                aria-hidden
-              >
-                LP
-              </div>
-            </>
+            <span className="sr-only">Life Progress OS</span>
           ) : (
-            <div className="flex min-w-0 flex-1 items-start justify-between gap-2">
-              <div className="flex min-w-0 items-center gap-3">
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-slate-950 text-[11px] font-bold tracking-[0.08em] text-white shadow-sm dark:bg-white dark:text-slate-950">
-                  LP
-                </div>
-                <div className="min-w-0">
-                  <p className="truncate text-[15px] font-semibold tracking-tight text-slate-950 dark:text-white">
-                    Life Progress OS
-                  </p>
-                  <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">
-                    Система целей и прогресса
-                  </p>
-                </div>
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                className="shrink-0 text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
-                aria-label="Свернуть сайдбар"
-                title="Свернуть сайдбар"
-                onClick={onToggleCollapsed}
-              >
-                <PanelLeftClose className="size-4" aria-hidden />
-              </Button>
-            </div>
+            <p className="min-w-0 truncate text-[15px] font-semibold tracking-tight text-slate-950 dark:text-white">
+              Life Progress OS
+            </p>
           )}
         </div>
 
-        <SidebarGoalSwitcher collapsed={collapsed} />
-        {!collapsed ? <WorkspaceContextSwitcher /> : null}
+        {!collapsed ? <WorkspaceContextSwitcher compact /> : null}
 
         <Separator className="shrink-0 bg-slate-200 dark:bg-slate-800" />
 
-        <nav className="flex min-w-0 flex-1 flex-col gap-1">
-          {!collapsed ? (
-            <p className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500">
-              Навигация
-            </p>
-          ) : null}
-          {items.map(({ to, label, icon: Icon, end }) => (
+        <nav aria-label="Навигация" className="flex min-w-0 flex-1 flex-col gap-1">
+          {items.map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
-              end={end}
               title={label}
               className={({ isActive }) =>
                 navLinkClassName({ isActive, collapsed })
@@ -158,7 +120,7 @@ export function Sidebar({ collapsed, onToggleCollapsed }: SidebarProps) {
 
         <Separator className="shrink-0 bg-slate-200 dark:bg-slate-800" />
 
-        <div className="mt-auto flex shrink-0 flex-col gap-3 border-t border-slate-200 pt-4 dark:border-slate-800">
+        <div className="mt-auto flex shrink-0 flex-col border-t border-slate-200 pt-4 dark:border-slate-800">
           <NavLink
             to={isAuthenticated ? "/profile" : "/auth"}
             end={!isAuthenticated}
@@ -180,24 +142,12 @@ export function Sidebar({ collapsed, onToggleCollapsed }: SidebarProps) {
             {!collapsed ? (
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium">{accountTitle}</p>
-                <p className="truncate text-xs text-slate-500 dark:text-slate-400">{accountSubtitle}</p>
+                {!isAuthenticated ? (
+                  <p className="truncate text-xs text-slate-500 dark:text-slate-400">Авторизация</p>
+                ) : null}
               </div>
             ) : null}
           </NavLink>
-
-          {collapsed ? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              className="mx-auto text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
-              aria-label="Развернуть сайдбар"
-              title="Развернуть сайдбар"
-              onClick={onToggleCollapsed}
-            >
-              <PanelLeftOpen className="size-4" aria-hidden />
-            </Button>
-          ) : null}
         </div>
       </div>
     </aside>

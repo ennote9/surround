@@ -1,4 +1,5 @@
-import { ArrowRight, LockKeyhole, Pencil, Trash2 } from "lucide-react"
+import type { ReactNode } from "react"
+import { ArrowRight, Bell, Calendar, CalendarClock, Flag, LockKeyhole, Pause, Pencil, Target, Trash2, User, type LucideIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
@@ -9,6 +10,7 @@ import {
 } from "@/shared/lib/taskDependencies"
 import { formatTaskScheduleLabel, isTaskOverdue } from "@/shared/lib/taskSchedule"
 import { getTaskReminderPresetLabel } from "@/shared/lib/taskReminders"
+import { formatDateOnly } from "@/shared/lib/dateFormat"
 import type { Project, Task } from "@/store/appState.types"
 
 const priorityLabel: Record<NonNullable<Task["priority"]>, string> = {
@@ -23,6 +25,40 @@ type TaskItemProps = {
   onToggle: () => void
   onEdit: () => void
   onDelete: () => void
+}
+
+function Metadata({ icon: Icon, label, children, className }: {
+  icon: LucideIcon
+  label: string
+  children: ReactNode
+  className?: string
+}) {
+  return (
+    <span title={label} className={cn("inline-flex min-w-0 max-w-full items-center gap-1.5", className)}>
+      <Icon className="size-3.5 shrink-0" aria-hidden />
+      <span className="min-w-0 break-words">
+        <span className="sr-only">{label}: </span>
+        {children}
+      </span>
+    </span>
+  )
+}
+
+function ReminderIndicator({ label }: { label: string }) {
+  return (
+    <span
+      tabIndex={0}
+      role="img"
+      aria-label={label}
+      title={label}
+      className="group relative inline-flex shrink-0 items-center rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+    >
+      <Bell className="size-3.5" aria-hidden />
+      <span aria-hidden className="pointer-events-none absolute bottom-full right-0 z-10 mb-1 hidden w-max max-w-[min(14rem,70vw)] whitespace-normal rounded-md bg-slate-900 px-2 py-1 text-xs font-normal text-white shadow-sm group-hover:block group-focus-visible:block dark:bg-slate-100 dark:text-slate-900">
+        {label}
+      </span>
+    </span>
+  )
 }
 
 export function TaskItem({
@@ -40,6 +76,11 @@ export function TaskItem({
     project && task.completionNextTaskId
       ? getTaskById(project, task.completionNextTaskId)
       : undefined
+  const hasWorkflowMetadata = Boolean(
+    task.assignee || incompleteBlockers.length || task.isNextAction ||
+    task.deferredUntil || completionSuccessor,
+  )
+  const mutedClass = "text-slate-400 dark:text-slate-500"
 
   return (
     <div
@@ -66,72 +107,64 @@ export function TaskItem({
           >
             {task.title}
           </label>
-          <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-600 dark:text-slate-400">
-            {task.deadline ? (
-              <span
-                className={cn(
-                  "break-words",
-                  overdue && "font-medium text-red-600 dark:text-red-400",
-                )}
-              >
-                Дедлайн: {formatTaskScheduleLabel(task.deadline, task.deadlineTime)}
-              </span>
-            ) : null}
-            {task.deadlineReminder ? (
-              <span className="shrink-0">
-                Напомнить:{" "}
-                {getTaskReminderPresetLabel(
-                  task.deadlineReminder,
-                  Boolean(task.deadlineTime),
-                  "deadline",
-                )}
-              </span>
-            ) : null}
-            {task.priority ? (
-              <span className="shrink-0">
-                Приоритет: {priorityLabel[task.priority]}
-              </span>
-            ) : null}
-            <span className="shrink-0">Статус: {getTaskStatusLabel(task)}</span>
-            {incompleteBlockers.length > 0 ? (
-              <span className="inline-flex shrink-0 items-center gap-1 font-medium text-amber-700 dark:text-amber-400">
-                <LockKeyhole className="size-3" aria-hidden />
-                Заблокировано: {incompleteBlockers.length}
-              </span>
-            ) : null}
-            {task.isNextAction ? (
-              <span className="shrink-0 font-medium text-violet-600 dark:text-violet-400">
-                Следующая задача проекта
-              </span>
-            ) : null}
-            {task.assignee ? (
-              <span className="shrink-0">Ответственный: {task.assignee}</span>
-            ) : null}
-            {task.followUpDate ? (
-              <span className="shrink-0">
-                Контроль: {formatTaskScheduleLabel(task.followUpDate, task.followUpTime)}
-              </span>
-            ) : null}
-            {task.followUpReminder ? (
-              <span className="shrink-0">
-                Напоминание контроля:{" "}
-                {getTaskReminderPresetLabel(
-                  task.followUpReminder,
-                  Boolean(task.followUpTime),
-                  "control",
-                )}
-              </span>
-            ) : null}
-            {completionSuccessor ? (
-              <span className="inline-flex min-w-0 items-center gap-1 text-blue-600 dark:text-blue-400">
-                <ArrowRight className="size-3 shrink-0" aria-hidden />
-                <span className="break-words">
-                  После выполнения: {completionSuccessor.title}
+          <div className={cn("mt-1.5 space-y-1 text-xs leading-5 text-slate-600 dark:text-slate-400", task.completed && mutedClass)}>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              {task.deadline ? (
+                <span className="inline-flex max-w-full items-center gap-1.5">
+                  <Metadata icon={Calendar} label={overdue ? "Дедлайн просрочен" : "Дедлайн"} className={overdue ? "font-medium text-red-600 dark:text-red-400" : undefined}>
+                    {formatTaskScheduleLabel(task.deadline, task.deadlineTime)}
+                  </Metadata>
+                  {task.deadlineReminder ? (
+                    <ReminderIndicator label={`Напоминание: ${getTaskReminderPresetLabel(task.deadlineReminder, Boolean(task.deadlineTime), "deadline")}`} />
+                  ) : null}
                 </span>
+              ) : null}
+              <span title="Статус" className={cn("rounded-md bg-slate-200/60 px-1.5 font-medium dark:bg-slate-800", task.completed && "bg-transparent font-normal dark:bg-transparent")}>
+                <span className="sr-only">Статус: </span>{getTaskStatusLabel(task)}
               </span>
-            ) : null}
-            {task.deferredUntil ? (
-              <span className="shrink-0">Отложено до: {task.deferredUntil}</span>
+              {task.priority ? (
+                <Metadata icon={Flag} label="Приоритет" className={!task.completed && task.priority === "high" ? "text-red-700 dark:text-red-400" : undefined}>
+                  {priorityLabel[task.priority]}
+                </Metadata>
+              ) : null}
+              {task.followUpDate ? (
+                <span className="inline-flex max-w-full items-center gap-1.5">
+                  <Metadata icon={CalendarClock} label="Контроль">
+                    {formatTaskScheduleLabel(task.followUpDate, task.followUpTime)}
+                  </Metadata>
+                  {task.followUpReminder ? (
+                    <ReminderIndicator label={`Напоминание контроля: ${getTaskReminderPresetLabel(task.followUpReminder, Boolean(task.followUpTime), "control")}`} />
+                  ) : null}
+                </span>
+              ) : null}
+            </div>
+            {hasWorkflowMetadata ? (
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                {task.assignee ? (
+                  <Metadata icon={User} label="Ответственный">{task.assignee}</Metadata>
+                ) : null}
+                {incompleteBlockers.length > 0 ? (
+                  <Metadata icon={LockKeyhole} label="Невыполненные блокирующие задачи" className={cn("font-medium", task.completed ? mutedClass : "text-amber-700 dark:text-amber-400")}>
+                    Заблокировано · {incompleteBlockers.length}
+                  </Metadata>
+                ) : null}
+                {task.isNextAction ? (
+                  <Metadata icon={Target} label="Следующая задача проекта" className={cn("font-medium", task.completed ? mutedClass : "text-violet-600 dark:text-violet-400")}>
+                    Следующая
+                  </Metadata>
+                ) : null}
+                {task.deferredUntil ? (
+                  <Metadata icon={Pause} label="Отложено">
+                    до {formatDateOnly(task.deferredUntil)}
+                  </Metadata>
+                ) : null}
+                {completionSuccessor ? (
+                  <span className={cn("inline-flex min-w-0 max-w-full items-start gap-1.5", task.completed ? mutedClass : "text-blue-600 dark:text-blue-400")}>
+                    <ArrowRight className="mt-0.5 size-3.5 shrink-0" aria-hidden />
+                    <span className="min-w-0 break-words">После выполнения → {completionSuccessor.title}</span>
+                  </span>
+                ) : null}
+              </div>
             ) : null}
           </div>
         </div>

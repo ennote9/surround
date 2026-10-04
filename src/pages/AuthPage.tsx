@@ -10,6 +10,20 @@ function goToHome() {
   window.location.assign("/")
 }
 
+const authInputClassName =
+  "h-12 min-w-0 w-full rounded-lg border-0 bg-transparent px-3 text-[#252832] caret-[#4264a6] shadow-none placeholder:text-[#878b94] focus-visible:ring-0 dark:bg-transparent"
+
+const authFieldClassName =
+  "grid min-w-0 grid-cols-[88px_minmax(0,1fr)] items-center gap-2 rounded-xl border border-[#dfe2e5]/70 bg-white/75 pl-4 pr-1 transition-[border-color,box-shadow] focus-within:border-[#6d88b4] focus-within:ring-2 focus-within:ring-[#6d88b4]/20"
+
+const authButtonClassName =
+  "h-12 min-w-[128px] max-w-full rounded-xl bg-[#2858c9] px-6 font-medium text-[#ffffff] shadow-none transition-colors hover:bg-[#204ab0] [a]:hover:bg-[#204ab0] focus-visible:border-blue-500 focus-visible:ring-blue-500/25"
+
+const authLabelClassName = "text-xs leading-4 font-normal text-[#646871]"
+
+const authTextActionClassName =
+  "inline-flex min-h-11 items-center rounded-md text-sm text-[#4264a6] underline-offset-4 transition-colors hover:text-[#25498b] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+
 export default function AuthPage() {
   const {
     user,
@@ -63,300 +77,314 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[70vh] w-full min-w-0 max-w-xl items-center overflow-x-hidden px-4 py-6 sm:px-0 sm:py-8">
-      <div className="min-w-0 w-full max-w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-        <h1 className="text-balance break-words text-xl font-semibold tracking-tight text-slate-950 sm:text-2xl">
-          Life Progress OS
-        </h1>
-        {user ? (
-          <p className="mt-2 text-pretty text-sm text-slate-600">
-            Это страница входа и регистрации (шлюз). Вы уже авторизованы — ниже
-            быстрые переходы в приложение или в профиль.
-          </p>
-        ) : (
-          <>
-            <p className="mt-2 text-pretty text-sm text-slate-600">
-              Войдите в аккаунт, чтобы синхронизировать цели, проекты и задачи между
-              устройствами.
+    <main className="flex min-h-dvh w-full min-w-0 items-center justify-center bg-[#e7eaee] md:px-6 md:py-6 lg:px-8 lg:py-8">
+      <section
+        className="mx-auto grid min-h-dvh w-full min-w-0 overflow-hidden bg-[#e7eaee] md:min-h-[680px] md:max-w-[1180px] md:grid-cols-[minmax(0,44fr)_minmax(0,56fr)] md:rounded-[32px] md:border md:border-black/5 md:shadow-[0_24px_70px_rgba(15,23,42,0.12)] lg:h-[calc(100dvh-64px)] lg:max-h-[740px]"
+        aria-label="Авторизация"
+      >
+        <div className="flex min-w-0 flex-col bg-white/90 px-6 py-8 text-[#252832] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6),inset_0_1px_1px_rgba(255,255,255,0.8),inset_0_-12px_32px_rgba(30,41,59,0.025)] backdrop-blur-xl [color-scheme:light] md:bg-white/70 md:px-7 md:py-8 lg:px-8 lg:py-9">
+          <header className="shrink-0">
+            <p className="text-lg leading-7 font-semibold tracking-[-0.035em] text-[#212329]">
+            Life Progress OS
             </p>
-            <p className="mt-1 text-pretty text-xs text-slate-500">
-              Данные синхронизируются через защищённое облачное хранилище Supabase.
-            </p>
-          </>
-        )}
+          </header>
 
-        {!isConfigured ? (
-          <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-            <p className="font-medium">Supabase не настроен</p>
-            <p className="mt-1 text-pretty break-words">
-              Заполните{" "}
-              <code className="break-all rounded bg-amber-100/80 px-1 py-0.5 text-xs">
-                VITE_SUPABASE_URL
-              </code>{" "}
-              и{" "}
-              <code className="break-all rounded bg-amber-100/80 px-1 py-0.5 text-xs">
-                VITE_SUPABASE_ANON_KEY
-              </code>{" "}
-              в{" "}
-              <code className="break-all rounded bg-amber-100/80 px-1 py-0.5 text-xs">
-                .env.local
-              </code>
-              . Пример есть в{" "}
-              <code className="break-all rounded bg-amber-100/80 px-1 py-0.5 text-xs">
-                .env.example
-              </code>
-              .
-            </p>
+          <div className="flex flex-1 items-center justify-center py-14 md:pb-20 md:pt-14">
+            <div className="w-full max-w-[320px] min-w-0">
+              <h1 className="mb-8 text-[34px] leading-10 font-semibold tracking-[-0.045em] text-[#17191e]">
+                {user && isPasswordRecovery
+                  ? "Новый пароль"
+                  : user
+                    ? "Вы уже вошли"
+                    : mode === "signIn"
+                      ? "Вход"
+                      : "Создать аккаунт"}
+              </h1>
+
+              {!isConfigured ? (
+                <div className="mb-6 rounded-xl border border-[#dedfe5] bg-[#eeedf2] p-4 text-sm text-[#656976]">
+                  <p className="font-medium text-[#30333b]">
+                    Supabase не настроен
+                  </p>
+                  <p className="mt-2 text-pretty break-words leading-6">
+                    Заполните{" "}
+                    <code className="break-all rounded bg-[#e3e3eb] px-1 py-0.5 text-xs text-[#434854]">
+                      VITE_SUPABASE_URL
+                    </code>{" "}
+                    и{" "}
+                    <code className="break-all rounded bg-[#e3e3eb] px-1 py-0.5 text-xs text-[#434854]">
+                      VITE_SUPABASE_ANON_KEY
+                    </code>{" "}
+                    в{" "}
+                    <code className="break-all rounded bg-[#e3e3eb] px-1 py-0.5 text-xs text-[#434854]">
+                      .env.local
+                    </code>
+                    . Пример есть в{" "}
+                    <code className="break-all rounded bg-[#e3e3eb] px-1 py-0.5 text-xs text-[#434854]">
+                      .env.example
+                    </code>
+                    .
+                  </p>
+                </div>
+              ) : null}
+
+              {user && isPasswordRecovery ? (
+                <div
+                  className="flex min-w-0 flex-col gap-5"
+                  role="region"
+                  aria-label="Восстановление пароля"
+                >
+                  <div className="grid gap-1">
+                    <div className={authFieldClassName}>
+                      <Label
+                        htmlFor="recovery-password"
+                        className={authLabelClassName}
+                      >
+                        Новый пароль
+                      </Label>
+                      <Input
+                        id="recovery-password"
+                        type="password"
+                        value={recoveryPassword}
+                        onChange={(event) =>
+                          setRecoveryPassword(event.target.value)
+                        }
+                        autoComplete="new-password"
+                        className={authInputClassName}
+                      />
+                    </div>
+                    <div className={authFieldClassName}>
+                      <Label
+                        htmlFor="recovery-password-confirm"
+                        className={authLabelClassName}
+                      >
+                        Повторите пароль
+                      </Label>
+                      <Input
+                        id="recovery-password-confirm"
+                        type="password"
+                        value={recoveryPasswordConfirm}
+                        onChange={(event) =>
+                          setRecoveryPasswordConfirm(event.target.value)
+                        }
+                        autoComplete="new-password"
+                        className={authInputClassName}
+                      />
+                    </div>
+                  </div>
+                  {localError ? (
+                    <p
+                      role="alert"
+                      className="text-pretty text-sm break-words text-[#b42338]"
+                    >
+                      {localError}
+                    </p>
+                  ) : null}
+                  {info ? (
+                    <p
+                      role="status"
+                      className="text-pretty text-sm break-words text-[#34537b]"
+                    >
+                      {info}
+                    </p>
+                  ) : null}
+                  <Button
+                    type="button"
+                    className={`${authButtonClassName} self-end`}
+                    onClick={() => {
+                      void (async () => {
+                        setLocalError(null)
+                        setInfo(null)
+                        if (recoveryPassword.length < 6) {
+                          setLocalError(
+                            "Пароль должен содержать не менее 6 символов.",
+                          )
+                          return
+                        }
+                        if (recoveryPassword !== recoveryPasswordConfirm) {
+                          setLocalError("Пароли не совпадают.")
+                          return
+                        }
+                        const result = await updatePassword(recoveryPassword)
+                        if (result.error) {
+                          setLocalError(result.error)
+                          return
+                        }
+                        setInfo("Пароль изменён. Теперь можно продолжить работу.")
+                        setRecoveryPassword("")
+                        setRecoveryPasswordConfirm("")
+                      })()
+                    }}
+                  >
+                    Сохранить пароль
+                  </Button>
+                </div>
+              ) : user ? (
+                <div
+                  className="flex min-w-0 flex-col items-start gap-5"
+                  role="region"
+                  aria-label="Состояние входа"
+                >
+                  <p className="break-all text-sm text-[#656976]">
+                    {user.email?.trim() ? user.email : "Не указан"}
+                  </p>
+                  <Button
+                    type="button"
+                    className={authButtonClassName}
+                    asChild
+                  >
+                    <a href="/">Перейти в приложение</a>
+                  </Button>
+                  <div className="flex flex-wrap items-center gap-x-6">
+                    <a href="/profile" className={authTextActionClassName}>
+                      Перейти в профиль
+                    </a>
+                    <button
+                      type="button"
+                      className={authTextActionClassName}
+                      onClick={() => void signOut()}
+                    >
+                      Выйти
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="grid min-w-0 gap-1">
+                    <div className={authFieldClassName}>
+                      <Label
+                        htmlFor="auth-email"
+                        className={authLabelClassName}
+                      >
+                        Email
+                      </Label>
+                      <Input
+                        id="auth-email"
+                        type="email"
+                        value={email}
+                        onChange={(event) => setEmail(event.target.value)}
+                        className={authInputClassName}
+                        autoComplete="email"
+                      />
+                    </div>
+                    <div className={authFieldClassName}>
+                      <Label
+                        htmlFor="auth-password"
+                        className={authLabelClassName}
+                      >
+                        Пароль
+                      </Label>
+                      <Input
+                        id="auth-password"
+                        type="password"
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                        className={authInputClassName}
+                        autoComplete={
+                          mode === "signIn"
+                            ? "current-password"
+                            : "new-password"
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  {localError ? (
+                    <p
+                      role="alert"
+                      className="text-pretty text-sm break-words text-[#b42338]"
+                    >
+                      {localError}
+                    </p>
+                  ) : null}
+                  {error ? (
+                    <p
+                      role="alert"
+                      className="text-pretty text-sm break-words text-[#b42338]"
+                    >
+                      {error}
+                    </p>
+                  ) : null}
+                  {info ? (
+                    <p
+                      role="status"
+                      className="text-pretty text-sm break-words text-[#34537b]"
+                    >
+                      {info}
+                    </p>
+                  ) : null}
+
+                  <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 pt-3">
+                    {mode === "signIn" ? (
+                      <button
+                        type="button"
+                        className="mr-auto inline-flex min-h-11 items-center rounded-md text-xs text-[#5e7092] underline-offset-4 transition-colors hover:text-[#25498b] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                        onClick={() => {
+                          void (async () => {
+                            clearError()
+                            setLocalError(null)
+                            setInfo(null)
+                            const result =
+                              await sendPasswordResetEmail(email)
+                            if (result.error) {
+                              setLocalError(result.error)
+                            } else {
+                              setInfo(
+                                "Письмо для сброса пароля отправлено. Проверьте почту.",
+                              )
+                            }
+                          })()
+                        }}
+                      >
+                        Забыли пароль?
+                      </button>
+                    ) : null}
+                    <Button
+                      type="button"
+                      className={authButtonClassName}
+                      onClick={() => void handleSubmit()}
+                      disabled={loading || !isConfigured}
+                    >
+                      {loading
+                        ? "Загрузка..."
+                        : mode === "signIn"
+                          ? "Войти"
+                          : "Создать аккаунт"}
+                    </Button>
+                  </div>
+                  <p className="flex flex-wrap items-center gap-x-1 text-xs leading-5 text-[#71757e]">
+                    {mode === "signIn"
+                      ? "Нет аккаунта?"
+                      : "Уже есть аккаунт?"}
+                    <button
+                      type="button"
+                      className="inline-flex min-h-11 items-center rounded-md px-1 font-medium text-[#4264a6] underline-offset-4 transition-colors hover:text-[#25498b] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                      onClick={() => {
+                        setMode(mode === "signIn" ? "signUp" : "signIn")
+                        setLocalError(null)
+                        setInfo(null)
+                        clearError()
+                      }}
+                    >
+                      {mode === "signIn" ? "Создать аккаунт" : "Войти"}
+                    </button>
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
-        ) : null}
+        </div>
 
-        {user && isPasswordRecovery ? (
-          <div
-            className="mt-5 min-w-0 space-y-4 rounded-xl border border-blue-200 bg-blue-50/50 p-4 sm:p-5"
-            role="region"
-            aria-label="Восстановление пароля"
-          >
-            <div className="space-y-2">
-              <h2 className="text-base font-semibold text-slate-950 sm:text-lg">
-                Задайте новый пароль
-              </h2>
-              <p className="text-pretty text-sm text-slate-600">
-                Ссылка восстановления подтверждена. Введите новый пароль для аккаунта.
-              </p>
-            </div>
-            <div className="grid gap-3">
-              <div className="grid gap-2">
-                <Label htmlFor="recovery-password">Новый пароль</Label>
-                <Input
-                  id="recovery-password"
-                  type="password"
-                  value={recoveryPassword}
-                  onChange={(event) => setRecoveryPassword(event.target.value)}
-                  autoComplete="new-password"
-                  className="min-h-10 border-slate-300 bg-white"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="recovery-password-confirm">Повторите пароль</Label>
-                <Input
-                  id="recovery-password-confirm"
-                  type="password"
-                  value={recoveryPasswordConfirm}
-                  onChange={(event) =>
-                    setRecoveryPasswordConfirm(event.target.value)
-                  }
-                  autoComplete="new-password"
-                  className="min-h-10 border-slate-300 bg-white"
-                />
-              </div>
-            </div>
-            {localError ? (
-              <p className="text-pretty text-sm break-words text-red-600">
-                {localError}
-              </p>
-            ) : null}
-            {info ? (
-              <p className="text-pretty text-sm break-words text-slate-600">{info}</p>
-            ) : null}
-            <Button
-              type="button"
-              className="min-h-11 w-full bg-blue-600 text-white hover:bg-blue-700 sm:min-h-10"
-              onClick={() => {
-                void (async () => {
-                  setLocalError(null)
-                  setInfo(null)
-                  if (recoveryPassword.length < 6) {
-                    setLocalError("Пароль должен содержать не менее 6 символов.")
-                    return
-                  }
-                  if (recoveryPassword !== recoveryPasswordConfirm) {
-                    setLocalError("Пароли не совпадают.")
-                    return
-                  }
-                  const result = await updatePassword(recoveryPassword)
-                  if (result.error) {
-                    setLocalError(result.error)
-                    return
-                  }
-                  setInfo("Пароль изменён. Теперь можно продолжить работу.")
-                  setRecoveryPassword("")
-                  setRecoveryPasswordConfirm("")
-                })()
-              }}
-            >
-              Сохранить новый пароль
-            </Button>
-          </div>
-        ) : user ? (
-          <div
-            className="mt-5 min-w-0 space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-5"
-            role="region"
-            aria-label="Состояние входа"
-          >
-            <div className="min-w-0 space-y-2">
-              <h2 className="text-base font-semibold tracking-tight text-slate-950 sm:text-lg">
-                Вы уже вошли в аккаунт
-              </h2>
-              <p className="break-all text-sm text-slate-700">
-                {user.email?.trim() ? user.email : "Не указан"}
-              </p>
-              <p className="text-pretty text-sm text-slate-600">
-                Управлять профилем и безопасностью можно в разделе профиля.
-              </p>
-            </div>
-            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-              <Button
-                type="button"
-                variant="outline"
-                className="min-h-11 w-full border-slate-300 sm:w-auto sm:min-h-10"
-                asChild
-              >
-                <a href="/profile">Перейти в профиль</a>
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="min-h-11 w-full border-slate-300 sm:w-auto sm:min-h-10"
-                asChild
-              >
-                <a href="/">Перейти в приложение</a>
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="min-h-11 w-full border-red-200 text-red-800 hover:bg-red-50 sm:w-auto sm:min-h-10"
-                onClick={() => void signOut()}
-              >
-                Выйти
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="mt-5 space-y-4">
-            <div className="grid w-full grid-cols-2 gap-2">
-              <Button
-                type="button"
-                variant={mode === "signIn" ? "default" : "outline"}
-                className={
-                  mode === "signIn"
-                    ? "min-h-10 bg-blue-600 text-white hover:bg-blue-700"
-                    : "min-h-10 border-slate-300"
-                }
-                onClick={() => {
-                  setMode("signIn")
-                  setLocalError(null)
-                  setInfo(null)
-                  clearError()
-                }}
-              >
-                Вход
-              </Button>
-              <Button
-                type="button"
-                variant={mode === "signUp" ? "default" : "outline"}
-                className={
-                  mode === "signUp"
-                    ? "min-h-10 bg-blue-600 text-white hover:bg-blue-700"
-                    : "min-h-10 border-slate-300"
-                }
-                onClick={() => {
-                  setMode("signUp")
-                  setLocalError(null)
-                  setInfo(null)
-                  clearError()
-                }}
-              >
-                Регистрация
-              </Button>
-            </div>
-
-            <div className="min-w-0 space-y-3">
-              <div className="grid min-w-0 gap-2">
-                <Label htmlFor="auth-email">Email</Label>
-                <Input
-                  id="auth-email"
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  className="min-h-10 min-w-0 w-full max-w-full border-slate-300"
-                  autoComplete="email"
-                />
-              </div>
-              <div className="grid min-w-0 gap-2">
-                <Label htmlFor="auth-password">Пароль</Label>
-                <Input
-                  id="auth-password"
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  className="min-h-10 min-w-0 w-full max-w-full border-slate-300"
-                  autoComplete={
-                    mode === "signIn" ? "current-password" : "new-password"
-                  }
-                />
-              </div>
-            </div>
-
-            {localError ? (
-              <p className="text-pretty text-sm break-words text-red-600">
-                {localError}
-              </p>
-            ) : null}
-            {error ? (
-              <p className="text-pretty text-sm break-words text-red-600">{error}</p>
-            ) : null}
-            {info ? (
-              <p className="text-pretty text-sm break-words text-slate-600">{info}</p>
-            ) : null}
-
-            {mode === "signIn" ? (
-              <button
-                type="button"
-                className="w-full text-center text-sm text-blue-600 underline-offset-2 hover:underline"
-                onClick={() => {
-                  void (async () => {
-                    clearError()
-                    setLocalError(null)
-                    setInfo(null)
-                    const result = await sendPasswordResetEmail(email)
-                    if (result.error) {
-                      setLocalError(result.error)
-                    } else {
-                      setInfo("Письмо для сброса пароля отправлено. Проверьте почту.")
-                    }
-                  })()
-                }}
-              >
-                Забыли пароль?
-              </button>
-            ) : null}
-
-            <Button
-              type="button"
-              className="min-h-11 w-full bg-blue-600 text-white hover:bg-blue-700 sm:min-h-10"
-              onClick={() => void handleSubmit()}
-              disabled={loading || !isConfigured}
-            >
-              {loading
-                ? "Загрузка..."
-                : mode === "signIn"
-                  ? "Войти"
-                  : "Создать аккаунт"}
-            </Button>
-          </div>
-        )}
-
-        <p className="mt-4 text-pretty text-xs text-slate-500">
-          Для возврата используйте{" "}
-          <a
-            href="/"
-            className="underline underline-offset-2 hover:text-blue-600"
-          >
-            главную страницу
-          </a>
-          .
-        </p>
-      </div>
-    </div>
+        <div className="relative hidden min-w-0 overflow-hidden bg-[#e8e5df] md:block">
+          <iframe
+            src="https://my.spline.design/draganddroplandingpage-stIugrL2lXgOnFMhr2XgIaSR/"
+            title="Life Progress OS interactive visual"
+            className="absolute inset-0 h-full w-full border-0 bg-[#e8e5df]"
+            loading="lazy"
+            scrolling="no"
+          />
+        </div>
+      </section>
+    </main>
   )
 }

@@ -8,6 +8,7 @@ import {
 import type { Session, User } from "@supabase/supabase-js"
 import { isSupabaseConfigured, supabase } from "@/shared/lib/supabase"
 import { AuthContext } from "./auth.context"
+import { getAuthErrorMessage } from "./authErrorMessages"
 
 const NOT_CONFIGURED_MESSAGE =
   "Supabase не настроен. Заполните VITE_SUPABASE_URL и VITE_SUPABASE_ANON_KEY."
@@ -33,7 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (cancelled) return
 
       if (sessionError) {
-        setError(sessionError.message)
+        setError(getAuthErrorMessage(sessionError, "session"))
       } else {
         setSession(data.session)
         setUser(data.session?.user ?? null)
@@ -78,8 +79,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
 
     if (signInError) {
-      setError(signInError.message)
-      return { error: signInError.message }
+      const message = getAuthErrorMessage(signInError, "signIn")
+      setError(message)
+      return { error: message }
     }
     return { error: null }
   }
@@ -97,8 +99,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
 
     if (signUpError) {
-      setError(signUpError.message)
-      return { error: signUpError.message }
+      const message = getAuthErrorMessage(signUpError, "signUp")
+      setError(message)
+      return { error: message }
     }
     return { error: null }
   }
@@ -112,7 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { error: signOutError } = await supabase.auth.signOut()
     if (signOutError) {
-      setError(signOutError.message)
+      setError(getAuthErrorMessage(signOutError, "signOut"))
     }
   }
 
@@ -134,9 +137,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (resetError) {
         return {
-          error:
-            resetError.message ||
-            "Не удалось отправить письмо для сброса пароля.",
+          error: getAuthErrorMessage(resetError, "passwordReset"),
         }
       }
 
@@ -156,7 +157,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const { error: updateError } = await supabase.auth.updateUser({ password })
       if (updateError) {
-        return { error: updateError.message || "Не удалось изменить пароль." }
+        return { error: getAuthErrorMessage(updateError, "passwordUpdate") }
       }
 
       setIsPasswordRecovery(false)

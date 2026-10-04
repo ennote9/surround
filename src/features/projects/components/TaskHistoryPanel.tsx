@@ -1,4 +1,4 @@
-import { History, LoaderCircle } from "lucide-react"
+import { ChevronDown, History, LoaderCircle } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { formatDateOnly } from "@/shared/lib/dateFormat"
 import {
@@ -211,16 +211,18 @@ export function TaskHistoryPanel({ taskId }: TaskHistoryPanelProps) {
 
   return (
     <details className="group overflow-hidden rounded-xl border border-slate-200 bg-slate-50/70 dark:border-slate-800 dark:bg-slate-950/40">
-      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 px-3 py-2.5 [&::-webkit-details-marker]:hidden">
+      <summary className="flex min-h-[76px] cursor-pointer list-none items-center gap-3 rounded-xl px-4 py-4 outline-none transition-colors hover:bg-slate-100 focus-visible:ring-2 focus-visible:ring-blue-400/40 focus-visible:ring-inset dark:hover:bg-slate-800/60 [&::-webkit-details-marker]:hidden">
         <History className="size-4 shrink-0 text-slate-500" aria-hidden />
-        <span className="min-w-0 flex-1 text-sm font-medium text-slate-800 dark:text-slate-200">
-          История задачи
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-semibold text-slate-800 dark:text-slate-200">История задачи</span>
+          <span className="mt-1 block text-xs leading-5 text-slate-500 dark:text-slate-400">Сохранённые изменения задачи</span>
         </span>
-        {!loading ? (
-          <span className="text-xs text-slate-400">
+        {!loading && !error ? (
+          <span className="inline-flex min-w-8 shrink-0 items-center justify-center rounded-full bg-slate-200/60 px-2.5 py-1 text-xs font-medium tabular-nums text-slate-600 dark:bg-slate-800 dark:text-slate-300" aria-label={`Группы изменений: ${groups.length}`}>
             {groups.length}
           </span>
         ) : null}
+        <ChevronDown className="size-4 shrink-0 text-slate-500 transition-transform group-open:rotate-180" aria-hidden />
       </summary>
 
       <div className="border-t border-slate-200 px-3 pb-3 pt-3 dark:border-slate-800">
